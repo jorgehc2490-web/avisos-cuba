@@ -104,8 +104,9 @@
    .anaTabs button { border:1.5px solid #c6d6e0; background:#fff; color:#33475b; border-radius:999px;
      padding:5px 13px; font-size:13px; font-weight:700; cursor:pointer; }
    .anaTabs button.act { background:#0f4c81; border-color:#0f4c81; color:#fff; }
-  #anaMapa { height:clamp(340px, 56vw, 460px); border-radius:8px; background:#e8edf0; }
-  #anaMapa .leaflet-overlay-pane { mix-blend-mode:multiply; } /* la mezcla va en el panel: así se mezcla contra el mapa base y no contra un fondo vacío */
+  .anaImgBox { position:relative; border-radius:8px; overflow:hidden; background:#0d2f42; }
+  .anaImgBox img { display:block; width:100%; }
+  .anaImgBox .anaChartImg { position:absolute; inset:0; height:100%; }
    .anaWrap { position:relative; border-radius:8px; overflow:hidden; line-height:0; }
    .anaWrap img { display:block; width:100%; }
    .anaWrap .anaOver { position:absolute; inset:0; height:100%; }
@@ -248,12 +249,14 @@
       <button data-ana="0" class="act">Ahora</button>
       <button data-ana="1">Mañana</button>
       <button data-ana="2">Pasado mañana</button>
-      <button data-ana="3">Día 3</button>
     </div>
   </div>
   <div class="panel">
-    <div id="anaMapa" role="application" aria-label="Mapa del análisis de superficie"></div>
-    <p class="videoNota" style="margin-left:0">Ahora: análisis de superficie actual de la TAFB (NHC/NOAA) colocado sobre el mapa: puede acercarlo y moverlo (en el móvil, con dos dedos). Mañana, pasado mañana y día 3: pronóstico de superficie de la TAFB para el Atlántico y el Caribe a 24, 48 y 72 horas, sobre el mismo mapa: frentes, bajas, ondas tropicales y la vaguada monzónica. <a id="anaFull" href="https://www.nhc.noaa.gov/tafb_latest/USA_latest.gif" target="_blank" rel="noopener">Ver la carta completa ↗</a></p>
+    <div class="anaImgBox" id="anaImgBox">
+      <img class="anaBaseImg" id="anaBaseImg" alt="" aria-hidden="true">
+      <img class="anaChartImg" id="anaChartImg" alt="Carta de superficie a color: frentes, centros de presión y áreas de lluvia sobre imagen de satélite">
+    </div>
+    <p class="videoNota" style="margin-left:0">Mapa a color con los frentes, los centros de presión y las áreas de lluvia del Centro de Predicción Meteorológica (WPC/NOAA) sobre imagen de satélite, con los colores oficiales: frente frío en azul, cálido en rojo, estacionario en rojo y azul y vaguada en naranja. Es la misma fuente del Visor LABMET. El enlace abre la carta oficial de la TAFB (NHC) de ese día, que incluye las ondas tropicales del Caribe. <a id="anaFull" href="https://www.nhc.noaa.gov/tafb_latest/USA_latest.gif" target="_blank" rel="noopener">Ver la carta completa ↗</a></p>
   </div>
 
   <h2 class="sec">Último video de LABMET</h2>
@@ -1705,55 +1708,41 @@ function estacionesToggle(on){
 }
 document.getElementById("estChk").addEventListener("change", e => estacionesToggle(e.target.checked));
 
-/* ================= ANÁLISIS DE SUPERFICIE (mapa interactivo) =================
-   Ahora: la carta de análisis actual de la TAFB (USA_latest.gif) es un mapa
-   en proyección Mercator; se georreferenció midiendo su retícula y sus
-   rótulos de longitud/latitud, y se verificó contra La Habana, Cayo Hueso,
-   Miami, Kingston, Santo Domingo y otros puntos (error menor de 0,2°).
-   Marco de la carta: longitud -164,9 a 1,5; latitud 57,9 a -33,7.
-   Pronóstico (24, 48 y 72 h): cartas de superficie de la TAFB para el
-   Atlántico (atlsfcXX_latestBW_sm3.gif), misma técnica de georreferenciado
-   (retícula medida; plantilla idéntica en las tres cartas) y verificación
-   contra los mismos puntos de costa. Marco: lon -102,6 a -30,6; lat 36,6 a -6,4. */
-const ANA_REGION = [[16.5, -92], [31, -70]];
-const ANA_USA_URL = "https://www.nhc.noaa.gov/tafb_latest/USA_latest.gif";
-const ANA_USA_BORDES = [[-33.7, -164.9], [57.9, 1.5]];
-const ANA_ATL_BORDES = [[-6.4, -102.6], [36.6, -30.6]];
-const ANA_ATL_URLS = {
-  1: "https://www.nhc.noaa.gov/tafb_latest/atlsfc24_latestBW_sm3.gif",
-  2: "https://www.nhc.noaa.gov/tafb_latest/atlsfc48_latestBW_sm3.gif",
-  3: "https://www.nhc.noaa.gov/tafb_latest/atlsfc72_latestBW_sm3.gif"
-};
-let anaMapa = null, anaCapa = null, anaVista = 0;
-function anaInit(){
-  if (anaMapa) return;
-  anaMapa = L.map("anaMapa", { scrollWheelZoom: false, dragging: !window.matchMedia || window.matchMedia("(pointer:fine)").matches, attributionControl: false });
-  L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16 }).addTo(anaMapa);
-  L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16 }).addTo(anaMapa);
-  anaMapa.fitBounds(ANA_REGION);
-  const szA = anaMapa.getSize();
-  if (szA.x / Math.max(szA.y, 1) > 2.4 && anaMapa.getZoom() < 5) anaMapa.setView([23.9, -81], 5);
-  anaPoner(anaVista);
+/* ================= ANÁLISIS DE SUPERFICIE (imágenes a color) =================
+   A petición de Jorge (25-oct): imágenes fijas, no mapa interactivo. Es la
+   misma vista del Visor LABMET: la carta de frentes del WPC/NOAA (servicio
+   natl_fcst_wx_chart; capas de centros, frentes y lluvia de los días 1-3)
+   en sus colores oficiales sobre imagen de satélite de Esri. Ambas
+   exportaciones comparten marco Web Mercator (región -92 a -70, 16,5 a 31)
+   y tamaño (1400x1012), y se apilan como dos imágenes.
+   El enlace «Ver la carta completa» abre la carta oficial de la TAFB (NHC)
+   de cada día, que sí incluye las ondas tropicales del Caribe. */
+const ANA_BBOX = "bbox=-10241393,1862699,-7792364,3632749&bboxSR=3857&imageSR=3857&size=1400,1012";
+const ANA_BASE_URL = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?" + ANA_BBOX + "&format=jpg&f=image";
+const ANA_CAPAS = ["1,2,3,4", "13,14,15,16", "25,26,27,28"];
+const ANA_TAFB = [
+  "https://www.nhc.noaa.gov/tafb_latest/USA_latest.gif",
+  "https://www.nhc.noaa.gov/tafb_latest/atlsfc24_latestBW_sm3.gif",
+  "https://www.nhc.noaa.gov/tafb_latest/atlsfc48_latestBW_sm3.gif"
+];
+function anaWpcURL(i){
+  return "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/natl_fcst_wx_chart/MapServer/export?" + ANA_BBOX + "&format=png32&transparent=true&layers=show:" + ANA_CAPAS[i] + "&f=image";
 }
-function anaPoner(v){
-  anaVista = v;
-  const link = document.getElementById("anaFull");
-  const url = v === 0 ? ANA_USA_URL : ANA_ATL_URLS[v];
-  if (link) link.href = url;
-  if (!anaMapa) return;
-  if (anaCapa){ anaMapa.removeLayer(anaCapa); anaCapa = null; }
-  anaCapa = L.imageOverlay(url, v === 0 ? ANA_USA_BORDES : ANA_ATL_BORDES, { opacity: 1 }).addTo(anaMapa);
+let anaBasePuesta = false;
+function anaPoner(i){
+  const b = document.getElementById("anaBaseImg"), c = document.getElementById("anaChartImg"), link = document.getElementById("anaFull");
+  if (b && !anaBasePuesta){ b.src = ANA_BASE_URL; anaBasePuesta = true; }
+  if (c) c.src = anaWpcURL(i);
+  if (link) link.href = ANA_TAFB[i];
 }
-document.querySelectorAll(".anaTabs button").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".anaTabs button").forEach(x => x.classList.toggle("act", x === b));
-  anaInit();
-  anaPoner(+b.dataset.ana);
-  setTimeout(() => { if (anaMapa) anaMapa.invalidateSize(); }, 60);
+document.querySelectorAll(".anaTabs button").forEach(bto => bto.addEventListener("click", () => {
+  document.querySelectorAll(".anaTabs button").forEach(x => x.classList.toggle("act", x === bto));
+  anaPoner(+bto.dataset.ana);
 }));
 if ("IntersectionObserver" in window){
-  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)){ anaInit(); io.disconnect(); } }, { rootMargin: "300px" });
-  io.observe(document.getElementById("anaMapa"));
-} else { anaInit(); }
+  const ioA = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)){ anaPoner(0); ioA.disconnect(); } }, { rootMargin: "300px" });
+  ioA.observe(document.getElementById("anaImgBox"));
+} else { anaPoner(0); }
 
 /* ================= OBSERVACIÓN (botones como los de Peligro) ================= */
 const obsCont = document.getElementById("obsChips");
