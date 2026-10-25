@@ -294,7 +294,7 @@
       <p>Cada provincia recibe un nivel por peligro (Verde, Amarillo, Naranja, Rojo, Morado) según la tabla de umbrales de LABMET, construida a través de estudios e investigaciones sobre este tema.</p>
       <p>Los datos salen del modelo numérico GFS a través de Open-Meteo (temperatura, sensación térmica, lluvia, viento, rachas, CAPE y visibilidad), del modelo de oleaje de Open-Meteo (altura y período de ola en puntos costeros) y de los ciclones activos del Centro Nacional de Huracanes (NHC/NOAA). Como no hay un radar público en vivo para Cuba, las tormentas eléctricas se estiman a partir del modelo (horas con tormenta), no con reflectividad real.</p>
       <p>El frío extremo se clasifica por la sensación térmica mínima del día, con los valores y la terminología de las madrugadas invernales de Cuba: <b>Amarillo</b> (de 10 a 13 °C, madrugada fría), <b>Naranja</b> (de 7 a 10 °C, madrugada muy fría), <b>Rojo</b> (de 4 a 7 °C, madrugada notablemente fría) y <b>Morado</b> (menos de 4 °C, frío excepcional, con posible helada en las zonas bajas del interior). Solo se alcanza con los frentes fríos más fuertes, sobre todo en el interior de occidente y centro.</p>
-      <p>La niebla se clasifica por la visibilidad mínima de la madrugada y la primera mañana (de 3 a 10 a. m., que es cuando se forma en Cuba) y solo en las horas sin lluvia (el modelo también baja la visibilidad cuando llueve, y eso no es niebla): <b>Amarillo</b> (de 3 a 5 km), <b>Naranja</b> (de 1 a 3 km), <b>Rojo</b> (menos de 1 km) y <b>Morado</b> (menos de 0,4 km, niebla densa).</p>
+      <p>La niebla se clasifica por la visibilidad mínima de la madrugada y la primera mañana (de 3 a 10 a. m., que es cuando se forma en Cuba; en el día de hoy solo cuentan las horas de esa ventana que todavía no han pasado) y solo en las horas sin lluvia (el modelo también baja la visibilidad cuando llueve, y eso no es niebla): <b>Amarillo</b> (de 3 a 5 km), <b>Naranja</b> (de 1 a 3 km), <b>Rojo</b> (menos de 1 km) y <b>Morado</b> (menos de 0,4 km, niebla densa).</p>
       <p>El viento se clasifica combinando el viento sostenido (<b>Amarillo</b> 35-45 km/h, <b>Naranja</b> 45-65, <b>Rojo</b> 65-95, <b>Morado</b> 95 o más) con las rachas (Amarillo desde 50 km/h, Naranja desde 70, Rojo desde 90, Morado desde 100): manda el nivel más alto de las dos escalas, porque en Cuba el daño lo hacen las rachas. Se mantiene además la regla del sur: viento del sur a más de 35 km/h durante 3 horas o más eleva el nivel al menos a Amarillo.</p>
       <p>El estado del mar se clasifica por la altura de ola significativa máxima del día: <b>Verde</b> (menos de 1,5 m), <b>Amarillo</b> (de 1,5 a 3,0 m), <b>Naranja</b> (más de 3,0 a 4,0 m; inundación costera ligera), <b>Rojo</b> (más de 4,0 a 5,0 m; moderada) y <b>Morado</b> (más de 5,0 m; fuerte).</p>
       <p>Al abrir, cada provincia se pinta con el color de su fenómeno más significativo (el máximo entre sus peligros de tierra). Al tocar una provincia, el resto del mapa queda en blanco y solo ella conserva su color; al tocar un fenómeno en la tabla, el mapa entero se pinta por ese fenómeno, y con el selector de día se ajusta todo a la fecha elegida. El estado del mar y las corrientes de resaca nunca pintan la provincia entera: se representan como franjas de color sobre la línea de costa, calculadas por separado para la costa norte y la costa sur (cada franja lleva el nivel más alto entre ambos fenómenos en esa costa), porque la situación en una y otra puede ser muy distinta. Los espacios de patrocinador rotan: cada vez que usted toca una provincia, un fenómeno o cambia el día, se muestra el siguiente anuncio.</p>
@@ -473,12 +473,23 @@ function calcular(p, d, F, M, ciclones){
      separar la niebla de la lluvia. */
   const visD = seg(H.visibility, d), prD = seg(H.precipitation, d);
   let visSeca = null, visToda = null;
-  for (let i = 3; i <= 10; i++){
+  /* En HOY manda la hora actual de Cuba: solo cuentan las horas de la
+     ventana que aun no han pasado (la niebla de las 5 a. m. ya se disipo
+     y no puede seguir pintando a media manana); a las 10 a. m. o despues,
+     la ventana de hoy ya termino y no hay niebla que mostrar.
+     Correccion pedida por Jorge en vivo (25-oct, 10:28 a. m.). */
+  let iniNie = 3, finNie = 10;
+  if (d === 0){
+    iniNie = Math.max(3, HORA_HAB);
+    if (HORA_HAB >= 10) finNie = iniNie - 1;
+  }
+  for (let i = iniNie; i <= finNie; i++){
     const v = visD[i]; if (v == null) continue;
     if (visToda === null || v < visToda) visToda = v;
     if ((prD[i] ?? 0) < 1 && (visSeca === null || v < visSeca)) visSeca = v;
   }
-  if (visToda === null) out.niebla = { n:null, det:"Sin datos del modelo" };
+  if (d === 0 && HORA_HAB >= 10) out.niebla = { n:0, det:"La ventana de niebla de hoy (3 a 10 a. m.) ya terminó" };
+  else if (visToda === null) out.niebla = { n:null, det:"Sin datos del modelo" };
   else if (visSeca !== null) {
     const km = visSeca/1000;
     const n = km < 0.4 ? 4 : km < 1 ? 3 : km < 3 ? 2 : km <= 5 ? 1 : 0;
@@ -605,6 +616,8 @@ function principalDe(res){
 /* ================= FIN MOTOR ================= */
 
 /* ================= APLICACIÓN ================= */
+/* Hora actual en Cuba (la zona horaria de los datos): manda en la niebla de HOY. */
+const HORA_HAB = (() => { try { const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "America/Havana", hour: "2-digit", hour12: false }), 10); return isNaN(h) ? new Date().getHours() : h % 24; } catch(e){ return new Date().getHours(); } })();
 let datosF = null, datosM = null, ciclones = null, diaSel = 0, provSel = null;
 let resultados = {}; // resultados[dia][provIdx] = {res, max}
 let mapa = null, capaProv = null, capasPorId = {}, etiquetas = [];
