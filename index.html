@@ -104,8 +104,9 @@
    .anaTabs button { border:1.5px solid #c6d6e0; background:#fff; color:#33475b; border-radius:999px;
      padding:5px 13px; font-size:13px; font-weight:700; cursor:pointer; }
    .anaTabs button.act { background:#0f4c81; border-color:#0f4c81; color:#fff; }
-  #anaMapa { height:340px; border-radius:8px; background:#e8edf0; }
+  #anaMapa { height:clamp(340px, 56vw, 460px); border-radius:8px; background:#e8edf0; }
   .anaBlend { mix-blend-mode:multiply; }
+  #anaMapa .leaflet-overlay-pane { z-index:auto; } /* sin esto, el panel de Leaflet aísla la capa y la mezcla no se aplica */
    .anaWrap { position:relative; border-radius:8px; overflow:hidden; line-height:0; }
    .anaWrap img { display:block; width:100%; }
    .anaWrap .anaOver { position:absolute; inset:0; height:100%; }
@@ -1731,6 +1732,8 @@ function anaInit(){
   L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16 }).addTo(anaMapa);
   L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16 }).addTo(anaMapa);
   anaMapa.fitBounds(ANA_REGION);
+  const szA = anaMapa.getSize();
+  if (szA.x / Math.max(szA.y, 1) > 2.4 && anaMapa.getZoom() < 5) anaMapa.setView([23.9, -81], 5);
   anaPoner(anaVista);
 }
 function anaPoner(v){
