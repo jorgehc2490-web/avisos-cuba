@@ -104,6 +104,7 @@
    .anaTabs button { border:1.5px solid #c6d6e0; background:#fff; color:#33475b; border-radius:999px;
      padding:5px 13px; font-size:13px; font-weight:700; cursor:pointer; }
    .anaTabs button.act { background:#0f4c81; border-color:#0f4c81; color:#fff; }
+  #anaMapa { height:340px; border-radius:8px; background:#e8edf0; }
    .anaWrap { position:relative; border-radius:8px; overflow:hidden; line-height:0; }
    .anaWrap img { display:block; width:100%; }
    .anaWrap .anaOver { position:absolute; inset:0; height:100%; }
@@ -249,16 +250,8 @@
     </div>
   </div>
   <div class="panel">
-    <div id="anaActual">
-      <img src="https://www.nhc.noaa.gov/tafb_latest/CAR_latest.gif" alt="Análisis de superficie actual del Caribe (TAFB, NHC/NOAA)" loading="lazy" style="width:100%; border-radius:8px; display:block">
-    </div>
-    <div id="anaPron" class="oculto">
-      <div class="anaWrap">
-        <img class="anaBase" alt="Mapa base de la región">
-        <img class="anaOver" alt="Carta de superficie pronosticada (WPC/NOAA)">
-      </div>
-    </div>
-    <p class="videoNota" style="margin-left:0">Ahora: análisis de superficie del Caribe de la TAFB (NHC/NOAA), con los frentes analizados. Mañana y pasado mañana: carta de superficie del Centro de Predicción Meteorológica (WPC/NOAA) de los días 1 y 2 — frentes, centros de presión y áreas de lluvia que se acercan a Cuba desde el golfo de México y La Florida.</p>
+    <div id="anaMapa" role="application" aria-label="Mapa del análisis de superficie"></div>
+    <p class="videoNota" style="margin-left:0">Ahora: análisis de superficie actual de la TAFB (NHC/NOAA) colocado sobre el mapa: puede acercarlo y moverlo (en el móvil, con dos dedos). Mañana y pasado mañana: carta de superficie pronosticada del Centro de Predicción Meteorológica (WPC/NOAA), días 1 y 2: frentes, centros de presión y áreas de lluvia que se acercan a Cuba desde el golfo de México y La Florida. <a id="anaFull" href="https://www.nhc.noaa.gov/tafb_latest/USA_latest.gif" target="_blank" rel="noopener">Ver la carta completa ↗</a></p>
   </div>
 
   <h2 class="sec">Último video de LABMET</h2>
@@ -1710,26 +1703,54 @@ function estacionesToggle(on){
 }
 document.getElementById("estChk").addEventListener("change", e => estacionesToggle(e.target.checked));
 
-/* ================= ANÁLISIS DE SUPERFICIE ================= */
-const ANA_BBOX = "-92,16.5,-70,31";
-const ANA_BASE_URL = "https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/export?bbox=" + ANA_BBOX + "&bboxSR=4326&imageSR=4326&size=1100,724&format=png32&f=image";
-function anaURL(dia){
+/* ================= ANÁLISIS DE SUPERFICIE (mapa interactivo) =================
+   Ahora: la carta de análisis actual de la TAFB (USA_latest.gif) es un mapa
+   en proyección Mercator; se georreferenció midiendo su retícula y sus
+   rótulos de longitud/latitud, y se verificó contra La Habana, Cayo Hueso,
+   Miami, Kingston, Santo Domingo y otros puntos (error menor de 0,2°).
+   Marco de la carta: longitud -164,9 a 1,5; latitud 57,9 a -33,7.
+   Mañana/pasado mañana: exportación del servicio de cartas del WPC pedida
+   en Web Mercator (EPSG:3857) sobre la región de siempre (-92 a -70, 16,5 a 31). */
+const ANA_REGION = [[16.5, -92], [31, -70]];
+const ANA_USA_URL = "https://www.nhc.noaa.gov/tafb_latest/USA_latest.gif";
+const ANA_USA_BORDES = [[-33.7, -164.9], [57.9, 1.5]];
+function anaPronURL(dia){
   const capas = dia === 1 ? "1,2,3,4" : "13,14,15,16";
-  return "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/natl_fcst_wx_chart/MapServer/export?bbox=" + ANA_BBOX + "&bboxSR=4326&imageSR=4326&size=1100,724&format=png32&transparent=true&layers=show:" + capas + "&f=image";
+  return "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/natl_fcst_wx_chart/MapServer/export?bbox=-10241393,1862699,-7792364,3632749&bboxSR=3857&imageSR=3857&size=1400,1012&format=png32&transparent=true&layers=show:" + capas + "&f=image";
 }
-let anaBaseCargada = false;
+let anaMapa = null, anaCapa = null, anaVista = 0;
+function anaInit(){
+  if (anaMapa) return;
+  anaMapa = L.map("anaMapa", { scrollWheelZoom: false, dragging: !window.matchMedia || window.matchMedia("(pointer:fine)").matches, attributionControl: false });
+  L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16 }).addTo(anaMapa);
+  L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16 }).addTo(anaMapa);
+  anaMapa.fitBounds(ANA_REGION);
+  anaPoner(anaVista);
+}
+function anaPoner(v){
+  anaVista = v;
+  const link = document.getElementById("anaFull");
+  if (!anaMapa){ if (link) link.href = v === 0 ? ANA_USA_URL : anaPronURL(v); return; }
+  if (anaCapa){ anaMapa.removeLayer(anaCapa); anaCapa = null; }
+  if (v === 0){
+    anaCapa = L.imageOverlay(ANA_USA_URL, ANA_USA_BORDES, { opacity: 0.93 }).addTo(anaMapa);
+    if (link) link.href = ANA_USA_URL;
+  } else {
+    const u = anaPronURL(v);
+    anaCapa = L.imageOverlay(u, ANA_REGION, { opacity: 0.95 }).addTo(anaMapa);
+    if (link) link.href = u;
+  }
+}
 document.querySelectorAll(".anaTabs button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".anaTabs button").forEach(x => x.classList.toggle("act", x === b));
-  const v = +b.dataset.ana;
-  document.getElementById("anaActual").classList.toggle("oculto", v !== 0);
-  const pron = document.getElementById("anaPron");
-  pron.classList.toggle("oculto", v === 0);
-  if (v !== 0){
-    if (!anaBaseCargada){ pron.querySelector(".anaBase").src = ANA_BASE_URL; anaBaseCargada = true; }
-    pron.querySelector(".anaOver").src = anaURL(v);
-  }
+  anaInit();
+  anaPoner(+b.dataset.ana);
+  setTimeout(() => { if (anaMapa) anaMapa.invalidateSize(); }, 60);
 }));
-
+if ("IntersectionObserver" in window){
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)){ anaInit(); io.disconnect(); } }, { rootMargin: "300px" });
+  io.observe(document.getElementById("anaMapa"));
+} else { anaInit(); }
 
 /* ================= OBSERVACIÓN (botones como los de Peligro) ================= */
 const obsCont = document.getElementById("obsChips");
