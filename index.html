@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LABMET · Avisos Cuba — Niveles de riesgo por provincia</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20role%3D%22img%22%20aria-label%3D%22LABMET%22%3E%20%20%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230.5%22%20fill%3D%22%23ffffff%22%2F%3E%20%20%20%3Cg%20transform%3D%22translate%2832%2C31.5%29%20scale%280.42%29%20translate%28-100%2C-88%29%22%3E%3Cg%20fill%3D%22%2316283e%22%3E%20%20%20%20%20%3Ccircle%20cx%3D%2282%22%20cy%3D%2293%22%20r%3D%2215%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2280%22%20r%3D%2219.5%22%2F%3E%3Ccircle%20cx%3D%22118%22%20cy%3D%2293%22%20r%3D%2213.5%22%2F%3E%20%20%20%20%20%3Crect%20x%3D%2267%22%20y%3D%2288%22%20width%3D%2266%22%20height%3D%2221%22%20rx%3D%228%22%2F%3E%20%20%20%3C%2Fg%3E%20%20%20%3Cpolygon%20points%3D%22107%2C60%2087%2C93%2097%2C93%2089%2C116%20113%2C82%20102%2C82%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fg%3E%20%20%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230.5%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%22.35%22%2F%3E%20%3C%2Fsvg%3E">
+<meta name="theme-color" content="#0a3a5c">
+<meta name="description" content="LABMET Avisos Cuba: niveles de riesgo por provincia (calor, frío, lluvia, viento, estado del mar, resaca, niebla, tormentas eléctricas y ciclones) para hoy, mañana y pasado mañana. Producto informativo de LABMET, no oficial.">
+<meta property="og:title" content="LABMET · Avisos Cuba">
+<meta property="og:description" content="Niveles de riesgo por provincia para hoy, mañana y pasado mañana. Calor, lluvia, viento, mar, niebla, eléctricas y ciclones.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://labmetweather.com/">
+<meta property="og:image" content="https://labmetweather.com/logo-labmet.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:#f2f5f7; color:#1c2b33; }
+  header { background:linear-gradient(120deg,#07263d,#0a3a5c 55%,#0f6aa8); color:#fff; padding:13px 16px 11px; }
+  .marca { display:flex; align-items:center; gap:12px; }
+  .logoTile { width:47px; height:47px; flex:0 0 auto; filter:drop-shadow(0 2px 5px rgba(0,0,0,.35)); }
+  .logoTile svg { width:100%; height:100%; display:block; }
+  .wordmark .wm1 { margin:0; font-size:23px; font-weight:800; letter-spacing:2.5px; line-height:1; }
+  .wordmark .wm2 { font-size:8.8px; letter-spacing:2.4px; opacity:.78; margin-top:4px; font-weight:600; }
+  .prod { margin-left:auto; text-align:right; }
+  .prod .prod1 { font-size:16.5px; font-weight:800; letter-spacing:1.6px; }
+  .prod .prod2 { font-size:11px; opacity:.85; margin-top:3px; }
+  header .autor { margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,.18); font-size:12.5px; opacity:.92; }
+  @media (max-width:560px){ .prod .prod2 { display:none; } .wordmark .wm1 { font-size:20px; } .prod .prod1 { font-size:14.5px; } .wordmark .wm2 { letter-spacing:1.6px; } }
+  .sponsor { margin:10px 12px 0; }
+  .adcard { display:flex; align-items:center; gap:11px; background:#ffffff; border:1px solid #d9dfe3; border-radius:11px; padding:9px 12px; box-shadow:0 1px 3px rgba(8,48,79,.07); text-align:left; }
+  .adcard.pub { border:1.5px dashed #c9b458; background:#fffdf2; }
+  .adico { flex:0 0 auto; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:15px; }
+  .adbody { flex:1 1 auto; min-width:0; }
+  .adt { display:block; font-size:10px; letter-spacing:.9px; text-transform:uppercase; color:#93a1a9; margin-bottom:1px; }
+  .adnom { display:block; font-size:14.5px; font-weight:700; color:#17394d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .adx { display:block; font-size:12px; color:#5b7180; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .adgo { flex:0 0 auto; color:#b6c2c9; font-size:20px; font-weight:700; }
+  a.adcard { text-decoration:none; }
+  .aviso { background:#fff7e0; border:1px solid #ecd27a; color:#5d4c07; font-size:12.5px; line-height:1.45; padding:9px 12px; margin:10px 12px 0; border-radius:8px; }
+  .dias { display:flex; gap:8px; padding:12px 12px 0; }
+  .dias button { flex:1; padding:10px 4px; border:1px solid #b9cbd6; background:#fff; border-radius:9px; font-size:14px; font-weight:600; color:#0f5d8f; cursor:pointer; }
+  .dias button small { display:block; font-weight:400; font-size:11.5px; color:#5b7180; margin-top:2px; }
+  .dias button.act { background:#0f5d8f; color:#fff; border-color:#0f5d8f; }
+  .dias button.act small { color:#cfe6f5; }
+  .leyenda { display:flex; flex-wrap:wrap; gap:6px; padding:10px 12px 0; }
+  .leyenda span { font-size:11.5px; padding:3px 9px; border-radius:20px; font-weight:600; }
+  .radarctl { display:flex; align-items:center; gap:10px; padding:10px 12px 0; font-size:13.5px; flex-wrap:wrap; }
+  .radarctl label { font-weight:600; color:#23404f; }
+  .radarctl .nota { font-size:12px; color:#5b7180; flex-basis:100%; }
+  .radarctl button { border:1px solid #b9cbd6; background:#fff; border-radius:7px; padding:5px 12px; font-size:13px; cursor:pointer; }
+  #map { height:62vh; min-height:360px; margin:10px 12px 0; border-radius:10px; border:1px solid #c3d2da; z-index:0; }
+  .tablaWrap { margin:0 12px; overflow-x:auto; -webkit-overflow-scrolling:touch; background:#fff; border:1px solid #d5e0e6; border-radius:10px; }
+  table.ghwo { border-collapse:collapse; width:100%; min-width:440px; font-size:13.5px; }
+  table.ghwo th, table.ghwo td { padding:8px 7px; border-bottom:1px solid #e7eef2; text-align:center; }
+  table.ghwo tr:last-child td { border-bottom:none; }
+  table.ghwo th { background:#eef4f8; color:#0b3a57; font-size:12.5px; }
+  table.ghwo th small { display:block; font-weight:400; font-size:11px; color:#5b7180; }
+  table.ghwo th[data-dia], table.mini th[data-dia] { cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px; }
+  table.ghwo td.pelnom { text-align:left; font-weight:600; color:#17394d; }
+  table.ghwo tr.pelrow { cursor:pointer; }
+  table.ghwo tr.pelrow:active td { background:#f2f8fc; }
+  table.ghwo tr.activa td { background:#e3eff8; }
+  table.ghwo td.diacur, table.ghwo th.diacur { box-shadow:inset 0 0 0 2px #9fc3dd; }
+  .pill { display:inline-block; min-width:66px; padding:6px 8px; border-radius:7px; font-weight:700; font-size:12px; }
+  #modoBar { margin:10px 12px 0; padding:9px 12px; background:#eaf3fa; border:1px solid #9fc3dd; border-radius:9px; font-size:13.5px; color:#0b3a57; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  #modoBar button { margin-left:auto; border:1px solid #0f5d8f; background:#0f5d8f; color:#fff; border-radius:7px; padding:6px 12px; font-size:13px; font-weight:600; cursor:pointer; }
+  table.mini { border-collapse:collapse; width:100%; font-size:12.5px; }
+  table.mini th, table.mini td { padding:5px 6px; border-bottom:1px solid #eef3f6; text-align:center; }
+  table.mini tr:last-child td { border-bottom:none; }
+  table.mini th { color:#0b3a57; font-size:11.5px; background:#f5f9fb; }
+  table.mini td:first-child, table.mini th:first-child { text-align:left; font-weight:600; }
+  table.mini td.diacur, table.mini th.diacur { background:#eaf3fa; }
+  .pillMini { display:inline-block; width:32px; height:18px; border-radius:5px; border:1px solid rgba(0,0,0,.16); vertical-align:middle; }
+  .btnImg { width:100%; border:none; background:#0f5d8f; color:#fff; border-radius:9px; padding:11px 12px; font-size:14px; font-weight:700; cursor:pointer; }
+  .btnImg:active { background:#08304f; }
+  .lbl { background:transparent; border:none; box-shadow:none; font-size:10.5px; font-weight:700; color:#17394d; text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff; }
+  .lbl::before { display:none; }
+  .estDiv { background:transparent; border:none; }
+  .est-marc { width:36px; height:36px; border-radius:50%; background:#0b5fa5; border:2px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.45); color:#fff; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; }
+  .leaflet-popup-content { font-size:13.5px; line-height:1.5; }
+  .est-pop .tit { color:#0b3a57; font-size:14.5px; font-weight:700; }
+  .est-pop .fuente { color:#5b7180; font-size:11.5px; }
+  h2.sec { font-size:16px; margin:18px 12px 6px; color:#0b3a57; }
+  .chipsWrap { display:flex; align-items:flex-start; gap:8px; margin:12px 12px 8px; }
+  .chipsTit { font-size:13px; font-weight:700; color:#0b3a57; padding-top:7px; white-space:nowrap; }
+  #chips, #obsChips { display:flex; gap:6px; overflow-x:auto; padding:2px 0; scrollbar-width:none; }
+  #chips::-webkit-scrollbar, #obsChips::-webkit-scrollbar { display:none; }
+  #chips button, #obsChips button { flex:0 0 auto; border:1.5px solid #0b5fa5; background:#fff; color:#0b5fa5; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+  #chips button.act, #obsChips button.act { background:#0b5fa5; color:#fff; }
+  .anaHead { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:18px 12px 6px; }
+  .anaHead h2.sec { margin:0; }
+  .anaHead .anaTabs { margin-bottom:0; }
+  .ytCard { display:flex; align-items:center; gap:12px; margin:0 12px 8px; background:#fff; border:1px solid #d5e0e6; border-radius:12px; padding:10px 14px; text-decoration:none; color:#16303f; }
+  .ytCard .ytIco { width:44px; height:44px; border-radius:50%; background:#c4302b; color:#fff; display:flex; align-items:center; justify-content:center; font-size:19px; flex:0 0 auto; }
+  .ytCard b { font-size:15px; }
+  .ytCard small { color:#5b7180; font-size:12.5px; }
+  .ytCard .ytFlecha { margin-left:auto; font-size:24px; color:#9fb3c8; }
+  .videoWrap { position:relative; margin:0 12px; padding-top:56.25%; border-radius:12px; overflow:hidden; background:#000; }
+  .videoWrap iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .anaTabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+   .anaTabs button { border:1.5px solid #c6d6e0; background:#fff; color:#33475b; border-radius:999px;
+     padding:5px 13px; font-size:13px; font-weight:700; cursor:pointer; }
+   .anaTabs button.act { background:#0f4c81; border-color:#0f4c81; color:#fff; }
+   .anaWrap { position:relative; border-radius:8px; overflow:hidden; line-height:0; }
+   .anaWrap img { display:block; width:100%; }
+   .anaWrap .anaOver { position:absolute; inset:0; height:100%; }
+   .munIcon { background:none; border:none; }
+   .munPill { background:#0b5fa5; color:#fff; font-size:11px; font-weight:700; padding:1px 6px;
+     border-radius:999px; border:1.5px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.4);
+     white-space:nowrap; text-align:center; cursor:pointer; }
+   .videoNota { margin:6px 14px 0; font-size:12.5px; color:#5b7180; }
+  #lista { margin:0 12px; background:#fff; border:1px solid #d5e0e6; border-radius:10px; overflow:hidden; }
+  .fila { display:flex; align-items:center; gap:10px; padding:10px 12px; border-bottom:1px solid #e7eef2; cursor:pointer; font-size:14.5px; }
+  .fila:last-child { border-bottom:none; }
+  .fila .pto { width:14px; height:14px; border-radius:50%; flex:none; border:1px solid rgba(0,0,0,.18); }
+  .fila .nom { flex:1; font-weight:600; }
+  .fila .niv { font-size:12px; font-weight:700; padding:3px 9px; border-radius:20px; }
+  .fila .pel { font-size:12px; color:#5b7180; display:block; font-weight:400; }
+  #detalle { margin:0 12px; background:#fff; border:1px solid #d5e0e6; border-radius:10px; overflow:hidden; }
+  #detalle .cab { padding:12px; color:#fff; }
+  #detalle .cab .pn { font-size:18px; font-weight:700; }
+  #detalle .cab .pn2 { font-size:13px; opacity:.95; }
+  .pel-fila { display:flex; gap:10px; padding:9px 12px; border-bottom:1px solid #e7eef2; font-size:14px; align-items:flex-start; }
+  .pel-fila:last-child { border-bottom:none; }
+  .pel-fila .pto { width:12px; height:12px; border-radius:50%; margin-top:3px; flex:none; border:1px solid rgba(0,0,0,.18); }
+  .pel-fila .pn3 { font-weight:600; }
+  .pel-fila .niv3 { font-weight:700; }
+  .pel-fila .det { color:#51626c; font-size:12.8px; display:block; margin-top:1px; }
+  .panel { margin:0 12px; background:#fff; border:1px solid #d5e0e6; border-radius:10px; padding:11px 13px; font-size:13.5px; line-height:1.55; }
+  .panel a { color:#0f5d8f; font-weight:600; text-decoration:none; }
+  .panel li { margin:5px 0; }
+  details.panel { padding:0; }
+  details.panel summary { padding:11px 13px; cursor:pointer; font-weight:700; color:#0b3a57; }
+  details.panel .cuerpo { padding:0 13px 11px; }
+  footer { margin:16px 12px 22px; font-size:12px; color:#5b7180; text-align:center; line-height:1.6; }
+  #cargando { margin:14px 12px; padding:14px; background:#fff; border:1px solid #d5e0e6; border-radius:10px; text-align:center; font-size:14.5px; }
+  #error { display:none; margin:14px 12px; padding:14px; background:#fdecea; border:1px solid #e5a49c; color:#7c1d12; border-radius:10px; font-size:14px; }
+  #error button { margin-top:8px; padding:7px 14px; border-radius:7px; border:1px solid #c96a5f; background:#fff; cursor:pointer; }
+  .oculto { display:none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="marca">
+    <div class="logoTile"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LABMET">
+  <circle cx="32" cy="32" r="30.5" fill="#ffffff"/>
+  <g transform="translate(32,31.5) scale(0.42) translate(-100,-88)"><g fill="#16283e">
+    <circle cx="82" cy="93" r="15"/><circle cx="100" cy="80" r="19.5"/><circle cx="118" cy="93" r="13.5"/>
+    <rect x="67" y="88" width="66" height="21" rx="8"/>
+  </g>
+  <polygon points="107,60 87,93 97,93 89,116 113,82 102,82" fill="#ffffff"/></g>
+  <circle cx="32" cy="32" r="30.5" fill="none" stroke="#ffffff" stroke-opacity=".35"/>
+</svg></div>
+    <div class="wordmark">
+      <h1 class="wm1">LABMET</h1>
+      <div class="wm2">LABORATORIO METEOROLÓGICO</div>
+    </div>
+    <div class="prod">
+      <div class="prod1">AVISOS CUBA</div>
+      <div class="prod2">Niveles de riesgo por provincia</div>
+    </div>
+  </div>
+  <div class="autor">Creado por el meteorólogo MSc. JORGE FÉLIX HERNÁNDEZ CAPOTE</div>
+</header>
+
+<div class="sponsor" id="adTop"></div>
+
+<div class="aviso"><b>Aviso importante:</b> producto informativo de LABMET elaborado a partir de modelos numéricos. <b>No es un aviso oficial</b>: los avisos oficiales en Cuba los emiten el INSMET y la Defensa Civil.</div>
+
+<div id="cargando">Cargando datos de los modelos…</div>
+<div id="error"></div>
+
+<div id="app" class="oculto">
+  <div class="dias" id="dias">
+    <button data-dia="0">Hoy<small></small></button>
+    <button data-dia="1">Mañana<small></small></button>
+    <button data-dia="2">Pasado mañana<small></small></button>
+  </div>
+
+  <div class="leyenda" id="leyenda"></div>
+
+  <div class="chipsWrap">
+    <span class="chipsTit">Peligro:</span>
+    <div id="chips"></div>
+  </div>
+
+  <div class="chipsWrap">
+    <span class="chipsTit">Observación:</span>
+    <div id="obsChips"></div>
+  </div>
+
+  <div id="obsPanel">
+    <div class="radarctl oculto" id="ctlRadar">
+      <input type="checkbox" id="radarChk" class="oculto">
+      <button id="radarPlay" class="oculto">⏸ Pausar</button>
+      <span id="radarHora"></span>
+      <span class="nota">Mosaico de radar (incluye Cayo Hueso, KBYX). Al activar radar o satélite, el mapa se muestra sin los colores de alerta.</span>
+    </div>
+    <div class="radarctl oculto" id="ctlSat">
+      <input type="checkbox" id="satChk" class="oculto">
+      <button id="satPlay" class="oculto">⏸ Pausar</button>
+      <span id="satHora"></span>
+      <span id="satTipo" class="oculto">
+        <label><input type="radio" name="sattipo" value="geo" checked> GeoColor (día)</label>
+        <label><input type="radio" name="sattipo" value="ir"> Infrarrojo (noche)</label>
+      </span>
+      <span class="nota">Satélite GOES-Este (NASA): GeoColor de día e infrarrojo de noche.</span>
+    </div>
+    <div class="radarctl oculto" id="ctlEst">
+      <input type="checkbox" id="estChk" class="oculto">
+      <button id="estAct" class="oculto">↻ Actualizar</button>
+      <span id="estHora"></span>
+      <span class="nota">Reportes reales (METAR) de los aeropuertos cubanos. Toque un marcador para ver sus datos.</span>
+    </div>
+    <div class="radarctl oculto" id="ctlMun">
+      <input type="checkbox" id="munChk" class="oculto">
+      <span id="munHora"></span>
+      <span class="nota">Un punto por municipio con su temperatura máxima; tóquelo para ver la mínima, la nubosidad y la precipitación del día elegido arriba.</span>
+    </div>
+  </div>
+
+  <div id="map"></div>
+  <p style="margin:6px 14px 0; font-size:12.5px; color:#5b7180">Cada provincia muestra el color de su fenómeno más significativo (el mar va en su franja costera). Elija el peligro en la barra de arriba (o en la tabla) para pintar el mapa solo por ese fenómeno, y toque una provincia para ver su detalle aquí debajo.</p>
+
+  <div id="modoBar" class="oculto"></div>
+
+  <h2 class="sec">Detalle por provincia</h2>
+  <div id="detalle"></div>
+
+  <h2 class="sec">Riesgos por peligro</h2>
+  <div class="tablaWrap"><table class="ghwo" id="tablaPel"></table></div>
+  <p style="margin:6px 14px 0; font-size:12px; color:#5b7180">Cada celda es el nivel más alto de ese peligro en todo el país ese día. Toque un peligro para verlo en el mapa provincia a provincia.</p>
+  <div style="margin:10px 12px 0"><button class="btnImg" id="btnResumen">⬇ Descargar resumen del país (imagen)</button></div>
+
+  <h2 class="sec" id="listaTitulo">Provincias por nivel de riesgo</h2>
+  <div id="lista"></div>
+
+
+  <div class="anaHead">
+    <h2 class="sec">Análisis de superficie</h2>
+    <div class="anaTabs">
+      <button data-ana="0" class="act">Ahora</button>
+      <button data-ana="1">Mañana</button>
+      <button data-ana="2">Pasado mañana</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div id="anaActual">
+      <img src="https://www.nhc.noaa.gov/tafb_latest/CAR_latest.gif" alt="Análisis de superficie actual del Caribe (TAFB, NHC/NOAA)" loading="lazy" style="width:100%; border-radius:8px; display:block">
+    </div>
+    <div id="anaPron" class="oculto">
+      <div class="anaWrap">
+        <img class="anaBase" alt="Mapa base de la región">
+        <img class="anaOver" alt="Carta de superficie pronosticada (WPC/NOAA)">
+      </div>
+    </div>
+    <p class="videoNota" style="margin-left:0">Ahora: análisis de superficie del Caribe de la TAFB (NHC/NOAA), con los frentes analizados. Mañana y pasado mañana: carta de superficie del Centro de Predicción Meteorológica (WPC/NOAA) de los días 1 y 2 — frentes, centros de presión y áreas de lluvia que se acercan a Cuba desde el golfo de México y La Florida.</p>
+  </div>
+
+  <h2 class="sec">Último video de LABMET</h2>
+  <a class="ytCard" href="https://www.youtube.com/@labmet" target="_blank" rel="noopener"><span class="ytIco">▶</span><span><b>LABMET en YouTube</b><br><small>@labmet · Ver el canal y sus videos</small></span><span class="ytFlecha">›</span></a>
+  <div class="videoWrap"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=UU0wTuI-BDkfWldVw5AS2r7Q" title="Último video de LABMET en YouTube" loading="lazy" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>
+  <p class="videoNota">El reproductor muestra siempre el video más reciente del canal <a href="https://www.youtube.com/@labmet" target="_blank" rel="noopener">@labmet</a> y se actualiza solo con cada publicación. Si el reproductor no carga (YouTube a veces bloquea los archivos abiertos en local), toque la tarjeta de arriba para verlo en YouTube.</p>
+
+  <h2 class="sec">Radares del área</h2>
+  <div class="panel">
+    <p style="margin-top:2px">Estos radares vecinos sí ven zonas de Cuba, pero sus imágenes no se pueden superponer al mapa con precisión; se abren en su página oficial:</p>
+    <ul style="margin:6px 0; padding-left:18px">
+      <li><a href="https://radar.weather.gov/station/KBYX/standard" target="_blank" rel="noopener">Cayo Hueso (KBYX, NWS)</a> — cubre el estrecho y el occidente de Cuba.</li>
+      <li><a href="https://www.metoc.navy.mil/fwcn/animate.html?icao=mugm&amp;type=CMaxZH240" target="_blank" rel="noopener">Base naval de Guantánamo (US Navy)</a> — animación del oriente de Cuba.</li>
+      <li><a href="https://www.weather.gov.ky/" target="_blank" rel="noopener">Islas Caimán</a> — servicio meteorológico nacional (radar).</li>
+      <li><a href="https://metservice.gov.jm/" target="_blank" rel="noopener">Jamaica</a> — servicio meteorológico nacional (radar).</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">Cómo se calcula</h2>
+  <details class="panel">
+    <summary>Ver explicación breve</summary>
+    <div class="cuerpo">
+      <p>Cada provincia recibe un nivel por peligro (Verde, Amarillo, Naranja, Rojo, Morado) según la tabla de umbrales de LABMET, construida a través de estudios e investigaciones sobre este tema.</p>
+      <p>Los datos salen del modelo numérico GFS a través de Open-Meteo (temperatura, sensación térmica, lluvia, viento, rachas, CAPE y visibilidad), del modelo de oleaje de Open-Meteo (altura y período de ola en puntos costeros) y de los ciclones activos del Centro Nacional de Huracanes (NHC/NOAA). Como no hay un radar público en vivo para Cuba, las tormentas eléctricas se estiman a partir del modelo (horas con tormenta), no con reflectividad real.</p>
+      <p>El frío extremo se clasifica por la sensación térmica mínima del día, con los valores y la terminología de las madrugadas invernales de Cuba: <b>Amarillo</b> (de 10 a 13 °C, madrugada fría), <b>Naranja</b> (de 7 a 10 °C, madrugada muy fría), <b>Rojo</b> (de 4 a 7 °C, madrugada notablemente fría) y <b>Morado</b> (menos de 4 °C, frío excepcional, con posible helada en las zonas bajas del interior). Solo se alcanza con los frentes fríos más fuertes, sobre todo en el interior de occidente y centro.</p>
+      <p>La niebla se clasifica por la visibilidad mínima de la madrugada y la primera mañana (de 3 a 10 a. m., que es cuando se forma en Cuba) y solo en las horas sin lluvia (el modelo también baja la visibilidad cuando llueve, y eso no es niebla): <b>Amarillo</b> (de 3 a 5 km), <b>Naranja</b> (de 1 a 3 km), <b>Rojo</b> (menos de 1 km) y <b>Morado</b> (menos de 0,4 km, niebla densa).</p>
+      <p>El viento se clasifica combinando el viento sostenido (<b>Amarillo</b> 35-45 km/h, <b>Naranja</b> 45-65, <b>Rojo</b> 65-95, <b>Morado</b> 95 o más) con las rachas (Amarillo desde 50 km/h, Naranja desde 70, Rojo desde 90, Morado desde 100): manda el nivel más alto de las dos escalas, porque en Cuba el daño lo hacen las rachas. Se mantiene además la regla del sur: viento del sur a más de 35 km/h durante 3 horas o más eleva el nivel al menos a Amarillo.</p>
+      <p>El estado del mar se clasifica por la altura de ola significativa máxima del día: <b>Verde</b> (menos de 1,5 m), <b>Amarillo</b> (de 1,5 a 3,0 m), <b>Naranja</b> (más de 3,0 a 4,0 m; inundación costera ligera), <b>Rojo</b> (más de 4,0 a 5,0 m; moderada) y <b>Morado</b> (más de 5,0 m; fuerte).</p>
+      <p>Al abrir, cada provincia se pinta con el color de su fenómeno más significativo (el máximo entre sus peligros de tierra). Al tocar una provincia, el resto del mapa queda en blanco y solo ella conserva su color; al tocar un fenómeno en la tabla, el mapa entero se pinta por ese fenómeno, y con el selector de día se ajusta todo a la fecha elegida. El estado del mar y las corrientes de resaca nunca pintan la provincia entera: se representan como franjas de color sobre la línea de costa, calculadas por separado para la costa norte y la costa sur (cada franja lleva el nivel más alto entre ambos fenómenos en esa costa), porque la situación en una y otra puede ser muy distinta. Los espacios de patrocinador rotan: cada vez que usted toca una provincia, un fenómeno o cambia el día, se muestra el siguiente anuncio.</p>
+    </div>
+  </details>
+
+  <div class="sponsor" id="adMid"></div>
+</div>
+
+<footer>
+  Datos: Open-Meteo (modelo GFS) · Estado del mar: Open-Meteo Marine · Ciclones: NHC (NOAA) · Estaciones: IEM / NWS (METAR, red OMM) · <span id="actualizado">Actualizado: —</span><br>
+  LABMET · Laboratorio Meteorológico — Producto informativo, no oficial. · <a href="/privacidad.html" style="color:#5b7180">Privacidad</a>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+/* ================= CONFIGURACIÓN ================= */
+const NIVELES = [
+  { n:"Verde",    largo:"Verde · Ninguno",        c:"#2ca25f", t:"#ffffff" },
+  { n:"Amarillo", largo:"Amarillo · Limitado",    c:"#f2d13c", t:"#3a3205" },
+  { n:"Naranja",  largo:"Naranja · Elevado",      c:"#ef8a17", t:"#ffffff" },
+  { n:"Rojo",     largo:"Rojo · Significativo",   c:"#d7301f", t:"#ffffff" },
+  { n:"Morado",   largo:"Morado · Extremo",       c:"#7a0177", t:"#ffffff" }
+];
+const SIN_DATOS = { n:"Sin datos", c:"#9aa7ad", t:"#ffffff" };
+
+/* Todos los peligros usan la nomenclatura común de niveles (Verde…Morado). */
+function nomNivel(k, n){ return NIVELES[n].n; }
+function tituloNivel(k, n){ return NIVELES[n].largo; }
+
+const PROVS = [
+  { id:"Pinar del Río",      nom:"Pinar del Río",      lat:22.4175, lon:-83.6981, marN:[0], marS:[1] },
+  { id:"Artemisa",           nom:"Artemisa",           lat:22.8100, lon:-82.7600, marN:[2], marS:[3] },
+  { id:"La Habana",          nom:"La Habana",          lat:23.1136, lon:-82.3666, marN:[4] },
+  { id:"Mayabeque",          nom:"Mayabeque",          lat:22.9639, lon:-82.1458, marN:[5], marS:[6] },
+  { id:"Matanzas",           nom:"Matanzas",           lat:23.0419, lon:-81.5775, marN:[7], marS:[8] },
+  { id:"Cienfuegos",         nom:"Cienfuegos",         lat:22.1496, lon:-80.4463, marS:[9] },
+  { id:"Villa Clara",        nom:"Villa Clara",        lat:22.4067, lon:-79.9650, marN:[10] },
+  { id:"Sancti Spíritus",    nom:"Sancti Spíritus",    lat:21.9297, lon:-79.4425, marN:[11], marS:[12] },
+  { id:"Ciego de Ávila",     nom:"Ciego de Ávila",     lat:21.8403, lon:-78.7619, marN:[13], marS:[14] },
+  { id:"Camagüey",           nom:"Camagüey",           lat:21.3808, lon:-77.9169, marN:[15], marS:[16] },
+  { id:"Las Tunas",          nom:"Las Tunas",          lat:20.9617, lon:-76.9511, marN:[17] },
+  { id:"Holguín",            nom:"Holguín",            lat:20.8872, lon:-76.2631, marN:[18] },
+  { id:"Granma",             nom:"Granma",             lat:20.3792, lon:-76.6433, marS:[19] },
+  { id:"Santiago de Cuba",   nom:"Santiago de Cuba",   lat:20.0217, lon:-75.8292, marS:[20] },
+  { id:"Guantánamo",         nom:"Guantánamo",         lat:20.1444, lon:-75.1936, marN:[21], marS:[22] },
+  { id:"Isla de la Juventud",nom:"Isla de la Juventud",lat:21.8950, lon:-82.8025, marC:[23,24] }
+];
+const MUNICIPIOS = [["Camagüey", "Camagüey", 21.417, -77.956], ["CarlosManueldeCéspedes", "Camagüey", 21.672, -78.261], ["Esmeralda", "Camagüey", 21.977, -77.736], ["Florida", "Camagüey", 21.473, -78.36], ["Guáimaro", "Camagüey", 21.258, -77.283], ["Jimaguayú", "Camagüey", 21.196, -77.946], ["Minas", "Camagüey", 21.605, -77.569], ["Najasa", "Camagüey", 21.033, -77.824], ["Nuevitas", "Camagüey", 21.647, -77.251], ["SantaCruzdelSur", "Camagüey", 20.872, -78.035], ["Sibanicú", "Camagüey", 21.256, -77.607], ["SierradeCubitas", "Camagüey", 21.683, -77.802], ["Vertientes", "Camagüey", 21.123, -78.326], ["Baraguá", "Ciego de Ávila", 21.691, -78.526], ["Bolivia", "Ciego de Ávila", 22.071, -78.311], ["Chambas", "Ciego de Ávila", 22.051, -78.943], ["Ciegodeávila", "Ciego de Ávila", 21.83, -78.809], ["CiroRedodo", "Ciego de Ávila", 21.937, -78.727], ["Florencia", "Ciego de Ávila", 22.214, -78.859], ["Majagua", "Ciego de Ávila", 21.817, -79.009], ["Morón", "Ciego de Ávila", 22.39, -78.178], ["PrimerodeEnero", "Ciego de Ávila", 21.862, -78.383], ["Venezuela", "Ciego de Ávila", 21.71, -78.837], ["Abreus", "Cienfuegos", 22.184, -80.733], ["AguadadePasajeros", "Cienfuegos", 22.324, -80.77], ["Ciefuegos", "Cienfuegos", 22.1, -80.537], ["Cruces", "Cienfuegos", 22.249, -80.228], ["Cumanayagua", "Cienfuegos", 21.992, -80.216], ["Lajas", "Cienfuegos", 22.412, -80.335], ["Palmira", "Cienfuegos", 22.288, -80.442], ["Rodas", "Cienfuegos", 22.352, -80.589], ["ArroyoNaranjo", "La Habana", 22.998, -82.3], ["Boyeros", "La Habana", 22.99, -82.384], ["CentroHabana", "La Habana", 23.129, -82.366], ["Cerro", "La Habana", 23.101, -82.369], ["Cotorro", "La Habana", 22.991, -82.232], ["DiezdeOctubre", "La Habana", 23.072, -82.339], ["Guanabacoa", "La Habana", 23.054, -82.281], ["LaHabanadelEste", "La Habana", 23.107, -82.144], ["LaHabanaVieja", "La Habana", 23.151, -82.317], ["LaLisa", "La Habana", 23.026, -82.452], ["Marianao", "La Habana", 23.073, -82.383], ["Playa", "La Habana", 23.043, -82.418], ["PlazadelaRevolución", "La Habana", 23.098, -82.425], ["Regla", "La Habana", 23.101, -82.321], ["SanMigueldelPadrón", "La Habana", 23.081, -82.238], ["BartoloméMasó", "Granma", 20.071, -76.951], ["Bayamo", "Granma", 20.423, -76.664], ["BueyArriba", "Granma", 20.133, -76.719], ["Campechuela", "Granma", 20.127, -77.26], ["CautoCristo", "Granma", 20.62, -76.615], ["Guisa", "Granma", 20.184, -76.508], ["Jiguaní", "Granma", 20.406, -76.392], ["Manzanillo", "Granma", 20.247, -77.132], ["MediaLuna", "Granma", 20.084, -77.416], ["Niquero", "Granma", 19.961, -77.545], ["Pilón", "Granma", 19.944, -77.25], ["RíoCauto", "Granma", 20.574, -76.99], ["Yara", "Granma", 20.367, -76.923], ["Baracoa", "Guantánamo", 20.401, -74.619], ["Caimanera", "Guantánamo", 19.978, -75.224], ["ElSalvador", "Guantánamo", 20.334, -75.327], ["Guantánamo", "Guantánamo", 20.286, -75.145], ["Imías", "Guantánamo", 20.179, -74.588], ["Maisí", "Guantánamo", 20.202, -74.284], ["ManuelTames", "Guantánamo", 20.162, -74.955], ["NicetoPérez", "Guantánamo", 20.077, -75.33], ["SanAntoniodelSur", "Guantánamo", 20.145, -74.795], ["Yateras", "Guantánamo", 20.393, -74.891], ["Antilla", "Holguín", 20.843, -75.708], ["Báguanos", "Holguín", 20.816, -76.05], ["Banes", "Holguín", 20.964, -75.74], ["Cacocum", "Holguín", 20.753, -76.47], ["CalixtoGarcía", "Holguín", 20.868, -76.602], ["Cueto", "Holguín", 20.615, -75.94], ["FrakPaís", "Holguín", 20.669, -75.171], ["Gibara", "Holguín", 21.12, -76.254], ["Holguín", "Holguín", 20.899, -76.29], ["Mayarí", "Holguín", 20.633, -75.633], ["Moa", "Holguín", 20.568, -74.877], ["RafaelFreyre", "Holguín", 21.006, -76.019], ["SaguadeTánamo", "Holguín", 20.526, -75.173], ["UrbanoNoris", "Holguín", 20.609, -76.254], ["IsladelaJuventud", "Isla de la Juventud", 21.69, -82.814], ["Alquízar", "Artemisa", 22.748, -82.605], ["Artemisa", "Artemisa", 22.748, -82.798], ["Bauta", "Artemisa", 22.981, -82.522], ["Caimito", "Artemisa", 22.921, -82.604], ["Guanajay", "Artemisa", 22.902, -82.709], ["GüiradeMelena", "Artemisa", 22.741, -82.481], ["Mariel", "Artemisa", 22.962, -82.792], ["SanAntoniodelosBaños", "Artemisa", 22.87, -82.492], ["Amancio", "Las Tunas", 20.832, -77.653], ["Colombia", "Las Tunas", 20.854, -77.466], ["JesúsMenéndez", "Las Tunas", 21.086, -76.542], ["Jobabo", "Las Tunas", 20.829, -77.256], ["LasTunas", "Las Tunas", 20.952, -77.009], ["Majibacoa", "Las Tunas", 20.835, -76.792], ["Manatí", "Las Tunas", 21.259, -77.0], ["PuertoPadre", "Las Tunas", 21.156, -76.722], ["Calimete", "Matanzas", 22.371, -81.001], ["Cárdenas", "Matanzas", 22.999, -81.253], ["CiénagadeZapata", "Matanzas", 22.305, -81.542], ["Colón", "Matanzas", 22.752, -80.836], ["JagüeyGrande", "Matanzas", 22.562, -81.16], ["Jovellanos", "Matanzas", 22.79, -81.188], ["Limonar", "Matanzas", 22.88, -81.485], ["LosArabos", "Matanzas", 22.626, -80.684], ["Martí", "Matanzas", 22.99, -80.837], ["Matanzas", "Matanzas", 23.045, -81.614], ["PedroBetancourt", "Matanzas", 22.69, -81.317], ["Perico", "Matanzas", 22.787, -80.995], ["UnióndeReyes", "Matanzas", 22.677, -81.484], ["Batabanó", "Mayabeque", 22.755, -82.274], ["Bejucal", "Mayabeque", 22.909, -82.339], ["Güines", "Mayabeque", 22.794, -82.0], ["Jaruco", "Mayabeque", 23.057, -81.98], ["Madruga", "Mayabeque", 22.916, -81.798], ["MelenadelSur", "Mayabeque", 22.772, -82.151], ["NuevaPaz", "Mayabeque", 22.692, -81.714], ["Quivicán", "Mayabeque", 22.787, -82.372], ["SanJosédelasLajas", "Mayabeque", 22.904, -82.136], ["SanNicolás", "Mayabeque", 22.771, -81.881], ["SantaCruzdelNorte", "Mayabeque", 23.083, -81.769], ["BahíaHonda", "Artemisa", 22.897, -83.134], ["Candelaria", "Artemisa", 22.729, -82.943], ["ConsolacióndelSur", "Pinar del Río", 22.418, -83.421], ["Guane", "Pinar del Río", 22.229, -84.066], ["LaPalma", "Pinar del Río", 22.731, -83.479], ["LosPalacios", "Pinar del Río", 22.515, -83.209], ["Mantua", "Pinar del Río", 22.334, -84.249], ["MinasdeMatahambre", "Pinar del Río", 22.545, -83.981], ["PinardelRío", "Pinar del Río", 22.355, -83.573], ["SanCristóbal", "Artemisa", 22.645, -83.047], ["SanJuanyMartínez", "Pinar del Río", 22.316, -83.84], ["SanLuis", "Pinar del Río", 22.265, -83.673], ["Sandino", "Pinar del Río", 21.957, -84.349], ["Viñales", "Pinar del Río", 22.623, -83.703], ["Cabaiguán", "Sancti Spíritus", 22.094, -79.527], ["Fomento", "Sancti Spíritus", 22.002, -79.705], ["Jatibonico", "Sancti Spíritus", 21.91, -79.173], ["LaSierpe", "Sancti Spíritus", 21.676, -79.3], ["SanctiSpíritus", "Sancti Spíritus", 21.8, -79.534], ["Taguasco", "Sancti Spíritus", 22.042, -79.321], ["Trinidad", "Sancti Spíritus", 21.832, -79.907], ["Yaguajay", "Sancti Spíritus", 22.265, -79.172], ["Contramaestre", "Santiago de Cuba", 20.304, -76.231], ["Guamá", "Santiago de Cuba", 19.993, -76.522], ["Mella", "Santiago de Cuba", 20.461, -75.952], ["PalmaSoriano", "Santiago de Cuba", 20.238, -76.069], ["SanLuis", "Santiago de Cuba", 20.272, -75.831], ["SantiagodeCuba", "Santiago de Cuba", 20.017, -75.669], ["SegundoFrente", "Santiago de Cuba", 20.451, -75.478], ["Songo-LaMaya", "Santiago de Cuba", 20.215, -75.592], ["TercerFrente", "Santiago de Cuba", 20.155, -76.266], ["Caibarién", "Villa Clara", 22.491, -79.539], ["Camajuaní", "Villa Clara", 22.513, -79.763], ["Cifuentes", "Villa Clara", 22.586, -80.019], ["Corralillo", "Villa Clara", 22.879, -80.518], ["Encrucijada", "Villa Clara", 22.66, -79.811], ["Manicaragua", "Villa Clara", 22.096, -79.949], ["Placetas", "Villa Clara", 22.15, -79.608], ["QuemadodeGüines", "Villa Clara", 22.805, -80.288], ["Ranchuelo", "Villa Clara", 22.38, -80.137], ["Remedios", "Villa Clara", 22.322, -79.549], ["SagualaGrande", "Villa Clara", 22.808, -80.056], ["SantaClara", "Villa Clara", 22.345, -79.942], ["Santo Domingo", "Villa Clara", 22.598, -80.349]];
+const MARPTS = [[22.80,-84.00],[21.95,-83.60],[23.30,-82.50],[22.45,-82.35],[23.30,-82.37],[23.35,-81.90],[22.50,-81.90],[23.35,-81.20],[21.95,-81.15],[21.95,-80.45],[23.30,-79.85],[22.60,-79.25],[21.70,-79.90],[22.85,-78.45],[20.75,-78.90],[21.75,-77.25],[20.55,-78.00],[21.45,-76.60],[21.25,-75.95],[19.90,-77.45],[19.85,-75.75],[20.55,-74.50],[19.90,-75.20],[22.05,-82.85],[21.55,-82.95]];
+
+const CUBA_GEOJSON = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"NAME_1":"Pinar del Río"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-83.98,22.02],[-83.97,22.05],[-83.96,22.03],[-84.0,21.98],[-84.0,21.94],[-84.03,21.91],[-84.1,21.93],[-84.26,21.9],[-84.45,21.76],[-84.52,21.76],[-84.51,21.8],[-84.45,21.88],[-84.47,21.91],[-84.5,21.93],[-84.56,21.93],[-84.68,21.9],[-84.73,21.87],[-84.8,21.81],[-84.92,21.83],[-84.95,21.86],[-84.92,21.92],[-84.9,21.89],[-84.89,21.89],[-84.84,21.89],[-84.82,21.91],[-84.83,21.93],[-84.81,21.93],[-84.81,21.91],[-84.8,21.9],[-84.7,21.96],[-84.58,21.99],[-84.52,22.04],[-84.49,22.04],[-84.48,22.04],[-84.48,22.03],[-84.49,22.03],[-84.49,22.02],[-84.45,22.01],[-84.39,22.04],[-84.33,21.99],[-84.31,22.02],[-84.28,22.01],[-84.27,22.07],[-84.28,22.07],[-84.29,22.03],[-84.32,22.03],[-84.32,22.08],[-84.35,22.09],[-84.34,22.13],[-84.38,22.14],[-84.39,22.15],[-84.4,22.14],[-84.41,22.2],[-84.45,22.19],[-84.42,22.22],[-84.37,22.38],[-84.33,22.4],[-84.29,22.46],[-84.28,22.47],[-84.25,22.48],[-84.21,22.51],[-84.2,22.55],[-84.21,22.55],[-84.22,22.57],[-84.15,22.58],[-84.15,22.56],[-84.14,22.56],[-84.13,22.58],[-84.13,22.6],[-84.11,22.61],[-84.09,22.61],[-84.08,22.62],[-84.09,22.64],[-84.07,22.64],[-84.06,22.66],[-84.04,22.64],[-84.01,22.68],[-83.98,22.67],[-83.96,22.7],[-83.94,22.69],[-83.93,22.72],[-83.91,22.72],[-83.9,22.73],[-83.89,22.71],[-83.88,22.74],[-83.86,22.75],[-83.8,22.74],[-83.8,22.75],[-83.76,22.77],[-83.72,22.78],[-83.71,22.81],[-83.7,22.79],[-83.69,22.81],[-83.69,22.79],[-83.67,22.8],[-83.67,22.79],[-83.64,22.79],[-83.63,22.8],[-83.64,22.81],[-83.63,22.82],[-83.56,22.82],[-83.54,22.86],[-83.53,22.86],[-83.49,22.85],[-83.46,22.87],[-83.46,22.89],[-83.47,22.89],[-83.45,22.91],[-83.45,22.89],[-83.44,22.9],[-83.38,22.87],[-83.38,22.89],[-83.36,22.89],[-83.35,22.91],[-83.34,22.8],[-83.3,22.78],[-83.33,22.72],[-83.19,22.71],[-83.17,22.68],[-83.15,22.56],[-83.08,22.47],[-83.14,22.36],[-83.19,22.33],[-83.23,22.35],[-83.26,22.35],[-83.27,22.32],[-83.29,22.32],[-83.29,22.3],[-83.32,22.28],[-83.31,22.25],[-83.33,22.24],[-83.36,22.21],[-83.41,22.2],[-83.42,22.18],[-83.48,22.17],[-83.52,22.19],[-83.55,22.2],[-83.54,22.22],[-83.55,22.22],[-83.57,22.23],[-83.66,22.17],[-83.68,22.19],[-83.69,22.17],[-83.78,22.16],[-83.8,22.17],[-83.8,22.18],[-83.81,22.17],[-83.84,22.17],[-83.91,22.17],[-83.93,22.16],[-83.97,22.1],[-83.98,22.1],[-83.97,22.09],[-83.97,22.08],[-83.97,22.07],[-83.99,22.07],[-84.0,22.04],[-83.98,22.02]]],[[[-84.85,21.91],[-84.86,21.91],[-84.85,21.93],[-84.83,21.93],[-84.85,21.91]]],[[[-84.13,22.62],[-84.1,22.62],[-84.11,22.61],[-84.13,22.62]]],[[[-84.04,22.71],[-84.02,22.72],[-84.01,22.68],[-84.04,22.71]]],[[[-83.53,22.87],[-83.52,22.87],[-83.53,22.86],[-83.53,22.87]]],[[[-84.38,22.41],[-84.38,22.4],[-84.41,22.39],[-84.45,22.4],[-84.38,22.41]]],[[[-84.36,22.44],[-84.36,22.45],[-84.36,22.46],[-84.35,22.46],[-84.36,22.44]]],[[[-84.34,22.48],[-84.35,22.48],[-84.32,22.51],[-84.34,22.48]]],[[[-84.23,22.55],[-84.24,22.55],[-84.24,22.56],[-84.21,22.55],[-84.23,22.55]]],[[[-83.78,22.8],[-83.79,22.81],[-83.76,22.81],[-83.78,22.8]]],[[[-83.77,22.79],[-83.78,22.79],[-83.78,22.8],[-83.77,22.79]]],[[[-83.76,22.8],[-83.76,22.78],[-83.77,22.79],[-83.76,22.8]]],[[[-83.8,22.79],[-83.82,22.78],[-83.79,22.81],[-83.8,22.79]]],[[[-83.65,22.83],[-83.66,22.83],[-83.66,22.84],[-83.65,22.83]]]]}},{"type":"Feature","properties":{"NAME_1":"Artemisa"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-82.7,22.58],[-82.69,22.6],[-82.68,22.6],[-82.68,22.59],[-82.69,22.57],[-82.7,22.58]]],[[[-82.78,22.69],[-82.77,22.66],[-82.8,22.62],[-82.82,22.6],[-82.89,22.56],[-82.92,22.63],[-82.9,22.56],[-82.95,22.55],[-82.96,22.56],[-82.96,22.53],[-83.09,22.49],[-83.08,22.47],[-83.15,22.56],[-83.17,22.68],[-83.19,22.71],[-83.33,22.72],[-83.3,22.78],[-83.34,22.8],[-83.35,22.91],[-83.34,22.92],[-83.36,22.92],[-83.22,23.0],[-83.17,22.98],[-83.19,22.96],[-83.19,22.94],[-83.17,22.92],[-83.14,22.95],[-83.15,22.95],[-83.16,22.96],[-83.15,22.97],[-83.16,22.97],[-83.13,22.99],[-83.09,23.0],[-83.09,22.98],[-83.07,23.0],[-82.99,23.01],[-82.98,22.99],[-83.0,23.0],[-83.02,22.98],[-83.0,22.96],[-82.99,22.96],[-82.98,22.96],[-82.96,22.97],[-82.96,22.98],[-82.94,22.98],[-82.91,22.98],[-82.95,23.0],[-82.97,22.99],[-82.95,23.02],[-82.76,23.03],[-82.72,23.02],[-82.64,23.03],[-82.53,23.07],[-82.52,23.05],[-82.48,23.05],[-82.47,22.98],[-82.43,22.98],[-82.42,22.96],[-82.42,22.89],[-82.45,22.84],[-82.48,22.83],[-82.42,22.75],[-82.43,22.68],[-82.52,22.69],[-82.56,22.67],[-82.57,22.69],[-82.63,22.68],[-82.71,22.7],[-82.78,22.69]],[[-82.76,23.01],[-82.78,22.99],[-82.76,22.98],[-82.75,23.01],[-82.76,23.03],[-82.76,23.01]]],[[[-82.51,22.4],[-82.51,22.39],[-82.52,22.4],[-82.51,22.4]]],[[[-82.66,22.57],[-82.66,22.58],[-82.65,22.57],[-82.66,22.57]]],[[[-82.52,22.62],[-82.54,22.65],[-82.52,22.64],[-82.52,22.62]]],[[[-82.5,22.58],[-82.52,22.54],[-82.52,22.62],[-82.5,22.58]]],[[[-82.68,22.62],[-82.69,22.64],[-82.67,22.62],[-82.68,22.62]]],[[[-82.45,22.47],[-82.45,22.49],[-82.44,22.48],[-82.45,22.47]]],[[[-82.49,22.51],[-82.5,22.51],[-82.5,22.52],[-82.49,22.52],[-82.49,22.51]]]]}},{"type":"Feature","properties":{"NAME_1":"La Habana"},"geometry":{"type":"Polygon","coordinates":[[[-82.34,22.96],[-82.37,22.94],[-82.43,22.97],[-82.47,22.97],[-82.48,23.05],[-82.52,23.05],[-82.52,23.07],[-82.45,23.1],[-82.4,23.15],[-82.35,23.14],[-82.36,23.15],[-82.34,23.16],[-82.32,23.17],[-82.08,23.18],[-82.06,23.09],[-82.1,23.03],[-82.15,23.05],[-82.2,23.05],[-82.2,22.98],[-82.23,22.96],[-82.24,22.94],[-82.34,22.96]],[[-82.36,23.12],[-82.34,23.13],[-82.34,23.14],[-82.35,23.14],[-82.36,23.12]]]}},{"type":"Feature","properties":{"NAME_1":"Mayabeque"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-82.37,22.46],[-82.38,22.49],[-82.36,22.5],[-82.37,22.46]]],[[[-82.33,22.5],[-82.34,22.5],[-82.33,22.51],[-82.31,22.5],[-82.33,22.5]]],[[[-82.29,22.68],[-82.37,22.68],[-82.43,22.68],[-82.42,22.75],[-82.48,22.83],[-82.45,22.84],[-82.42,22.89],[-82.42,22.96],[-82.37,22.94],[-82.34,22.96],[-82.29,22.94],[-82.23,22.94],[-82.23,22.96],[-82.2,22.98],[-82.2,23.05],[-82.15,23.05],[-82.1,23.03],[-82.06,23.09],[-82.08,23.15],[-82.08,23.18],[-82.07,23.18],[-82.0,23.18],[-81.98,23.16],[-81.86,23.15],[-81.66,23.15],[-81.65,23.05],[-81.7,23.03],[-81.69,22.99],[-81.73,22.97],[-81.73,22.96],[-81.67,22.93],[-81.67,22.89],[-81.69,22.83],[-81.66,22.82],[-81.66,22.78],[-81.63,22.78],[-81.64,22.76],[-81.65,22.72],[-81.58,22.67],[-81.6,22.6],[-81.64,22.55],[-81.73,22.63],[-81.82,22.66],[-81.88,22.68],[-82.1,22.65],[-82.19,22.68],[-82.28,22.69],[-82.29,22.68]]]]}},{"type":"Feature","properties":{"NAME_1":"Matanzas"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-81.72,22.1],[-81.73,22.11],[-81.72,22.12],[-81.72,22.1]]],[[[-81.91,22.14],[-81.91,22.15],[-81.9,22.15],[-81.9,22.14],[-81.89,22.13],[-81.91,22.13],[-81.91,22.14]]],[[[-81.72,22.13],[-81.71,22.16],[-81.7,22.14],[-81.72,22.13]]],[[[-81.86,22.15],[-81.87,22.15],[-81.86,22.16],[-81.86,22.15]]],[[[-81.68,22.16],[-81.71,22.16],[-81.72,22.17],[-81.68,22.16]]],[[[-81.73,22.17],[-81.73,22.18],[-81.72,22.18],[-81.72,22.17],[-81.73,22.17]]],[[[-82.02,22.23],[-82.01,22.23],[-82.01,22.21],[-82.02,22.22],[-82.02,22.23]]],[[[-81.69,21.99],[-81.7,22.0],[-81.69,22.0],[-81.69,21.99]]],[[[-81.57,22.02],[-81.58,22.02],[-81.58,22.04],[-81.57,22.02]]],[[[-81.59,22.05],[-81.59,22.06],[-81.6,22.06],[-81.6,22.07],[-81.59,22.07],[-81.56,22.06],[-81.58,22.05],[-81.59,22.05]]],[[[-81.54,22.04],[-81.55,22.04],[-81.56,22.06],[-81.54,22.05],[-81.54,22.04]]],[[[-81.62,22.05],[-81.62,22.06],[-81.61,22.06],[-81.61,22.05],[-81.62,22.05]]],[[[-81.6,22.07],[-81.61,22.07],[-81.62,22.08],[-81.63,22.11],[-81.63,22.12],[-81.63,22.13],[-81.63,22.14],[-81.62,22.15],[-81.64,22.15],[-81.63,22.16],[-81.63,22.17],[-81.6,22.16],[-81.62,22.11],[-81.6,22.08],[-81.6,22.07]]],[[[-81.63,22.08],[-81.64,22.08],[-81.64,22.09],[-81.63,22.08]]],[[[-81.64,22.12],[-81.65,22.12],[-81.65,22.13],[-81.65,22.14],[-81.64,22.14],[-81.64,22.13],[-81.64,22.12]]],[[[-81.47,22.14],[-81.46,22.15],[-81.45,22.15],[-81.45,22.14],[-81.47,22.14]]],[[[-81.67,22.14],[-81.67,22.15],[-81.66,22.15],[-81.67,22.14]]],[[[-81.6,22.6],[-81.58,22.67],[-81.65,22.71],[-81.65,22.75],[-81.63,22.78],[-81.66,22.78],[-81.66,22.82],[-81.69,22.83],[-81.67,22.89],[-81.67,22.93],[-81.73,22.95],[-81.73,22.97],[-81.69,22.99],[-81.7,23.03],[-81.65,23.05],[-81.66,23.15],[-81.65,23.15],[-81.59,23.15],[-81.54,23.13],[-81.53,23.08],[-81.57,23.04],[-81.5,23.05],[-81.47,23.1],[-81.44,23.09],[-81.29,23.13],[-81.27,23.14],[-81.27,23.13],[-81.28,23.12],[-81.26,23.12],[-81.25,23.11],[-81.21,23.06],[-81.17,23.03],[-81.13,23.02],[-81.08,23.09],[-81.03,23.1],[-80.99,23.09],[-80.99,23.11],[-80.98,23.09],[-80.99,23.08],[-80.98,23.06],[-80.94,23.05],[-80.87,23.07],[-80.8,23.07],[-80.75,23.1],[-80.68,23.08],[-80.67,23.08],[-80.68,23.1],[-80.66,23.08],[-80.64,23.1],[-80.61,23.12],[-80.64,23.14],[-80.6,23.14],[-80.6,23.11],[-80.63,23.09],[-80.59,23.06],[-80.64,23.04],[-80.64,22.96],[-80.66,22.95],[-80.74,22.95],[-80.72,22.89],[-80.76,22.86],[-80.74,22.82],[-80.67,22.79],[-80.63,22.83],[-80.6,22.82],[-80.59,22.75],[-80.56,22.73],[-80.6,22.7],[-80.55,22.48],[-80.59,22.44],[-80.7,22.44],[-80.84,22.46],[-80.92,22.4],[-80.94,22.34],[-80.9,22.32],[-80.91,22.24],[-80.88,22.17],[-80.81,22.12],[-80.78,22.12],[-80.77,22.1],[-80.74,22.08],[-80.69,22.1],[-80.62,22.1],[-80.6,22.08],[-80.59,22.05],[-80.76,22.06],[-80.89,22.04],[-81.05,22.07],[-81.11,22.11],[-81.14,22.17],[-81.14,22.22],[-81.18,22.28],[-81.21,22.28],[-81.22,22.27],[-81.19,22.21],[-81.21,22.14],[-81.2,22.1],[-81.22,22.11],[-81.22,22.12],[-81.23,22.13],[-81.24,22.13],[-81.26,22.14],[-81.26,22.13],[-81.27,22.12],[-81.27,22.11],[-81.28,22.11],[-81.25,22.09],[-81.29,22.09],[-81.3,22.09],[-81.33,22.09],[-81.33,22.08],[-81.34,22.08],[-81.35,22.08],[-81.34,22.06],[-81.33,22.06],[-81.33,22.05],[-81.34,22.05],[-81.34,22.04],[-81.31,22.03],[-81.38,22.02],[-81.46,22.07],[-81.45,22.08],[-81.44,22.07],[-81.43,22.07],[-81.42,22.07],[-81.4,22.05],[-81.38,22.03],[-81.35,22.04],[-81.36,22.05],[-81.35,22.05],[-81.36,22.07],[-81.37,22.07],[-81.36,22.08],[-81.35,22.09],[-81.39,22.14],[-81.38,22.15],[-81.39,22.16],[-81.4,22.17],[-81.45,22.18],[-81.46,22.18],[-81.48,22.17],[-81.48,22.19],[-81.52,22.2],[-81.56,22.17],[-81.58,22.17],[-81.57,22.18],[-81.58,22.19],[-81.62,22.19],[-81.62,22.2],[-81.63,22.2],[-81.64,22.18],[-81.68,22.19],[-81.71,22.19],[-81.73,22.2],[-81.73,22.18],[-81.74,22.18],[-81.76,22.16],[-81.78,22.18],[-81.81,22.18],[-81.83,22.2],[-81.85,22.2],[-81.87,22.26],[-81.96,22.28],[-82.05,22.33],[-82.1,22.34],[-82.1,22.37],[-82.14,22.36],[-82.16,22.4],[-82.14,22.42],[-82.11,22.43],[-81.84,22.43],[-81.75,22.46],[-81.7,22.45],[-81.65,22.49],[-81.65,22.54],[-81.6,22.6]],[[-81.64,22.21],[-81.66,22.2],[-81.65,22.19],[-81.63,22.2],[-81.64,22.21]],[[-81.74,22.2],[-81.76,22.19],[-81.74,22.19],[-81.74,22.2]]],[[[-81.16,23.19],[-81.18,23.17],[-81.19,23.18],[-81.16,23.19]]],[[[-81.14,23.21],[-81.12,23.19],[-81.16,23.19],[-81.14,23.21]]],[[[-81.2,22.09],[-81.21,22.05],[-81.22,22.05],[-81.23,22.06],[-81.2,22.1],[-81.2,22.09]]],[[[-81.28,22.08],[-81.28,22.07],[-81.29,22.07],[-81.29,22.09],[-81.28,22.08]]],[[[-81.37,22.05],[-81.37,22.06],[-81.36,22.05],[-81.37,22.05]]],[[[-81.64,22.15],[-81.65,22.15],[-81.68,22.16],[-81.68,22.17],[-81.68,22.19],[-81.64,22.15]]],[[[-81.22,22.05],[-81.28,22.03],[-81.3,22.04],[-81.22,22.05]]],[[[-81.26,22.06],[-81.25,22.07],[-81.25,22.06],[-81.26,22.06]]],[[[-81.24,22.1],[-81.24,22.11],[-81.23,22.11],[-81.23,22.1],[-81.24,22.1]]],[[[-81.39,22.14],[-81.4,22.14],[-81.4,22.15],[-81.39,22.14]]],[[[-80.8,23.13],[-80.85,23.12],[-80.86,23.13],[-80.9,23.13],[-80.97,23.09],[-80.99,23.11],[-80.87,23.15],[-80.88,23.16],[-80.87,23.18],[-80.86,23.17],[-80.83,23.19],[-80.84,23.17],[-80.8,23.13]]],[[[-80.88,23.19],[-80.87,23.18],[-80.88,23.18],[-80.88,23.19]]],[[[-80.99,23.24],[-81.01,23.22],[-81.0,23.26],[-80.99,23.25],[-80.99,23.24]]],[[[-80.96,23.24],[-80.96,23.25],[-80.95,23.25],[-80.93,23.25],[-80.92,23.23],[-80.94,23.23],[-80.95,23.24],[-80.96,23.24]]],[[[-80.86,23.23],[-80.89,23.24],[-80.88,23.25],[-80.86,23.23]]],[[[-80.85,23.22],[-80.87,23.22],[-80.86,23.23],[-80.85,23.22]]],[[[-80.93,23.25],[-80.95,23.26],[-80.91,23.28],[-80.89,23.24],[-80.93,23.25]]],[[[-80.97,23.24],[-80.98,23.24],[-80.98,23.26],[-80.97,23.26],[-80.97,23.25],[-80.97,23.24]]],[[[-80.72,23.11],[-80.71,23.12],[-80.69,23.11],[-80.72,23.11]]],[[[-80.66,23.11],[-80.67,23.11],[-80.67,23.12],[-80.66,23.11]]],[[[-80.74,23.17],[-80.76,23.16],[-80.77,23.17],[-80.74,23.17]]],[[[-80.71,23.19],[-80.7,23.19],[-80.7,23.18],[-80.71,23.18],[-80.71,23.19]]],[[[-80.74,23.19],[-80.74,23.2],[-80.73,23.19],[-80.74,23.19]]],[[[-80.79,23.2],[-80.8,23.2],[-80.81,23.2],[-80.82,23.21],[-80.83,23.21],[-80.85,23.21],[-80.85,23.22],[-80.84,23.22],[-80.8,23.21],[-80.77,23.21],[-80.78,23.2],[-80.79,23.2]]],[[[-80.72,23.2],[-80.71,23.2],[-80.71,23.19],[-80.72,23.2]]],[[[-80.74,23.2],[-80.74,23.21],[-80.72,23.2],[-80.74,23.2]]],[[[-80.75,23.19],[-80.76,23.19],[-80.74,23.2],[-80.75,23.19]]],[[[-80.7,23.19],[-80.68,23.21],[-80.68,23.2],[-80.69,23.19],[-80.7,23.19]]],[[[-80.66,23.2],[-80.66,23.21],[-80.65,23.21],[-80.65,23.2],[-80.66,23.2]]],[[[-80.68,23.21],[-80.66,23.21],[-80.67,23.2],[-80.68,23.21]]],[[[-80.56,23.05],[-80.56,23.07],[-80.55,23.06],[-80.56,23.05]]],[[[-80.54,23.11],[-80.55,23.1],[-80.55,23.11],[-80.54,23.11]]],[[[-80.58,23.12],[-80.59,23.13],[-80.59,23.14],[-80.58,23.14],[-80.57,23.14],[-80.58,23.12]]],[[[-80.63,23.16],[-80.62,23.18],[-80.6,23.18],[-80.59,23.18],[-80.59,23.2],[-80.58,23.2],[-80.55,23.2],[-80.52,23.18],[-80.53,23.18],[-80.55,23.19],[-80.56,23.18],[-80.56,23.17],[-80.57,23.17],[-80.59,23.17],[-80.63,23.16]],[[-80.57,23.18],[-80.57,23.19],[-80.58,23.18],[-80.57,23.17],[-80.57,23.18]]],[[[-80.59,23.2],[-80.61,23.19],[-80.61,23.2],[-80.61,23.21],[-80.61,23.22],[-80.6,23.22],[-80.59,23.2]]],[[[-80.51,23.18],[-80.48,23.19],[-80.47,23.17],[-80.48,23.17],[-80.5,23.16],[-80.51,23.16],[-80.52,23.17],[-80.52,23.18],[-80.51,23.18]]],[[[-80.49,23.2],[-80.48,23.21],[-80.48,23.19],[-80.49,23.2]]],[[[-80.62,23.2],[-80.62,23.19],[-80.63,23.2],[-80.63,23.21],[-80.62,23.21],[-80.62,23.2]]],[[[-80.64,23.19],[-80.64,23.2],[-80.63,23.2],[-80.63,23.18],[-80.64,23.19]]]]}},{"type":"Feature","properties":{"NAME_1":"Cienfuegos"},"geometry":{"type":"Polygon","coordinates":[[[-80.41,22.01],[-80.41,22.03],[-80.45,22.05],[-80.46,22.07],[-80.47,22.04],[-80.52,22.06],[-80.59,22.05],[-80.6,22.08],[-80.63,22.1],[-80.69,22.1],[-80.74,22.08],[-80.77,22.1],[-80.78,22.12],[-80.81,22.12],[-80.88,22.17],[-80.91,22.24],[-80.9,22.32],[-80.94,22.34],[-80.92,22.4],[-80.82,22.46],[-80.77,22.44],[-80.59,22.44],[-80.55,22.47],[-80.53,22.51],[-80.46,22.55],[-80.43,22.55],[-80.39,22.51],[-80.41,22.48],[-80.4,22.47],[-80.37,22.48],[-80.33,22.48],[-80.29,22.54],[-80.27,22.53],[-80.25,22.5],[-80.25,22.47],[-80.22,22.46],[-80.21,22.38],[-80.23,22.37],[-80.22,22.36],[-80.19,22.31],[-80.11,22.29],[-80.15,22.27],[-80.09,22.21],[-80.09,22.03],[-80.03,21.9],[-80.09,21.88],[-80.11,21.82],[-80.14,21.82],[-80.29,21.9],[-80.41,22.01]],[[-80.44,22.07],[-80.42,22.07],[-80.4,22.07],[-80.42,22.09],[-80.4,22.09],[-80.44,22.11],[-80.42,22.13],[-80.45,22.12],[-80.45,22.14],[-80.47,22.14],[-80.45,22.16],[-80.49,22.18],[-80.51,22.17],[-80.54,22.18],[-80.55,22.16],[-80.5,22.13],[-80.48,22.11],[-80.48,22.09],[-80.46,22.08],[-80.46,22.07],[-80.44,22.07]]]}},{"type":"Feature","properties":{"NAME_1":"Villa Clara"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-80.4,22.47],[-80.41,22.48],[-80.39,22.51],[-80.45,22.55],[-80.53,22.51],[-80.55,22.5],[-80.6,22.7],[-80.56,22.72],[-80.59,22.75],[-80.6,22.82],[-80.63,22.83],[-80.67,22.79],[-80.74,22.82],[-80.76,22.86],[-80.72,22.89],[-80.74,22.95],[-80.65,22.96],[-80.63,23.05],[-80.59,23.06],[-80.56,23.03],[-80.53,22.99],[-80.48,22.99],[-80.45,22.96],[-80.38,22.94],[-80.36,22.94],[-80.37,22.98],[-80.35,22.96],[-80.34,22.96],[-80.28,22.91],[-80.25,22.9],[-80.24,22.91],[-80.23,22.83],[-80.23,22.91],[-80.15,22.93],[-80.16,22.95],[-80.17,22.95],[-80.18,22.95],[-80.17,22.96],[-80.16,22.96],[-80.14,22.96],[-80.06,22.93],[-80.04,22.94],[-80.03,22.94],[-80.01,22.94],[-80.01,22.91],[-79.99,22.88],[-79.97,22.87],[-79.93,22.87],[-79.9,22.84],[-79.89,22.84],[-79.88,22.88],[-79.86,22.88],[-79.85,22.88],[-79.82,22.88],[-79.82,22.89],[-79.79,22.9],[-79.78,22.88],[-79.86,22.87],[-79.85,22.8],[-79.8,22.8],[-79.7,22.74],[-79.67,22.77],[-79.65,22.76],[-79.63,22.7],[-79.61,22.65],[-79.59,22.65],[-79.55,22.61],[-79.52,22.54],[-79.5,22.53],[-79.49,22.53],[-79.44,22.53],[-79.45,22.51],[-79.42,22.49],[-79.41,22.46],[-79.43,22.4],[-79.4,22.3],[-79.36,22.27],[-79.36,22.21],[-79.43,22.22],[-79.47,22.21],[-79.51,22.14],[-79.54,22.12],[-79.65,22.15],[-79.7,22.13],[-79.73,22.17],[-79.76,22.17],[-79.78,22.13],[-79.72,22.06],[-79.76,21.97],[-79.8,21.95],[-79.92,21.98],[-79.94,21.94],[-79.97,21.94],[-80.01,21.91],[-80.03,21.91],[-80.09,22.02],[-80.09,22.06],[-80.1,22.08],[-80.09,22.12],[-80.09,22.21],[-80.15,22.28],[-80.11,22.29],[-80.19,22.31],[-80.22,22.36],[-80.23,22.37],[-80.21,22.38],[-80.22,22.46],[-80.25,22.47],[-80.25,22.5],[-80.27,22.53],[-80.29,22.54],[-80.31,22.49],[-80.4,22.47]]],[[[-80.33,22.99],[-80.3,22.98],[-80.3,23.0],[-80.29,23.0],[-80.29,23.01],[-80.27,23.01],[-80.26,23.01],[-80.26,23.02],[-80.25,23.01],[-80.25,23.03],[-80.24,23.03],[-80.24,23.02],[-80.23,23.01],[-80.23,22.99],[-80.24,22.99],[-80.26,22.98],[-80.24,22.97],[-80.22,22.99],[-80.22,23.01],[-80.22,23.02],[-80.22,23.04],[-80.21,23.04],[-80.21,23.03],[-80.21,23.02],[-80.21,23.01],[-80.21,23.0],[-80.2,23.0],[-80.19,22.98],[-80.21,22.99],[-80.22,22.97],[-80.21,22.95],[-80.24,22.96],[-80.24,22.94],[-80.25,22.94],[-80.25,22.95],[-80.27,22.96],[-80.34,22.96],[-80.33,22.99]]],[[[-80.25,22.93],[-80.26,22.93],[-80.25,22.94],[-80.25,22.93]]],[[[-79.83,22.91],[-79.85,22.9],[-79.86,22.92],[-79.85,22.95],[-79.85,22.92],[-79.82,22.92],[-79.82,22.9],[-79.82,22.89],[-79.83,22.89],[-79.85,22.88],[-79.83,22.91]]],[[[-79.49,22.54],[-79.47,22.55],[-79.49,22.53],[-79.49,22.54]]],[[[-79.27,22.56],[-79.27,22.54],[-79.28,22.53],[-79.29,22.54],[-79.27,22.56]]],[[[-79.25,22.55],[-79.22,22.58],[-79.21,22.58],[-79.2,22.57],[-79.19,22.53],[-79.2,22.52],[-79.23,22.54],[-79.23,22.55],[-79.25,22.55]]],[[[-79.21,22.58],[-79.2,22.6],[-79.18,22.6],[-79.2,22.62],[-79.14,22.64],[-79.14,22.63],[-79.13,22.62],[-79.13,22.63],[-79.12,22.63],[-79.11,22.62],[-79.12,22.62],[-79.13,22.6],[-79.14,22.6],[-79.12,22.57],[-79.11,22.57],[-79.11,22.56],[-79.12,22.56],[-79.13,22.55],[-79.15,22.55],[-79.15,22.56],[-79.15,22.58],[-79.17,22.57],[-79.18,22.57],[-79.18,22.58],[-79.19,22.58],[-79.21,22.58]]],[[[-79.23,22.59],[-79.22,22.61],[-79.2,22.6],[-79.23,22.59]]],[[[-79.11,22.64],[-79.09,22.65],[-79.09,22.67],[-78.97,22.67],[-78.96,22.65],[-78.99,22.63],[-79.0,22.63],[-79.0,22.65],[-79.02,22.64],[-79.03,22.65],[-79.06,22.65],[-79.07,22.65],[-79.07,22.66],[-79.08,22.66],[-79.08,22.65],[-79.08,22.64],[-79.09,22.64],[-79.11,22.64]]],[[[-79.09,22.6],[-79.11,22.59],[-79.1,22.61],[-79.09,22.6]]],[[[-79.07,22.54],[-79.06,22.52],[-79.1,22.53],[-79.07,22.54]]],[[[-80.38,22.97],[-80.39,22.97],[-80.38,22.98],[-80.38,22.97]]],[[[-80.41,23.02],[-80.42,23.01],[-80.43,23.02],[-80.41,23.02]]],[[[-80.34,23.02],[-80.34,23.01],[-80.35,23.02],[-80.34,23.02]]],[[[-80.39,23.05],[-80.4,23.05],[-80.4,23.06],[-80.39,23.05]]],[[[-80.36,23.07],[-80.34,23.06],[-80.35,23.05],[-80.36,23.07]]],[[[-80.33,23.08],[-80.33,23.09],[-80.32,23.09],[-80.33,23.08]]],[[[-80.38,23.1],[-80.39,23.09],[-80.39,23.1],[-80.38,23.1]]],[[[-80.31,23.11],[-80.33,23.12],[-80.33,23.14],[-80.31,23.14],[-80.29,23.14],[-80.3,23.13],[-80.31,23.13],[-80.31,23.11]]],[[[-80.45,23.13],[-80.45,23.14],[-80.45,23.15],[-80.39,23.15],[-80.41,23.14],[-80.44,23.13],[-80.45,23.13]]],[[[-80.39,23.12],[-80.39,23.15],[-80.37,23.15],[-80.37,23.14],[-80.39,23.12]]],[[[-80.24,23.05],[-80.23,23.05],[-80.23,23.04],[-80.24,23.04],[-80.24,23.05]]],[[[-80.24,23.06],[-80.24,23.05],[-80.25,23.05],[-80.24,23.06]]],[[[-80.3,23.07],[-80.29,23.08],[-80.29,23.07],[-80.3,23.07]]],[[[-80.25,23.07],[-80.26,23.07],[-80.25,23.09],[-80.25,23.07]]],[[[-80.29,23.09],[-80.28,23.09],[-80.28,23.08],[-80.29,23.08],[-80.29,23.09]]],[[[-80.25,23.09],[-80.26,23.09],[-80.27,23.1],[-80.28,23.1],[-80.27,23.11],[-80.27,23.12],[-80.26,23.12],[-80.26,23.11],[-80.24,23.1],[-80.25,23.09]]],[[[-80.24,23.1],[-80.23,23.1],[-80.2,23.12],[-80.17,23.07],[-80.18,23.06],[-80.19,23.06],[-80.19,23.07],[-80.19,23.08],[-80.2,23.07],[-80.23,23.09],[-80.24,23.09],[-80.24,23.1]]],[[[-80.27,23.12],[-80.28,23.12],[-80.28,23.13],[-80.27,23.13],[-80.27,23.12]]],[[[-80.3,23.11],[-80.29,23.13],[-80.28,23.12],[-80.3,23.11]]],[[[-80.23,23.13],[-80.23,23.12],[-80.24,23.12],[-80.25,23.12],[-80.25,23.13],[-80.24,23.13],[-80.23,23.13]]],[[[-80.29,23.13],[-80.29,23.14],[-80.28,23.15],[-80.27,23.14],[-80.28,23.13],[-80.29,23.13]]],[[[-80.22,23.15],[-80.23,23.13],[-80.23,23.14],[-80.22,23.15]]],[[[-80.19,23.02],[-80.2,23.02],[-80.21,23.03],[-80.19,23.02]]],[[[-80.2,23.02],[-80.19,23.01],[-80.21,23.01],[-80.2,23.02]]],[[[-80.19,23.01],[-80.19,23.02],[-80.18,23.02],[-80.16,23.0],[-80.14,22.97],[-80.17,22.97],[-80.19,22.98],[-80.18,23.0],[-80.18,23.01],[-80.19,23.01]]],[[[-80.16,23.0],[-80.15,23.02],[-80.14,23.0],[-80.16,23.0]]],[[[-80.09,23.02],[-80.07,23.0],[-80.13,23.0],[-80.12,23.01],[-80.12,23.02],[-80.09,23.02]]],[[[-80.0,23.03],[-80.0,23.01],[-80.03,23.0],[-80.03,23.03],[-80.02,23.03],[-80.02,23.04],[-80.02,23.05],[-79.99,23.04],[-80.0,23.03]]],[[[-80.16,23.02],[-80.17,23.03],[-80.17,23.04],[-80.18,23.04],[-80.18,23.05],[-80.17,23.05],[-80.17,23.06],[-80.17,23.07],[-80.17,23.09],[-80.16,23.08],[-80.15,23.08],[-80.14,23.08],[-80.13,23.08],[-80.16,23.05],[-80.16,23.03],[-80.16,23.02]]],[[[-80.04,23.03],[-80.05,23.02],[-80.06,23.04],[-80.08,23.03],[-80.09,23.04],[-80.09,23.07],[-80.08,23.07],[-80.04,23.03]]],[[[-80.18,23.02],[-80.18,23.03],[-80.17,23.03],[-80.18,23.02]]],[[[-80.18,23.03],[-80.19,23.02],[-80.19,23.04],[-80.18,23.04],[-80.18,23.03]]],[[[-79.69,22.84],[-79.7,22.85],[-79.7,22.86],[-79.71,22.85],[-79.72,22.86],[-79.74,22.87],[-79.74,22.88],[-79.73,22.89],[-79.72,22.89],[-79.72,22.88],[-79.72,22.87],[-79.71,22.88],[-79.7,22.88],[-79.7,22.87],[-79.69,22.89],[-79.69,22.86],[-79.65,22.85],[-79.69,22.84]]],[[[-79.9,22.87],[-79.91,22.87],[-79.9,22.88],[-79.9,22.87]]],[[[-79.95,22.89],[-79.95,22.91],[-79.94,22.9],[-79.94,22.89],[-79.95,22.89]]],[[[-79.77,22.93],[-79.76,22.93],[-79.76,22.92],[-79.77,22.93]]],[[[-79.88,22.94],[-79.88,22.91],[-79.92,22.95],[-79.89,22.96],[-79.87,22.96],[-79.86,22.96],[-79.85,22.97],[-79.85,22.96],[-79.85,22.95],[-79.87,22.94],[-79.87,22.95],[-79.88,22.94]]],[[[-79.93,22.92],[-79.94,22.92],[-79.95,22.94],[-79.95,22.95],[-79.92,22.95],[-79.93,22.92]]],[[[-79.84,22.96],[-79.83,22.96],[-79.81,22.94],[-79.83,22.94],[-79.84,22.96]]],[[[-79.95,22.97],[-79.94,22.97],[-79.95,22.96],[-79.95,22.97]]],[[[-79.17,22.53],[-79.18,22.55],[-79.16,22.54],[-79.16,22.55],[-79.15,22.55],[-79.14,22.53],[-79.17,22.53]]],[[[-79.08,22.6],[-79.08,22.62],[-79.07,22.62],[-79.07,22.59],[-79.07,22.58],[-79.09,22.56],[-79.08,22.6]]],[[[-79.24,22.59],[-79.23,22.59],[-79.22,22.58],[-79.24,22.59]]],[[[-79.48,22.59],[-79.5,22.59],[-79.49,22.6],[-79.48,22.59]]],[[[-79.23,22.64],[-79.17,22.65],[-79.2,22.62],[-79.22,22.62],[-79.21,22.63],[-79.23,22.64]]],[[[-79.4,22.62],[-79.41,22.63],[-79.42,22.63],[-79.43,22.63],[-79.44,22.62],[-79.44,22.63],[-79.45,22.63],[-79.5,22.65],[-79.45,22.64],[-79.45,22.65],[-79.49,22.66],[-79.47,22.66],[-79.44,22.66],[-79.43,22.66],[-79.43,22.68],[-79.4,22.62]],[[-79.44,22.64],[-79.43,22.64],[-79.42,22.64],[-79.43,22.66],[-79.44,22.64]]],[[[-79.38,22.6],[-79.39,22.59],[-79.41,22.6],[-79.4,22.62],[-79.38,22.6]]],[[[-79.06,22.64],[-79.04,22.64],[-79.05,22.63],[-79.06,22.63],[-79.07,22.63],[-79.07,22.64],[-79.06,22.64]]],[[[-79.51,22.65],[-79.53,22.66],[-79.51,22.67],[-79.51,22.65]]],[[[-79.5,22.65],[-79.51,22.64],[-79.51,22.65],[-79.5,22.65]]],[[[-79.55,22.69],[-79.54,22.69],[-79.54,22.68],[-79.55,22.69]]],[[[-79.37,22.67],[-79.32,22.61],[-79.43,22.69],[-79.49,22.68],[-79.5,22.71],[-79.53,22.72],[-79.53,22.75],[-79.56,22.77],[-79.56,22.79],[-79.52,22.76],[-79.37,22.67]]],[[[-79.63,22.79],[-79.62,22.8],[-79.58,22.81],[-79.56,22.8],[-79.56,22.79],[-79.63,22.79]]],[[[-78.78,22.51],[-78.79,22.52],[-78.78,22.52],[-78.78,22.51]]],[[[-79.02,22.53],[-79.01,22.52],[-79.02,22.52],[-79.02,22.53]]],[[[-78.83,22.55],[-78.82,22.55],[-78.82,22.54],[-78.82,22.53],[-78.83,22.53],[-78.83,22.55]]],[[[-78.98,22.59],[-78.98,22.58],[-78.99,22.58],[-78.99,22.57],[-79.01,22.56],[-79.02,22.56],[-78.99,22.63],[-78.98,22.62],[-78.97,22.61],[-78.98,22.61],[-78.98,22.59]]],[[[-78.99,22.53],[-78.95,22.54],[-78.93,22.52],[-78.95,22.51],[-78.99,22.51],[-79.01,22.56],[-78.99,22.53]]],[[[-78.91,22.53],[-78.89,22.52],[-78.89,22.5],[-78.92,22.51],[-78.91,22.53]]],[[[-78.84,22.51],[-78.82,22.49],[-78.8,22.5],[-78.8,22.52],[-78.79,22.52],[-78.79,22.5],[-78.79,22.49],[-78.83,22.48],[-78.89,22.5],[-78.84,22.51]]],[[[-78.97,22.56],[-78.96,22.56],[-78.96,22.55],[-78.97,22.56]]]]}},{"type":"Feature","properties":{"NAME_1":"Sancti Spíritus"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-79.96,21.74],[-80.0,21.76],[-80.01,21.74],[-80.03,21.8],[-80.11,21.82],[-80.1,21.87],[-80.08,21.89],[-79.99,21.91],[-79.97,21.94],[-79.94,21.94],[-79.92,21.98],[-79.8,21.95],[-79.76,21.97],[-79.72,22.06],[-79.78,22.13],[-79.76,22.17],[-79.73,22.17],[-79.7,22.13],[-79.65,22.15],[-79.54,22.12],[-79.51,22.14],[-79.47,22.21],[-79.43,22.22],[-79.36,22.21],[-79.36,22.27],[-79.4,22.3],[-79.43,22.39],[-79.41,22.46],[-79.36,22.42],[-79.27,22.38],[-79.25,22.37],[-79.22,22.39],[-79.16,22.37],[-79.14,22.4],[-79.07,22.37],[-79.03,22.4],[-79.01,22.4],[-78.93,22.39],[-78.93,22.34],[-79.07,22.11],[-79.07,22.07],[-79.01,22.02],[-78.97,22.01],[-78.98,21.94],[-78.99,21.92],[-79.06,21.92],[-79.08,21.78],[-79.13,21.73],[-79.09,21.7],[-79.11,21.64],[-79.06,21.64],[-79.0,21.67],[-78.97,21.63],[-78.97,21.59],[-78.98,21.6],[-79.06,21.59],[-79.13,21.56],[-79.21,21.54],[-79.3,21.56],[-79.33,21.59],[-79.33,21.6],[-79.35,21.6],[-79.36,21.6],[-79.45,21.6],[-79.51,21.64],[-79.54,21.62],[-79.56,21.64],[-79.6,21.64],[-79.6,21.66],[-79.63,21.68],[-79.67,21.69],[-79.72,21.68],[-79.76,21.72],[-79.81,21.71],[-79.82,21.7],[-79.82,21.69],[-79.82,21.67],[-79.84,21.7],[-79.86,21.7],[-79.89,21.7],[-79.87,21.72],[-79.9,21.72],[-79.89,21.75],[-79.9,21.75],[-79.91,21.73],[-79.95,21.74],[-79.96,21.74]]],[[[-79.99,21.74],[-79.97,21.73],[-79.97,21.72],[-80.01,21.74],[-79.99,21.74]]],[[[-79.26,22.39],[-79.27,22.39],[-79.26,22.4],[-79.26,22.39]]],[[[-79.24,22.42],[-79.25,22.42],[-79.23,22.44],[-79.24,22.42]]],[[[-79.27,22.44],[-79.31,22.44],[-79.28,22.46],[-79.26,22.45],[-79.27,22.44]]],[[[-79.34,22.46],[-79.3,22.47],[-79.33,22.45],[-79.34,22.46]]]]}},{"type":"Feature","properties":{"NAME_1":"Ciego de Ávila"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-78.78,21.4],[-78.79,21.39],[-78.8,21.4],[-78.79,21.4],[-78.78,21.4]]],[[[-78.77,21.43],[-78.77,21.44],[-78.76,21.44],[-78.76,21.43],[-78.76,21.41],[-78.77,21.41],[-78.77,21.42],[-78.77,21.43]]],[[[-78.79,21.46],[-78.78,21.46],[-78.78,21.44],[-78.79,21.46]]],[[[-78.83,21.48],[-78.82,21.47],[-78.83,21.46],[-78.84,21.48],[-78.83,21.48]]],[[[-78.85,21.48],[-78.86,21.49],[-78.84,21.49],[-78.85,21.48]]],[[[-78.84,21.49],[-78.84,21.5],[-78.83,21.49],[-78.84,21.49]]],[[[-78.85,21.62],[-78.89,21.59],[-78.97,21.6],[-78.97,21.63],[-79.01,21.67],[-79.06,21.64],[-79.12,21.64],[-79.09,21.7],[-79.13,21.73],[-79.08,21.78],[-79.06,21.92],[-79.04,21.93],[-78.99,21.92],[-78.97,21.98],[-78.97,22.01],[-79.01,22.02],[-79.07,22.07],[-79.07,22.11],[-78.93,22.34],[-78.93,22.39],[-78.88,22.39],[-78.9,22.4],[-78.88,22.4],[-78.83,22.38],[-78.78,22.39],[-78.76,22.32],[-78.72,22.3],[-78.71,22.34],[-78.7,22.35],[-78.71,22.35],[-78.71,22.36],[-78.72,22.36],[-78.72,22.37],[-78.71,22.37],[-78.69,22.37],[-78.68,22.36],[-78.66,22.36],[-78.64,22.33],[-78.55,22.3],[-78.53,22.29],[-78.5,22.26],[-78.43,22.26],[-78.43,22.25],[-78.43,22.24],[-78.42,22.25],[-78.4,22.24],[-78.4,22.25],[-78.36,22.22],[-78.35,22.2],[-78.34,22.17],[-78.33,22.18],[-78.32,22.18],[-78.31,22.16],[-78.31,22.17],[-78.3,22.14],[-78.27,22.15],[-78.24,22.14],[-78.23,22.13],[-78.23,22.12],[-78.19,22.12],[-78.18,22.13],[-78.16,22.13],[-78.15,22.12],[-78.13,22.11],[-78.15,22.11],[-78.15,22.1],[-78.1,22.1],[-78.11,22.09],[-78.06,22.05],[-78.18,21.96],[-78.26,21.95],[-78.27,21.93],[-78.24,21.87],[-78.19,21.86],[-78.16,21.82],[-78.16,21.8],[-78.2,21.78],[-78.19,21.76],[-78.23,21.76],[-78.26,21.75],[-78.29,21.8],[-78.34,21.78],[-78.34,21.71],[-78.38,21.65],[-78.44,21.64],[-78.46,21.58],[-78.49,21.59],[-78.63,21.52],[-78.67,21.55],[-78.68,21.56],[-78.74,21.57],[-78.75,21.55],[-78.76,21.55],[-78.77,21.55],[-78.78,21.53],[-78.78,21.56],[-78.74,21.59],[-78.69,21.58],[-78.73,21.62],[-78.73,21.63],[-78.74,21.63],[-78.75,21.63],[-78.76,21.64],[-78.85,21.62]]],[[[-78.74,22.37],[-78.73,22.39],[-78.72,22.38],[-78.72,22.37],[-78.74,22.37]]],[[[-78.72,22.38],[-78.72,22.39],[-78.69,22.38],[-78.69,22.37],[-78.72,22.38]]],[[[-78.33,22.2],[-78.33,22.19],[-78.33,22.18],[-78.34,22.2],[-78.33,22.2]]],[[[-78.29,22.16],[-78.29,22.17],[-78.27,22.15],[-78.29,22.16]]],[[[-78.2,22.15],[-78.2,22.16],[-78.18,22.15],[-78.18,22.13],[-78.19,22.14],[-78.19,22.15],[-78.2,22.15]]],[[[-78.77,21.48],[-78.77,21.5],[-78.75,21.47],[-78.77,21.48]]],[[[-78.77,21.63],[-78.76,21.64],[-78.76,21.63],[-78.77,21.63]]],[[[-78.74,22.5],[-78.75,22.5],[-78.75,22.51],[-78.73,22.51],[-78.74,22.5]]],[[[-78.74,22.52],[-78.77,22.53],[-78.77,22.55],[-78.74,22.54],[-78.74,22.55],[-78.72,22.55],[-78.74,22.52]]],[[[-78.45,22.32],[-78.44,22.32],[-78.44,22.31],[-78.45,22.31],[-78.45,22.32]]],[[[-78.48,22.44],[-78.51,22.44],[-78.52,22.45],[-78.52,22.44],[-78.55,22.44],[-78.56,22.46],[-78.66,22.48],[-78.66,22.49],[-78.65,22.49],[-78.65,22.5],[-78.65,22.51],[-78.65,22.52],[-78.64,22.52],[-78.62,22.51],[-78.64,22.54],[-78.65,22.54],[-78.65,22.55],[-78.63,22.56],[-78.61,22.53],[-78.59,22.55],[-78.56,22.52],[-78.46,22.52],[-78.43,22.56],[-78.38,22.55],[-78.33,22.52],[-78.36,22.52],[-78.31,22.48],[-78.27,22.43],[-78.22,22.42],[-78.22,22.44],[-78.23,22.44],[-78.22,22.46],[-78.18,22.46],[-78.16,22.48],[-78.15,22.47],[-78.16,22.44],[-78.18,22.45],[-78.18,22.43],[-78.2,22.44],[-78.18,22.42],[-78.16,22.43],[-78.12,22.42],[-78.1,22.4],[-78.09,22.42],[-78.08,22.41],[-78.09,22.4],[-78.08,22.38],[-78.07,22.37],[-78.06,22.33],[-78.07,22.3],[-78.05,22.29],[-78.04,22.28],[-78.03,22.28],[-78.02,22.28],[-78.01,22.27],[-78.0,22.27],[-78.01,22.28],[-78.01,22.29],[-78.02,22.31],[-77.98,22.3],[-77.98,22.29],[-77.96,22.27],[-77.97,22.26],[-77.99,22.26],[-77.99,22.23],[-78.04,22.16],[-78.05,22.17],[-78.07,22.16],[-78.09,22.19],[-78.06,22.18],[-78.07,22.19],[-78.06,22.2],[-78.05,22.2],[-78.04,22.21],[-78.03,22.21],[-78.02,22.21],[-78.03,22.22],[-78.04,22.23],[-78.09,22.3],[-78.12,22.3],[-78.12,22.29],[-78.2,22.3],[-78.19,22.31],[-78.22,22.32],[-78.23,22.33],[-78.24,22.32],[-78.24,22.34],[-78.26,22.34],[-78.28,22.38],[-78.3,22.4],[-78.3,22.38],[-78.33,22.39],[-78.3,22.42],[-78.3,22.44],[-78.34,22.42],[-78.41,22.42],[-78.42,22.41],[-78.42,22.43],[-78.41,22.45],[-78.43,22.45],[-78.44,22.45],[-78.46,22.44],[-78.46,22.45],[-78.47,22.45],[-78.48,22.44]],[[-78.28,22.43],[-78.28,22.42],[-78.27,22.43],[-78.28,22.43]],[[-78.27,22.37],[-78.27,22.39],[-78.28,22.38],[-78.27,22.37]]],[[[-78.59,22.45],[-78.61,22.44],[-78.61,22.45],[-78.61,22.46],[-78.59,22.46],[-78.59,22.45]]],[[[-78.37,22.24],[-78.35,22.25],[-78.35,22.24],[-78.37,22.24]]],[[[-78.32,22.23],[-78.34,22.24],[-78.34,22.25],[-78.3,22.26],[-78.32,22.23]]],[[[-78.32,22.22],[-78.34,22.22],[-78.32,22.23],[-78.32,22.22]]],[[[-78.38,22.28],[-78.38,22.3],[-78.37,22.29],[-78.38,22.28]]],[[[-78.12,22.24],[-78.13,22.26],[-78.14,22.28],[-78.12,22.26],[-78.12,22.24]]],[[[-78.45,22.39],[-78.45,22.4],[-78.43,22.41],[-78.45,22.39]]],[[[-78.43,22.43],[-78.43,22.44],[-78.42,22.43],[-78.43,22.43]]],[[[-78.47,22.43],[-78.48,22.43],[-78.48,22.44],[-78.46,22.44],[-78.47,22.43]]],[[[-78.67,22.54],[-78.67,22.5],[-78.67,22.49],[-78.7,22.5],[-78.69,22.52],[-78.71,22.56],[-78.72,22.57],[-78.7,22.57],[-78.69,22.6],[-78.7,22.61],[-78.66,22.6],[-78.63,22.56],[-78.67,22.59],[-78.68,22.58],[-78.69,22.57],[-78.68,22.56],[-78.68,22.55],[-78.66,22.55],[-78.65,22.54],[-78.67,22.54]]],[[[-78.11,22.42],[-78.09,22.43],[-78.09,22.42],[-78.11,22.42]]],[[[-78.2,22.14],[-78.19,22.14],[-78.19,22.13],[-78.2,22.14]]],[[[-78.01,22.33],[-78.01,22.34],[-78.0,22.33],[-78.01,22.33]]],[[[-77.98,22.35],[-77.98,22.34],[-78.0,22.35],[-77.98,22.35]]]]}},{"type":"Feature","properties":{"NAME_1":"Camagüey"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-78.72,20.68],[-78.72,20.67],[-78.75,20.69],[-78.72,20.68]]],[[[-78.77,20.74],[-78.76,20.72],[-78.8,20.73],[-78.77,20.74]]],[[[-78.83,20.77],[-78.82,20.77],[-78.84,20.75],[-78.84,20.76],[-78.83,20.77]]],[[[-78.86,20.77],[-78.86,20.78],[-78.85,20.78],[-78.84,20.78],[-78.84,20.76],[-78.86,20.77]]],[[[-78.86,20.8],[-78.86,20.79],[-78.86,20.78],[-78.87,20.79],[-78.87,20.77],[-78.89,20.78],[-78.9,20.78],[-78.89,20.79],[-78.88,20.79],[-78.88,20.8],[-78.86,20.8]]],[[[-78.92,20.8],[-78.92,20.82],[-78.93,20.83],[-78.91,20.83],[-78.91,20.8],[-78.92,20.8]]],[[[-78.93,20.82],[-78.94,20.82],[-78.94,20.83],[-78.93,20.83],[-78.93,20.82]]],[[[-78.94,20.79],[-78.96,20.8],[-78.94,20.82],[-78.94,20.79]]],[[[-79.17,21.0],[-79.18,20.97],[-79.23,21.01],[-79.21,21.02],[-79.18,21.0],[-79.17,21.0]]],[[[-79.09,20.92],[-79.07,20.9],[-79.11,20.91],[-79.17,20.98],[-79.11,20.92],[-79.1,20.93],[-79.09,20.92]]],[[[-79.05,20.91],[-79.05,20.9],[-79.09,20.92],[-79.05,20.91]]],[[[-79.0,20.87],[-78.97,20.87],[-78.97,20.84],[-79.05,20.87],[-79.06,20.89],[-79.07,20.89],[-79.07,20.9],[-79.05,20.9],[-79.0,20.87]]],[[[-79.29,21.05],[-79.29,21.04],[-79.31,21.05],[-79.29,21.05]]],[[[-78.83,21.05],[-78.84,21.05],[-78.84,21.06],[-78.83,21.06],[-78.82,21.05],[-78.83,21.05]]],[[[-78.77,21.04],[-78.78,21.05],[-78.77,21.06],[-78.77,21.04]]],[[[-79.35,21.07],[-79.34,21.07],[-79.34,21.06],[-79.35,21.07]]],[[[-79.28,21.05],[-79.33,21.07],[-79.31,21.07],[-79.33,21.1],[-79.3,21.09],[-79.28,21.05]]],[[[-79.34,21.07],[-79.34,21.08],[-79.33,21.08],[-79.33,21.07],[-79.34,21.07]]],[[[-79.34,21.09],[-79.35,21.09],[-79.39,21.12],[-79.36,21.13],[-79.33,21.1],[-79.34,21.09]]],[[[-78.74,21.1],[-78.74,21.11],[-78.71,21.1],[-78.71,21.09],[-78.74,21.1]]],[[[-79.44,21.11],[-79.45,21.12],[-79.46,21.13],[-79.44,21.13],[-79.43,21.12],[-79.44,21.11]]],[[[-79.43,21.11],[-79.41,21.12],[-79.4,21.1],[-79.44,21.1],[-79.44,21.11],[-79.43,21.11]]],[[[-78.46,20.61],[-78.45,20.61],[-78.45,20.6],[-78.44,20.6],[-78.44,20.59],[-78.43,20.6],[-78.42,20.6],[-78.41,20.58],[-78.45,20.59],[-78.47,20.6],[-78.47,20.61],[-78.46,20.61]]],[[[-78.49,20.63],[-78.49,20.61],[-78.53,20.62],[-78.49,20.63]]],[[[-78.56,20.62],[-78.56,20.63],[-78.53,20.63],[-78.53,20.62],[-78.56,20.62]]],[[[-78.65,20.65],[-78.71,20.65],[-78.71,20.67],[-78.65,20.65]]],[[[-78.65,20.66],[-78.61,20.66],[-78.6,20.65],[-78.58,20.66],[-78.57,20.64],[-78.65,20.65],[-78.65,20.66]]],[[[-78.56,20.69],[-78.56,20.7],[-78.55,20.7],[-78.55,20.69],[-78.56,20.69]]],[[[-78.49,20.71],[-78.51,20.7],[-78.52,20.7],[-78.55,20.7],[-78.52,20.71],[-78.49,20.72],[-78.49,20.71]]],[[[-78.46,20.68],[-78.47,20.68],[-78.47,20.69],[-78.46,20.68]]],[[[-78.57,20.71],[-78.58,20.7],[-78.59,20.71],[-78.57,20.71]]],[[[-78.61,20.71],[-78.62,20.71],[-78.62,20.72],[-78.61,20.71]]],[[[-78.6,20.72],[-78.59,20.72],[-78.59,20.71],[-78.6,20.71],[-78.6,20.72]]],[[[-78.65,20.75],[-78.63,20.74],[-78.64,20.73],[-78.66,20.76],[-78.64,20.78],[-78.64,20.76],[-78.65,20.75]]],[[[-78.65,20.84],[-78.63,20.85],[-78.62,20.82],[-78.63,20.81],[-78.65,20.84]]],[[[-78.48,20.9],[-78.48,20.91],[-78.47,20.9],[-78.48,20.9]]],[[[-78.53,21.28],[-78.54,21.29],[-78.53,21.31],[-78.54,21.3],[-78.55,21.32],[-78.55,21.34],[-78.56,21.35],[-78.55,21.35],[-78.55,21.36],[-78.56,21.38],[-78.59,21.43],[-78.63,21.52],[-78.49,21.59],[-78.46,21.58],[-78.44,21.64],[-78.37,21.65],[-78.34,21.71],[-78.34,21.78],[-78.29,21.8],[-78.26,21.75],[-78.23,21.76],[-78.19,21.76],[-78.2,21.78],[-78.16,21.8],[-78.16,21.82],[-78.19,21.86],[-78.24,21.87],[-78.27,21.93],[-78.26,21.95],[-78.18,21.96],[-78.06,22.04],[-78.09,22.09],[-78.06,22.07],[-78.01,22.01],[-77.99,21.96],[-77.98,21.97],[-77.96,21.96],[-77.95,21.93],[-77.95,21.95],[-77.92,21.91],[-77.9,21.86],[-77.87,21.86],[-77.85,21.9],[-77.87,21.92],[-77.87,21.93],[-77.86,21.96],[-77.83,21.97],[-77.8,21.95],[-77.81,21.94],[-77.86,21.93],[-77.82,21.87],[-77.77,21.87],[-77.75,21.8],[-77.67,21.77],[-77.58,21.77],[-77.54,21.75],[-77.48,21.77],[-77.46,21.74],[-77.46,21.73],[-77.42,21.65],[-77.37,21.64],[-77.36,21.65],[-77.35,21.65],[-77.35,21.67],[-77.36,21.68],[-77.36,21.69],[-77.39,21.69],[-77.4,21.7],[-77.4,21.71],[-77.39,21.72],[-77.4,21.72],[-77.4,21.74],[-77.41,21.75],[-77.43,21.76],[-77.41,21.73],[-77.45,21.72],[-77.44,21.75],[-77.44,21.76],[-77.45,21.77],[-77.44,21.81],[-77.17,21.65],[-77.14,21.66],[-77.14,21.63],[-77.11,21.61],[-77.12,21.59],[-77.12,21.57],[-77.11,21.57],[-77.09,21.61],[-76.98,21.5],[-76.95,21.45],[-76.97,21.45],[-76.98,21.43],[-77.09,21.4],[-77.14,21.31],[-77.07,21.3],[-77.12,21.23],[-77.13,21.13],[-77.18,21.08],[-77.24,21.08],[-77.26,21.06],[-77.31,20.96],[-77.35,20.98],[-77.35,20.95],[-77.36,20.96],[-77.36,21.01],[-77.4,21.02],[-77.42,21.05],[-77.44,21.06],[-77.47,21.01],[-77.47,20.97],[-77.54,21.0],[-77.53,20.96],[-77.57,20.93],[-77.57,20.91],[-77.64,20.94],[-77.66,20.85],[-77.76,20.85],[-77.8,20.79],[-77.81,20.71],[-77.84,20.72],[-77.9,20.73],[-77.92,20.69],[-78.04,20.7],[-78.05,20.72],[-78.06,20.71],[-78.14,20.76],[-78.16,20.8],[-78.21,20.84],[-78.24,20.83],[-78.26,20.9],[-78.31,20.91],[-78.33,20.94],[-78.4,20.96],[-78.4,20.99],[-78.47,21.03],[-78.49,21.03],[-78.49,21.1],[-78.48,21.1],[-78.48,21.12],[-78.49,21.12],[-78.49,21.11],[-78.5,21.12],[-78.5,21.16],[-78.52,21.21],[-78.51,21.22],[-78.52,21.22],[-78.53,21.25],[-78.52,21.27],[-78.52,21.26],[-78.51,21.26],[-78.5,21.28],[-78.52,21.28],[-78.53,21.28]],[[-77.14,21.57],[-77.15,21.54],[-77.18,21.57],[-77.27,21.61],[-77.29,21.59],[-77.31,21.61],[-77.37,21.61],[-77.36,21.59],[-77.31,21.57],[-77.26,21.56],[-77.24,21.57],[-77.21,21.54],[-77.24,21.53],[-77.26,21.54],[-77.28,21.52],[-77.26,21.47],[-77.22,21.47],[-77.21,21.44],[-77.15,21.48],[-77.13,21.56],[-77.12,21.57],[-77.14,21.57]]],[[[-78.38,20.6],[-78.38,20.59],[-78.4,20.59],[-78.39,20.61],[-78.39,20.62],[-78.39,20.64],[-78.38,20.63],[-78.37,20.62],[-78.38,20.6]]],[[[-78.38,20.58],[-78.35,20.56],[-78.39,20.57],[-78.38,20.59],[-78.38,20.58]]],[[[-78.33,20.54],[-78.33,20.52],[-78.38,20.54],[-78.4,20.56],[-78.37,20.55],[-78.34,20.53],[-78.34,20.56],[-78.33,20.54]]],[[[-78.39,20.64],[-78.4,20.64],[-78.4,20.65],[-78.38,20.66],[-78.39,20.64]]],[[[-78.41,20.68],[-78.39,20.68],[-78.39,20.67],[-78.41,20.68]]],[[[-78.3,20.66],[-78.3,20.67],[-78.29,20.67],[-78.3,20.66]]],[[[-78.39,20.68],[-78.39,20.69],[-78.38,20.69],[-78.38,20.67],[-78.39,20.68]]],[[[-78.4,20.71],[-78.4,20.69],[-78.41,20.7],[-78.4,20.71]]],[[[-78.43,20.72],[-78.44,20.72],[-78.43,20.73],[-78.42,20.73],[-78.41,20.73],[-78.43,20.72]]],[[[-78.38,20.7],[-78.37,20.75],[-78.36,20.74],[-78.38,20.7]]],[[[-78.38,20.74],[-78.39,20.73],[-78.4,20.73],[-78.38,20.74]]],[[[-78.28,20.78],[-78.27,20.78],[-78.27,20.77],[-78.28,20.77],[-78.28,20.78]]],[[[-77.82,21.98],[-77.83,21.98],[-77.83,21.99],[-77.84,22.0],[-77.85,22.02],[-77.85,22.0],[-77.86,22.01],[-77.86,21.99],[-77.87,22.0],[-77.9,22.01],[-77.94,22.05],[-77.95,22.11],[-77.99,22.13],[-78.01,22.14],[-78.0,22.12],[-78.01,22.12],[-78.04,22.16],[-77.99,22.23],[-77.96,22.23],[-77.95,22.22],[-77.95,22.23],[-77.94,22.23],[-77.93,22.21],[-77.93,22.2],[-77.92,22.2],[-77.91,22.19],[-77.91,22.2],[-77.91,22.21],[-77.92,22.22],[-77.9,22.21],[-77.91,22.23],[-77.87,22.24],[-77.89,22.22],[-77.87,22.21],[-77.87,22.2],[-77.86,22.19],[-77.86,22.18],[-77.9,22.18],[-77.85,22.15],[-77.84,22.17],[-77.83,22.14],[-77.84,22.1],[-77.8,22.09],[-77.79,22.1],[-77.75,22.06],[-77.75,22.05],[-77.74,22.05],[-77.74,22.07],[-77.73,22.06],[-77.72,22.06],[-77.69,22.05],[-77.65,22.06],[-77.62,22.0],[-77.66,21.96],[-77.63,21.95],[-77.63,21.94],[-77.62,21.95],[-77.61,21.95],[-77.6,21.92],[-77.62,21.9],[-77.62,21.88],[-77.6,21.89],[-77.61,21.87],[-77.61,21.86],[-77.63,21.86],[-77.65,21.89],[-77.67,21.9],[-77.68,21.89],[-77.69,21.89],[-77.69,21.9],[-77.7,21.9],[-77.7,21.89],[-77.71,21.88],[-77.72,21.91],[-77.72,21.94],[-77.73,21.94],[-77.75,21.96],[-77.75,21.94],[-77.76,21.95],[-77.76,21.96],[-77.77,21.96],[-77.78,21.96],[-77.79,21.96],[-77.8,21.96],[-77.8,21.95],[-77.82,21.98]],[[-77.82,21.99],[-77.81,22.02],[-77.83,22.03],[-77.84,22.02],[-77.83,21.99],[-77.82,21.99]],[[-77.78,22.04],[-77.77,22.03],[-77.75,22.05],[-77.78,22.04]],[[-77.65,21.93],[-77.67,21.93],[-77.66,21.92],[-77.65,21.91],[-77.65,21.9],[-77.63,21.9],[-77.63,21.91],[-77.64,21.91],[-77.64,21.92],[-77.63,21.93],[-77.63,21.94],[-77.65,21.93]],[[-77.7,21.91],[-77.69,21.91],[-77.7,21.92],[-77.71,21.92],[-77.71,21.91],[-77.7,21.9],[-77.7,21.91]]],[[[-77.93,22.22],[-77.92,22.22],[-77.92,22.21],[-77.93,22.21],[-77.93,22.22]]],[[[-77.83,22.24],[-77.83,22.25],[-77.84,22.25],[-77.85,22.29],[-77.81,22.23],[-77.82,22.23],[-77.83,22.23],[-77.83,22.24]]],[[[-77.87,22.3],[-77.88,22.3],[-77.86,22.32],[-77.85,22.29],[-77.87,22.3]]],[[[-77.79,22.21],[-77.74,22.17],[-77.81,22.19],[-77.82,22.22],[-77.81,22.23],[-77.79,22.21]]],[[[-77.46,21.75],[-77.44,21.75],[-77.46,21.74],[-77.46,21.75]]],[[[-77.48,21.77],[-77.46,21.78],[-77.46,21.76],[-77.48,21.77]]],[[[-78.13,20.54],[-78.12,20.54],[-78.13,20.53],[-78.13,20.54]]],[[[-78.25,20.63],[-78.24,20.63],[-78.24,20.62],[-78.25,20.61],[-78.25,20.63]]],[[[-78.1,20.66],[-78.09,20.67],[-78.09,20.65],[-78.1,20.65],[-78.1,20.66]]],[[[-78.26,20.76],[-78.26,20.77],[-78.25,20.77],[-78.25,20.78],[-78.24,20.77],[-78.23,20.77],[-78.22,20.77],[-78.22,20.76],[-78.23,20.76],[-78.24,20.75],[-78.25,20.76],[-78.26,20.76]]],[[[-78.22,20.76],[-78.21,20.77],[-78.19,20.78],[-78.2,20.75],[-78.22,20.75],[-78.22,20.76]]],[[[-78.25,20.79],[-78.24,20.8],[-78.23,20.8],[-78.23,20.79],[-78.25,20.79]]],[[[-78.27,20.8],[-78.27,20.81],[-78.26,20.81],[-78.26,20.8],[-78.27,20.8]]],[[[-77.96,21.96],[-77.96,21.97],[-77.95,21.97],[-77.95,21.96],[-77.96,21.96]]],[[[-77.91,22.26],[-77.92,22.25],[-77.93,22.25],[-77.93,22.26],[-77.91,22.27],[-77.91,22.26]]],[[[-77.93,22.25],[-77.93,22.23],[-77.94,22.24],[-77.95,22.24],[-77.95,22.25],[-77.94,22.25],[-77.93,22.25]]],[[[-77.94,22.28],[-77.94,22.29],[-77.93,22.29],[-77.93,22.28],[-77.93,22.26],[-77.94,22.28]]],[[[-77.93,22.3],[-77.92,22.31],[-77.92,22.3],[-77.93,22.3]]],[[[-77.87,20.57],[-77.89,20.55],[-77.89,20.57],[-77.87,20.57]]],[[[-77.93,20.63],[-77.92,20.63],[-77.92,20.62],[-77.93,20.63]]],[[[-77.76,21.93],[-77.77,21.92],[-77.78,21.93],[-77.76,21.93]]],[[[-77.78,22.11],[-77.79,22.12],[-77.76,22.12],[-77.76,22.11],[-77.78,22.11]]],[[[-77.9,22.27],[-77.9,22.28],[-77.89,22.27],[-77.9,22.27]]],[[[-77.45,21.79],[-77.45,21.78],[-77.46,21.78],[-77.46,21.79],[-77.45,21.79]]],[[[-77.57,21.84],[-77.57,21.85],[-77.58,21.85],[-77.58,21.86],[-77.59,21.86],[-77.58,21.87],[-77.58,21.89],[-77.59,21.9],[-77.58,21.92],[-77.59,21.92],[-77.58,21.93],[-77.57,21.93],[-77.48,21.83],[-77.45,21.82],[-77.44,21.81],[-77.45,21.8],[-77.46,21.79],[-77.48,21.79],[-77.5,21.81],[-77.5,21.79],[-77.53,21.81],[-77.54,21.81],[-77.56,21.82],[-77.57,21.82],[-77.58,21.82],[-77.61,21.82],[-77.58,21.83],[-77.57,21.83],[-77.56,21.83],[-77.57,21.84]],[[-77.55,21.82],[-77.55,21.84],[-77.56,21.83],[-77.55,21.82]]],[[[-77.59,21.88],[-77.6,21.89],[-77.59,21.9],[-77.59,21.88]]],[[[-77.69,21.88],[-77.69,21.87],[-77.7,21.88],[-77.69,21.88]]],[[[-77.73,21.88],[-77.75,21.89],[-77.74,21.9],[-77.72,21.88],[-77.73,21.88]]],[[[-77.65,21.93],[-77.64,21.93],[-77.64,21.92],[-77.65,21.93]]],[[[-77.74,21.93],[-77.75,21.94],[-77.74,21.94],[-77.74,21.93]]]]}},{"type":"Feature","properties":{"NAME_1":"Las Tunas"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-77.63,20.51],[-77.64,20.5],[-77.63,20.53],[-77.63,20.51]]],[[[-77.44,20.62],[-77.43,20.62],[-77.44,20.61],[-77.44,20.62]]],[[[-77.31,20.96],[-77.26,21.06],[-77.24,21.08],[-77.18,21.08],[-77.13,21.13],[-77.12,21.23],[-77.07,21.3],[-77.14,21.31],[-77.09,21.4],[-76.99,21.42],[-76.98,21.41],[-76.98,21.42],[-76.97,21.43],[-76.96,21.44],[-76.95,21.46],[-76.87,21.42],[-76.84,21.42],[-76.83,21.39],[-76.81,21.39],[-76.8,21.39],[-76.78,21.37],[-76.66,21.36],[-76.64,21.34],[-76.63,21.32],[-76.65,21.3],[-76.56,21.28],[-76.56,21.27],[-76.55,21.29],[-76.53,21.25],[-76.5,21.28],[-76.38,21.28],[-76.3,21.24],[-76.32,21.17],[-76.31,21.15],[-76.41,21.12],[-76.47,21.06],[-76.51,21.04],[-76.52,20.98],[-76.67,20.97],[-76.68,20.86],[-76.71,20.81],[-76.67,20.73],[-76.73,20.7],[-76.74,20.67],[-76.77,20.67],[-76.79,20.72],[-76.82,20.74],[-76.95,20.74],[-77.03,20.71],[-77.08,20.75],[-77.19,20.75],[-77.21,20.69],[-77.23,20.66],[-77.24,20.67],[-77.26,20.66],[-77.26,20.64],[-77.3,20.68],[-77.34,20.71],[-77.43,20.7],[-77.47,20.67],[-77.56,20.7],[-77.61,20.69],[-77.61,20.67],[-77.62,20.69],[-77.72,20.7],[-77.75,20.68],[-77.75,20.7],[-77.81,20.71],[-77.8,20.8],[-77.75,20.85],[-77.66,20.86],[-77.65,20.94],[-77.57,20.91],[-77.57,20.93],[-77.53,20.96],[-77.54,21.0],[-77.47,20.97],[-77.47,21.01],[-77.44,21.06],[-77.42,21.05],[-77.4,21.02],[-77.36,21.01],[-77.36,20.96],[-77.35,20.95],[-77.35,20.97],[-77.31,20.96]],[[-76.83,21.35],[-76.85,21.36],[-76.9,21.34],[-76.88,21.33],[-76.9,21.32],[-76.9,21.3],[-76.87,21.3],[-76.83,21.34],[-76.84,21.31],[-76.83,21.3],[-76.81,21.39],[-76.83,21.35]],[[-76.67,21.29],[-76.68,21.29],[-76.69,21.29],[-76.71,21.29],[-76.7,21.3],[-76.73,21.31],[-76.72,21.29],[-76.74,21.28],[-76.71,21.28],[-76.68,21.26],[-76.66,21.25],[-76.65,21.25],[-76.64,21.27],[-76.66,21.29],[-76.65,21.3],[-76.67,21.29]],[[-76.53,21.24],[-76.54,21.23],[-76.55,21.2],[-76.52,21.18],[-76.47,21.22],[-76.48,21.23],[-76.49,21.23],[-76.52,21.24],[-76.53,21.25],[-76.53,21.24]],[[-76.56,21.22],[-76.59,21.23],[-76.61,21.21],[-76.59,21.19],[-76.57,21.21],[-76.56,21.2],[-76.54,21.23],[-76.56,21.22]]],[[[-76.88,21.33],[-76.87,21.33],[-76.88,21.32],[-76.88,21.33]]]]}},{"type":"Feature","properties":{"NAME_1":"Holguín"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-76.55,20.63],[-76.55,20.7],[-76.64,20.69],[-76.65,20.71],[-76.69,20.72],[-76.67,20.74],[-76.71,20.81],[-76.68,20.86],[-76.68,20.95],[-76.66,20.97],[-76.62,20.96],[-76.52,20.98],[-76.51,21.04],[-76.47,21.06],[-76.41,21.12],[-76.31,21.15],[-76.32,21.17],[-76.3,21.24],[-76.15,21.17],[-76.13,21.15],[-76.13,21.09],[-76.1,21.09],[-76.11,21.11],[-76.07,21.1],[-76.03,21.09],[-76.02,21.07],[-76.0,21.07],[-76.01,21.09],[-75.96,21.09],[-75.96,21.1],[-75.94,21.1],[-75.92,21.11],[-75.88,21.11],[-75.81,21.13],[-75.77,21.12],[-75.72,21.13],[-75.68,21.1],[-75.67,21.07],[-75.62,21.07],[-75.57,21.01],[-75.61,20.92],[-75.67,20.88],[-75.67,20.87],[-75.61,20.87],[-75.58,20.85],[-75.57,20.83],[-75.55,20.83],[-75.55,20.79],[-75.6,20.81],[-75.62,20.84],[-75.63,20.82],[-75.65,20.85],[-75.66,20.85],[-75.66,20.83],[-75.69,20.84],[-75.7,20.82],[-75.71,20.84],[-75.74,20.83],[-75.77,20.84],[-75.76,20.81],[-75.78,20.79],[-75.77,20.79],[-75.77,20.77],[-75.78,20.78],[-75.78,20.75],[-75.76,20.7],[-75.71,20.69],[-75.69,20.7],[-75.69,20.73],[-75.68,20.72],[-75.66,20.74],[-75.66,20.77],[-75.63,20.76],[-75.62,20.76],[-75.62,20.77],[-75.62,20.78],[-75.59,20.73],[-75.61,20.72],[-75.59,20.71],[-75.58,20.72],[-75.58,20.69],[-75.56,20.7],[-75.55,20.72],[-75.54,20.69],[-75.51,20.69],[-75.5,20.69],[-75.48,20.72],[-75.48,20.73],[-75.47,20.73],[-75.47,20.74],[-75.43,20.75],[-75.4,20.74],[-75.41,20.73],[-75.39,20.74],[-75.33,20.71],[-75.32,20.72],[-75.25,20.71],[-75.23,20.72],[-75.16,20.69],[-75.15,20.69],[-75.15,20.67],[-75.14,20.68],[-75.13,20.68],[-75.13,20.69],[-75.12,20.69],[-75.1,20.68],[-75.09,20.69],[-75.07,20.69],[-74.98,20.7],[-74.95,20.69],[-74.93,20.66],[-74.88,20.66],[-74.85,20.63],[-74.75,20.62],[-74.73,20.61],[-74.76,20.55],[-74.75,20.48],[-74.79,20.46],[-74.8,20.43],[-74.91,20.5],[-74.91,20.53],[-74.98,20.53],[-74.94,20.48],[-74.94,20.46],[-75.06,20.52],[-75.13,20.51],[-75.16,20.52],[-75.22,20.43],[-75.24,20.44],[-75.27,20.43],[-75.3,20.47],[-75.34,20.44],[-75.38,20.48],[-75.41,20.49],[-75.39,20.52],[-75.36,20.54],[-75.38,20.59],[-75.5,20.57],[-75.52,20.53],[-75.58,20.51],[-75.57,20.48],[-75.63,20.44],[-75.73,20.46],[-75.79,20.43],[-75.82,20.43],[-75.85,20.48],[-75.92,20.48],[-75.92,20.52],[-75.96,20.53],[-75.96,20.55],[-76.05,20.59],[-76.03,20.55],[-76.07,20.54],[-76.09,20.52],[-76.06,20.45],[-76.07,20.41],[-76.13,20.43],[-76.17,20.41],[-76.19,20.51],[-76.34,20.56],[-76.34,20.59],[-76.42,20.59],[-76.47,20.62],[-76.55,20.63]],[[-76.04,21.07],[-76.03,21.07],[-76.03,21.09],[-76.04,21.07]],[[-75.96,21.07],[-75.95,21.07],[-75.96,21.09],[-75.96,21.07]],[[-75.89,21.09],[-75.88,21.09],[-75.87,21.09],[-75.86,21.1],[-75.88,21.11],[-75.89,21.09]],[[-75.68,20.87],[-75.67,20.86],[-75.67,20.87],[-75.68,20.87]],[[-75.62,20.85],[-75.64,20.85],[-75.62,20.84],[-75.62,20.85]],[[-75.47,20.7],[-75.45,20.69],[-75.44,20.71],[-75.47,20.73],[-75.47,20.7]],[[-75.17,20.69],[-75.19,20.69],[-75.17,20.68],[-75.17,20.67],[-75.16,20.68],[-75.16,20.69],[-75.17,20.69]],[[-75.08,20.67],[-75.06,20.67],[-75.07,20.69],[-75.08,20.67]],[[-75.68,20.89],[-75.67,20.9],[-75.69,20.92],[-75.73,20.93],[-75.75,20.92],[-75.74,20.91],[-75.76,20.88],[-75.73,20.88],[-75.72,20.86],[-75.68,20.88],[-75.68,20.89]],[[-75.37,20.7],[-75.35,20.69],[-75.36,20.68],[-75.35,20.68],[-75.34,20.69],[-75.33,20.68],[-75.32,20.65],[-75.29,20.67],[-75.29,20.69],[-75.3,20.68],[-75.31,20.69],[-75.31,20.7],[-75.33,20.7],[-75.34,20.7],[-75.34,20.71],[-75.37,20.7]]],[[[-75.57,20.74],[-75.55,20.74],[-75.57,20.72],[-75.58,20.72],[-75.57,20.74]]],[[[-75.58,20.78],[-75.53,20.77],[-75.52,20.79],[-75.47,20.74],[-75.48,20.73],[-75.51,20.73],[-75.52,20.75],[-75.53,20.73],[-75.55,20.74],[-75.58,20.78]]],[[[-75.14,20.68],[-75.14,20.7],[-75.13,20.69],[-75.14,20.68]]],[[[-75.32,20.67],[-75.33,20.68],[-75.32,20.68],[-75.32,20.67]]]]}},{"type":"Feature","properties":{"NAME_1":"Granma"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-77.51,19.84],[-77.59,19.85],[-77.67,19.83],[-77.74,19.84],[-77.74,19.87],[-77.71,19.93],[-77.67,19.94],[-77.68,19.96],[-77.66,19.96],[-77.6,20.05],[-77.57,20.06],[-77.58,20.08],[-77.58,20.09],[-77.55,20.08],[-77.51,20.09],[-77.47,20.15],[-77.38,20.21],[-77.28,20.24],[-77.26,20.26],[-77.25,20.29],[-77.22,20.3],[-77.22,20.27],[-77.18,20.29],[-77.16,20.33],[-77.12,20.36],[-77.08,20.47],[-77.09,20.5],[-77.09,20.46],[-77.12,20.51],[-77.12,20.52],[-77.19,20.55],[-77.2,20.54],[-77.25,20.55],[-77.25,20.57],[-77.24,20.57],[-77.24,20.59],[-77.2,20.63],[-77.24,20.65],[-77.24,20.67],[-77.23,20.66],[-77.21,20.68],[-77.19,20.75],[-77.08,20.75],[-77.03,20.71],[-76.95,20.74],[-76.82,20.74],[-76.75,20.67],[-76.73,20.7],[-76.69,20.72],[-76.65,20.71],[-76.64,20.69],[-76.55,20.7],[-76.55,20.63],[-76.49,20.62],[-76.42,20.59],[-76.34,20.59],[-76.34,20.56],[-76.23,20.52],[-76.18,20.5],[-76.17,20.4],[-76.22,20.45],[-76.24,20.37],[-76.34,20.37],[-76.35,20.27],[-76.4,20.22],[-76.37,20.17],[-76.37,20.09],[-76.4,20.06],[-76.44,20.05],[-76.5,20.07],[-76.49,20.04],[-76.56,20.04],[-76.59,20.01],[-76.64,20.01],[-76.67,20.02],[-76.72,20.0],[-76.75,20.03],[-76.77,20.03],[-76.82,19.98],[-76.84,20.0],[-76.88,20.0],[-76.92,19.93],[-77.01,19.92],[-76.99,19.89],[-77.04,19.89],[-77.08,19.89],[-77.17,19.9],[-77.18,19.92],[-77.21,19.9],[-77.29,19.91],[-77.34,19.89],[-77.34,19.88],[-77.31,19.88],[-77.34,19.86],[-77.4,19.85],[-77.43,19.86],[-77.51,19.84]],[[-77.23,20.57],[-77.22,20.58],[-77.24,20.57],[-77.23,20.57]],[[-77.1,20.54],[-77.08,20.54],[-77.08,20.53],[-77.05,20.54],[-77.04,20.53],[-77.03,20.52],[-77.01,20.54],[-77.02,20.55],[-77.04,20.57],[-77.05,20.55],[-77.06,20.56],[-77.08,20.56],[-77.09,20.56],[-77.11,20.55],[-77.1,20.55],[-77.1,20.54]],[[-77.12,20.56],[-77.14,20.56],[-77.11,20.55],[-77.12,20.56]]],[[[-77.07,20.55],[-77.05,20.54],[-77.08,20.54],[-77.08,20.55],[-77.07,20.55]]]]}},{"type":"Feature","properties":{"NAME_1":"Santiago de Cuba"},"geometry":{"type":"Polygon","coordinates":[[[-77.01,19.92],[-76.91,19.94],[-76.88,20.0],[-76.84,20.0],[-76.82,19.98],[-76.77,20.03],[-76.74,20.03],[-76.72,20.0],[-76.67,20.02],[-76.64,20.01],[-76.59,20.01],[-76.56,20.04],[-76.49,20.04],[-76.5,20.07],[-76.44,20.05],[-76.39,20.07],[-76.37,20.1],[-76.37,20.17],[-76.4,20.22],[-76.35,20.27],[-76.33,20.37],[-76.24,20.37],[-76.22,20.45],[-76.18,20.4],[-76.13,20.43],[-76.06,20.42],[-76.06,20.46],[-76.09,20.52],[-76.07,20.54],[-76.03,20.55],[-76.05,20.59],[-75.96,20.55],[-75.96,20.53],[-75.92,20.52],[-75.91,20.48],[-75.85,20.48],[-75.82,20.44],[-75.79,20.43],[-75.73,20.46],[-75.63,20.44],[-75.57,20.48],[-75.58,20.51],[-75.52,20.53],[-75.5,20.57],[-75.38,20.59],[-75.36,20.58],[-75.36,20.54],[-75.41,20.49],[-75.38,20.48],[-75.34,20.44],[-75.35,20.41],[-75.39,20.41],[-75.39,20.38],[-75.42,20.36],[-75.41,20.32],[-75.43,20.27],[-75.41,20.26],[-75.43,20.24],[-75.42,20.18],[-75.36,20.12],[-75.4,20.11],[-75.4,20.07],[-75.43,20.1],[-75.44,20.09],[-75.43,20.02],[-75.33,19.92],[-75.33,19.88],[-75.42,19.88],[-75.44,19.9],[-75.46,19.89],[-75.54,19.88],[-75.61,19.9],[-75.7,19.94],[-75.7,19.96],[-75.75,19.95],[-75.87,19.97],[-75.97,19.96],[-76.23,20.0],[-76.3,19.98],[-76.3,19.97],[-76.35,19.96],[-76.41,19.97],[-76.58,19.94],[-76.67,19.96],[-76.79,19.93],[-76.87,19.94],[-76.92,19.9],[-76.99,19.89],[-77.01,19.92]],[[-75.87,19.98],[-75.86,19.99],[-75.84,20.01],[-75.84,20.03],[-75.87,20.03],[-75.86,20.02],[-75.87,19.99],[-75.88,20.0],[-75.89,19.98],[-75.88,19.98],[-75.87,19.97],[-75.87,19.98]],[[-75.67,20.43],[-75.68,20.43],[-75.73,20.4],[-75.67,20.43]]]}},{"type":"Feature","properties":{"NAME_1":"Guantánamo"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-75.16,19.94],[-75.19,19.93],[-75.19,19.91],[-75.19,19.9],[-75.33,19.88],[-75.35,19.94],[-75.43,20.01],[-75.44,20.05],[-75.44,20.1],[-75.4,20.07],[-75.4,20.11],[-75.36,20.12],[-75.42,20.19],[-75.43,20.24],[-75.41,20.26],[-75.43,20.27],[-75.41,20.32],[-75.43,20.35],[-75.39,20.38],[-75.39,20.41],[-75.35,20.41],[-75.35,20.43],[-75.3,20.47],[-75.27,20.43],[-75.24,20.44],[-75.22,20.43],[-75.16,20.52],[-75.13,20.51],[-75.06,20.52],[-74.94,20.46],[-74.94,20.48],[-74.98,20.53],[-74.92,20.53],[-74.91,20.5],[-74.8,20.43],[-74.79,20.46],[-74.75,20.48],[-74.76,20.55],[-74.74,20.58],[-74.7,20.53],[-74.68,20.53],[-74.67,20.51],[-74.66,20.52],[-74.57,20.46],[-74.56,20.42],[-74.54,20.42],[-74.54,20.39],[-74.5,20.37],[-74.51,20.35],[-74.48,20.34],[-74.45,20.35],[-74.4,20.31],[-74.42,20.3],[-74.38,20.3],[-74.39,20.28],[-74.33,20.29],[-74.29,20.31],[-74.23,20.32],[-74.15,20.26],[-74.13,20.21],[-74.15,20.18],[-74.23,20.13],[-74.23,20.09],[-74.27,20.07],[-74.36,20.08],[-74.57,20.05],[-74.8,20.04],[-74.85,20.02],[-74.9,19.98],[-74.96,19.98],[-74.97,19.96],[-74.95,19.97],[-74.95,19.95],[-74.99,19.92],[-75.05,19.9],[-75.06,19.92],[-75.06,19.9],[-75.17,19.89],[-75.16,19.92],[-75.14,19.92],[-75.13,19.95],[-75.14,19.96],[-75.14,19.97],[-75.14,19.98],[-75.17,19.97],[-75.17,19.96],[-75.17,19.95],[-75.16,19.95],[-75.16,19.94]],[[-75.2,19.93],[-75.22,19.92],[-75.19,19.91],[-75.2,19.93]],[[-75.12,19.95],[-75.12,19.97],[-75.13,19.95],[-75.12,19.95]],[[-75.13,19.99],[-75.12,19.99],[-75.1,19.99],[-75.08,20.02],[-75.09,20.04],[-75.09,20.05],[-75.12,20.05],[-75.14,20.03],[-75.17,20.02],[-75.18,20.0],[-75.15,20.0],[-75.14,19.98],[-75.13,19.99]]],[[[-75.14,19.95],[-75.15,19.94],[-75.15,19.95],[-75.14,19.95]]]]}},{"type":"Feature","properties":{"NAME_1":"Isla de la Juventud"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-83.11,21.56],[-83.1,21.56],[-83.09,21.55],[-83.07,21.55],[-83.08,21.56],[-83.07,21.57],[-83.03,21.54],[-83.03,21.55],[-83.0,21.55],[-83.01,21.57],[-82.99,21.57],[-82.97,21.56],[-82.96,21.58],[-82.96,21.59],[-82.96,21.6],[-82.97,21.6],[-82.98,21.6],[-83.01,21.68],[-83.03,21.69],[-83.09,21.78],[-83.06,21.85],[-82.95,21.93],[-82.92,21.93],[-82.84,21.93],[-82.69,21.88],[-82.68,21.86],[-82.71,21.83],[-82.68,21.82],[-82.68,21.8],[-82.65,21.8],[-82.63,21.76],[-82.61,21.77],[-82.61,21.76],[-82.6,21.76],[-82.59,21.75],[-82.58,21.74],[-82.58,21.71],[-82.59,21.7],[-82.6,21.66],[-82.56,21.64],[-82.57,21.61],[-82.54,21.59],[-82.55,21.56],[-82.63,21.51],[-82.88,21.44],[-82.93,21.46],[-83.07,21.47],[-83.11,21.52],[-83.14,21.53],[-83.17,21.58],[-83.16,21.59],[-83.19,21.62],[-83.11,21.57],[-83.11,21.56]]],[[[-82.97,21.6],[-82.96,21.59],[-82.98,21.58],[-82.97,21.6]]],[[[-83.0,21.93],[-82.98,21.94],[-82.95,21.93],[-83.0,21.93]]],[[[-83.22,21.84],[-83.22,21.85],[-83.21,21.84],[-83.22,21.84]]],[[[-83.4,21.95],[-83.35,21.94],[-83.43,21.94],[-83.4,21.95]]],[[[-83.53,21.95],[-83.46,21.95],[-83.43,21.94],[-83.53,21.95]]],[[[-83.59,21.97],[-83.53,21.96],[-83.61,21.96],[-83.63,21.98],[-83.64,22.01],[-83.59,21.97]]],[[[-83.59,21.99],[-83.6,21.99],[-83.6,22.0],[-83.59,21.99]]],[[[-82.82,22.06],[-82.79,22.07],[-82.76,22.06],[-82.77,22.05],[-82.82,22.06]]],[[[-82.87,22.03],[-82.86,22.05],[-82.82,22.06],[-82.87,22.03]]],[[[-82.88,22.05],[-82.86,22.07],[-82.86,22.05],[-82.88,22.05]]],[[[-82.88,22.06],[-82.88,22.05],[-82.89,22.05],[-82.89,22.06],[-82.88,22.06]]],[[[-82.91,22.06],[-82.91,22.07],[-82.9,22.07],[-82.91,22.06]]],[[[-82.93,22.11],[-82.92,22.1],[-82.93,22.1],[-82.93,22.11]]],[[[-82.91,22.13],[-82.91,22.12],[-82.93,22.12],[-82.91,22.13]]],[[[-82.81,22.23],[-82.81,22.22],[-82.83,22.22],[-82.81,22.23]]],[[[-82.79,22.26],[-82.78,22.25],[-82.79,22.24],[-82.8,22.24],[-82.79,22.26]]],[[[-82.43,21.55],[-82.47,21.58],[-82.41,21.57],[-82.43,21.55]]],[[[-82.38,21.63],[-82.38,21.6],[-82.39,21.6],[-82.39,21.61],[-82.42,21.62],[-82.38,21.63]]],[[[-82.33,21.61],[-82.33,21.59],[-82.34,21.6],[-82.37,21.59],[-82.38,21.6],[-82.33,21.61]]],[[[-82.43,21.69],[-82.46,21.65],[-82.47,21.66],[-82.45,21.68],[-82.44,21.69],[-82.51,21.71],[-82.47,21.71],[-82.43,21.69]]],[[[-82.55,21.7],[-82.54,21.7],[-82.54,21.69],[-82.55,21.7]]],[[[-82.51,21.69],[-82.53,21.7],[-82.52,21.71],[-82.51,21.71],[-82.5,21.7],[-82.51,21.69]]],[[[-82.54,21.75],[-82.53,21.72],[-82.55,21.72],[-82.54,21.75]]],[[[-82.52,21.71],[-82.53,21.71],[-82.53,21.72],[-82.52,21.71]]],[[[-82.63,21.78],[-82.63,21.79],[-82.59,21.79],[-82.61,21.78],[-82.62,21.78],[-82.63,21.78]]],[[[-82.58,21.89],[-82.59,21.88],[-82.59,21.89],[-82.58,21.89]]],[[[-82.64,21.98],[-82.62,21.95],[-82.63,21.95],[-82.65,21.97],[-82.68,21.98],[-82.68,22.0],[-82.67,22.0],[-82.64,21.98]]],[[[-82.76,22.28],[-82.76,22.26],[-82.78,22.29],[-82.76,22.29],[-82.76,22.28]]],[[[-82.38,21.56],[-82.35,21.57],[-82.36,21.56],[-82.38,21.56]]],[[[-82.34,21.56],[-82.3,21.59],[-82.28,21.59],[-82.28,21.57],[-82.34,21.56]]],[[[-82.24,21.58],[-82.2,21.59],[-82.21,21.57],[-82.24,21.57],[-82.27,21.57],[-82.24,21.58]]],[[[-81.97,21.61],[-82.07,21.58],[-82.08,21.57],[-82.11,21.56],[-82.1,21.57],[-82.09,21.57],[-82.08,21.6],[-82.06,21.59],[-82.05,21.61],[-82.03,21.61],[-82.03,21.62],[-82.01,21.63],[-82.0,21.63],[-81.98,21.63],[-81.98,21.64],[-81.96,21.64],[-81.97,21.61]]],[[[-82.12,21.56],[-82.12,21.57],[-82.11,21.56],[-82.12,21.56]]],[[[-82.1,21.59],[-82.13,21.6],[-82.13,21.61],[-82.06,21.61],[-82.08,21.6],[-82.1,21.59]]],[[[-82.06,21.63],[-82.07,21.63],[-82.07,21.64],[-82.06,21.63]]],[[[-81.92,21.6],[-81.94,21.62],[-81.94,21.65],[-81.92,21.62],[-81.88,21.65],[-81.83,21.66],[-81.92,21.6]]],[[[-81.9,21.66],[-81.9,21.67],[-81.89,21.66],[-81.9,21.66]]],[[[-81.96,21.68],[-81.95,21.7],[-81.94,21.68],[-81.96,21.68]]],[[[-81.67,21.64],[-81.65,21.63],[-81.67,21.63],[-81.67,21.64]]],[[[-81.56,21.59],[-81.56,21.6],[-81.56,21.62],[-81.57,21.62],[-81.57,21.63],[-81.52,21.62],[-81.51,21.63],[-81.51,21.61],[-81.49,21.63],[-81.5,21.64],[-81.44,21.65],[-81.51,21.6],[-81.56,21.59]]],[[[-81.58,21.63],[-81.56,21.64],[-81.57,21.63],[-81.58,21.63]]],[[[-81.42,21.68],[-81.36,21.7],[-81.43,21.65],[-81.42,21.68]]],[[[-81.79,21.64],[-81.82,21.66],[-81.81,21.66],[-81.79,21.64]]],[[[-81.86,21.68],[-81.85,21.7],[-81.83,21.7],[-81.86,21.68]]],[[[-81.83,21.88],[-81.81,21.88],[-81.84,21.87],[-81.83,21.88]]]]}}]};
+const COSTAS_GEO = {"Pinar del Río":{"S":[[[-83.98,22.02],[-83.97,22.05],[-83.96,22.03],[-84.03,21.91],[-84.1,21.93],[-84.26,21.9],[-84.45,21.76],[-84.52,21.76],[-84.45,21.88],[-84.5,21.93],[-84.68,21.9],[-84.8,21.81],[-84.92,21.83],[-84.95,21.86],[-84.92,21.92],[-84.9,21.89],[-84.84,21.89],[-84.82,21.91],[-84.83,21.93],[-84.81,21.93],[-84.8,21.9],[-84.7,21.96],[-84.58,21.99],[-84.52,22.04],[-84.48,22.04],[-84.49,22.02],[-84.45,22.01],[-84.39,22.04],[-84.33,21.99],[-84.31,22.02],[-84.28,22.01]],[[-84.32,22.03],[-84.32,22.08],[-84.35,22.09],[-84.34,22.13],[-84.4,22.14]],[[-83.08,22.47],[-83.14,22.36],[-83.19,22.33],[-83.26,22.35],[-83.32,22.28],[-83.31,22.25],[-83.36,22.21],[-83.48,22.17],[-83.55,22.2],[-83.54,22.22]],[[-83.55,22.22],[-83.57,22.23],[-83.66,22.17],[-83.68,22.19],[-83.69,22.17],[-83.8,22.17]],[[-83.8,22.18],[-83.91,22.17],[-83.97,22.1]],[[-83.98,22.1],[-83.97,22.07],[-83.99,22.07],[-84.0,22.04],[-83.98,22.02]],[[-84.85,21.91],[-84.85,21.93],[-84.83,21.93],[-84.85,21.91]]],"N":[[[-84.4,22.14],[-84.41,22.2],[-84.45,22.19],[-84.42,22.22],[-84.37,22.38],[-84.33,22.4],[-84.28,22.47],[-84.21,22.51],[-84.21,22.55]],[[-84.22,22.57],[-84.15,22.58]],[[-84.13,22.58],[-84.13,22.6],[-84.09,22.61],[-84.09,22.64],[-84.06,22.66],[-84.04,22.64],[-84.01,22.68],[-83.98,22.67],[-83.9,22.73]],[[-83.89,22.71],[-83.88,22.74],[-83.8,22.74],[-83.72,22.78],[-83.71,22.81],[-83.7,22.79],[-83.69,22.81],[-83.69,22.79],[-83.64,22.79],[-83.63,22.82],[-83.56,22.82],[-83.54,22.86],[-83.49,22.85],[-83.46,22.87],[-83.47,22.89],[-83.45,22.91],[-83.45,22.89],[-83.44,22.9],[-83.38,22.87],[-83.38,22.89],[-83.35,22.91]],[[-84.13,22.62],[-84.1,22.62],[-84.11,22.61],[-84.13,22.62]],[[-84.04,22.71],[-84.02,22.72],[-84.01,22.68],[-84.04,22.71]],[[-84.38,22.41],[-84.41,22.39],[-84.45,22.4],[-84.38,22.41]],[[-84.36,22.44],[-84.36,22.46],[-84.35,22.46],[-84.36,22.44]],[[-84.34,22.48],[-84.35,22.48],[-84.32,22.51],[-84.34,22.48]],[[-84.23,22.55],[-84.24,22.56],[-84.21,22.55],[-84.23,22.55]],[[-83.78,22.8],[-83.79,22.81],[-83.76,22.81],[-83.78,22.8]],[[-83.8,22.79],[-83.82,22.78],[-83.79,22.81],[-83.8,22.79]]]},"Artemisa":{"S":[[[-82.7,22.58],[-82.69,22.6],[-82.68,22.6],[-82.69,22.57],[-82.7,22.58]],[[-82.78,22.69],[-82.77,22.66],[-82.8,22.62],[-82.89,22.56]],[[-82.9,22.56],[-82.95,22.55]],[[-82.96,22.56],[-82.96,22.53],[-83.09,22.49],[-83.08,22.47]],[[-82.43,22.68],[-82.52,22.69],[-82.56,22.67],[-82.57,22.69],[-82.78,22.69]],[[-82.52,22.62],[-82.54,22.65],[-82.52,22.64],[-82.52,22.62]],[[-82.5,22.58],[-82.52,22.54],[-82.52,22.62],[-82.5,22.58]],[[-82.68,22.62],[-82.69,22.64],[-82.67,22.62],[-82.68,22.62]]],"N":[[[-83.36,22.92],[-83.22,23.0],[-83.17,22.98],[-83.19,22.96],[-83.17,22.92],[-83.14,22.95]],[[-83.15,22.95],[-83.16,22.97],[-83.09,23.0]],[[-83.09,22.98],[-83.07,23.0],[-82.99,23.01],[-82.98,22.99],[-83.0,23.0],[-83.02,22.98],[-83.0,22.96],[-82.96,22.98]],[[-82.95,23.0],[-82.97,22.99],[-82.95,23.02],[-82.72,23.02],[-82.53,23.07]]]},"La Habana":{"N":[[[-82.52,23.07],[-82.45,23.1],[-82.4,23.15],[-82.35,23.14]],[[-82.36,23.15],[-82.32,23.17],[-82.08,23.18]]]},"Mayabeque":{"S":[[[-82.37,22.46],[-82.38,22.49],[-82.36,22.5],[-82.37,22.46]],[[-82.33,22.5],[-82.34,22.5],[-82.33,22.51],[-82.31,22.5],[-82.33,22.5]],[[-82.29,22.68],[-82.43,22.68]],[[-81.64,22.55],[-81.73,22.63],[-81.88,22.68],[-82.1,22.65],[-82.19,22.68],[-82.29,22.68]]],"N":[[[-82.08,23.18],[-81.86,23.15],[-81.66,23.15]]]},"Matanzas":{"S":[[[-81.91,22.14],[-81.9,22.15],[-81.89,22.13],[-81.91,22.13],[-81.91,22.14]],[[-81.72,22.13],[-81.71,22.16],[-81.7,22.14],[-81.72,22.13]],[[-81.68,22.16],[-81.71,22.16],[-81.72,22.17],[-81.68,22.16]],[[-82.02,22.23],[-82.01,22.23],[-82.01,22.21],[-82.02,22.22],[-82.02,22.23]],[[-81.57,22.02],[-81.58,22.02],[-81.58,22.04],[-81.57,22.02]],[[-81.59,22.05],[-81.6,22.07],[-81.56,22.06],[-81.58,22.05],[-81.59,22.05]],[[-81.54,22.04],[-81.55,22.04],[-81.56,22.06],[-81.54,22.05],[-81.54,22.04]],[[-81.6,22.07],[-81.63,22.11],[-81.63,22.17],[-81.6,22.16],[-81.62,22.11],[-81.6,22.07]],[[-81.64,22.12],[-81.65,22.12],[-81.65,22.14],[-81.64,22.14],[-81.64,22.12]],[[-81.47,22.14],[-81.46,22.15],[-81.45,22.15],[-81.45,22.14],[-81.47,22.14]],[[-80.59,22.05],[-80.76,22.06],[-80.89,22.04],[-81.05,22.07],[-81.11,22.11],[-81.14,22.17],[-81.14,22.22],[-81.18,22.28],[-81.22,22.27],[-81.19,22.21],[-81.21,22.14],[-81.2,22.1],[-81.26,22.14]],[[-81.26,22.13],[-81.28,22.11],[-81.25,22.09],[-81.34,22.08]],[[-81.35,22.08],[-81.33,22.06],[-81.34,22.04],[-81.31,22.03],[-81.38,22.02],[-81.46,22.07],[-81.42,22.07],[-81.38,22.03],[-81.35,22.04]],[[-81.35,22.05],[-81.37,22.07],[-81.35,22.09],[-81.39,22.14],[-81.38,22.15]],[[-81.39,22.16],[-81.45,22.18],[-81.48,22.17],[-81.48,22.19],[-81.52,22.2],[-81.56,22.17],[-81.62,22.2],[-81.64,22.18]],[[-81.73,22.2],[-81.73,22.18],[-81.76,22.16],[-81.81,22.18],[-81.85,22.2],[-81.87,22.26],[-82.1,22.34],[-82.1,22.37],[-82.14,22.36],[-82.16,22.4],[-82.11,22.43],[-81.84,22.43],[-81.75,22.46],[-81.7,22.45],[-81.65,22.49],[-81.65,22.54]],[[-81.2,22.09],[-81.21,22.05],[-81.22,22.05],[-81.23,22.06],[-81.2,22.09]],[[-81.68,22.17],[-81.68,22.19],[-81.64,22.15]],[[-81.22,22.05],[-81.28,22.03],[-81.3,22.04],[-81.22,22.05]]],"N":[[[-81.66,23.15],[-81.54,23.13],[-81.53,23.08],[-81.57,23.04],[-81.5,23.05],[-81.47,23.1],[-81.44,23.09],[-81.27,23.14],[-81.28,23.12],[-81.26,23.12],[-81.17,23.03],[-81.13,23.02],[-81.08,23.09],[-80.99,23.09],[-80.99,23.11]],[[-80.98,23.09],[-80.98,23.06],[-80.94,23.05],[-80.8,23.07],[-80.75,23.1],[-80.67,23.08],[-80.68,23.1],[-80.66,23.08],[-80.61,23.12],[-80.64,23.14],[-80.6,23.14],[-80.6,23.11],[-80.63,23.09],[-80.59,23.06]],[[-81.16,23.19],[-81.18,23.17],[-81.19,23.18],[-81.16,23.19]],[[-81.14,23.21],[-81.12,23.19],[-81.16,23.19],[-81.14,23.21]],[[-80.8,23.13],[-80.9,23.13],[-80.97,23.09]],[[-80.99,23.11],[-80.87,23.15]],[[-80.88,23.16],[-80.87,23.18],[-80.86,23.17],[-80.83,23.19],[-80.84,23.17],[-80.8,23.13]],[[-80.99,23.24],[-81.01,23.22],[-81.0,23.26],[-80.99,23.24]],[[-80.96,23.25],[-80.93,23.25],[-80.92,23.23],[-80.96,23.24]],[[-80.86,23.23],[-80.89,23.24],[-80.88,23.25],[-80.86,23.23]],[[-80.93,23.25],[-80.95,23.26],[-80.91,23.28],[-80.89,23.24],[-80.93,23.25]],[[-80.97,23.24],[-80.98,23.24],[-80.98,23.26],[-80.97,23.26],[-80.97,23.24]],[[-80.72,23.11],[-80.71,23.12],[-80.69,23.11],[-80.72,23.11]],[[-80.74,23.17],[-80.76,23.16],[-80.77,23.17],[-80.74,23.17]],[[-80.79,23.2],[-80.85,23.21],[-80.85,23.22],[-80.77,23.21],[-80.79,23.2]],[[-80.74,23.2],[-80.74,23.21],[-80.72,23.2],[-80.74,23.2]],[[-80.7,23.19],[-80.68,23.21],[-80.69,23.19],[-80.7,23.19]],[[-80.58,23.12],[-80.59,23.13],[-80.59,23.14],[-80.57,23.14],[-80.58,23.12]],[[-80.63,23.16],[-80.62,23.18],[-80.59,23.18],[-80.59,23.2],[-80.55,23.2],[-80.52,23.18],[-80.55,23.19],[-80.56,23.17],[-80.63,23.16]],[[-80.61,23.19],[-80.61,23.22],[-80.59,23.2]],[[-80.51,23.18],[-80.48,23.19],[-80.47,23.17],[-80.51,23.16],[-80.51,23.18]],[[-80.62,23.2],[-80.62,23.19],[-80.63,23.21],[-80.62,23.21],[-80.62,23.2]]]},"Cienfuegos":{"S":[[[-80.41,22.01],[-80.41,22.03],[-80.45,22.05]],[[-80.47,22.04],[-80.52,22.06],[-80.59,22.05]],[[-80.11,21.82],[-80.14,21.82],[-80.29,21.9],[-80.41,22.01]]]},"Villa Clara":{"N":[[[-80.59,23.06],[-80.53,22.99],[-80.48,22.99],[-80.45,22.96],[-80.36,22.94],[-80.37,22.98],[-80.28,22.91],[-80.24,22.91]],[[-80.23,22.91],[-80.15,22.93],[-80.18,22.95],[-80.16,22.96]],[[-80.14,22.96],[-80.06,22.93],[-80.01,22.94],[-79.99,22.88],[-79.93,22.87],[-79.9,22.84],[-79.88,22.88],[-79.82,22.88],[-79.79,22.9],[-79.78,22.88],[-79.86,22.87],[-79.85,22.8],[-79.8,22.8],[-79.7,22.74],[-79.67,22.77],[-79.65,22.76],[-79.61,22.65],[-79.55,22.61],[-79.52,22.54],[-79.44,22.53],[-79.45,22.51],[-79.41,22.46]],[[-80.33,22.99],[-80.3,22.98],[-80.29,23.01],[-80.26,23.02]],[[-80.22,23.02],[-80.21,23.04],[-80.21,23.0],[-80.19,22.98],[-80.21,22.99],[-80.21,22.95],[-80.24,22.96],[-80.24,22.94],[-80.27,22.96],[-80.34,22.96],[-80.33,22.99]],[[-79.83,22.91],[-79.85,22.9],[-79.86,22.92],[-79.85,22.95],[-79.85,22.92],[-79.82,22.92],[-79.82,22.9]],[[-79.82,22.89],[-79.85,22.88],[-79.83,22.91]],[[-79.49,22.54],[-79.47,22.55],[-79.49,22.53],[-79.49,22.54]],[[-79.27,22.56],[-79.27,22.54],[-79.28,22.53],[-79.29,22.54],[-79.27,22.56]],[[-79.2,22.57],[-79.2,22.52],[-79.25,22.55]],[[-79.18,22.6],[-79.2,22.62],[-79.14,22.64],[-79.11,22.62],[-79.13,22.6]],[[-79.14,22.6],[-79.11,22.57],[-79.13,22.55],[-79.15,22.55],[-79.15,22.58],[-79.19,22.58]],[[-79.23,22.59],[-79.22,22.61],[-79.2,22.6],[-79.23,22.59]],[[-79.11,22.64],[-79.09,22.67],[-78.97,22.67],[-78.96,22.65],[-78.99,22.63]],[[-79.0,22.63],[-79.0,22.65],[-79.07,22.65]],[[-79.07,22.66],[-79.08,22.64],[-79.11,22.64]],[[-79.09,22.6],[-79.11,22.59],[-79.1,22.61],[-79.09,22.6]],[[-79.07,22.54],[-79.06,22.52],[-79.1,22.53],[-79.07,22.54]],[[-80.36,23.07],[-80.34,23.06],[-80.35,23.05],[-80.36,23.07]],[[-80.31,23.11],[-80.33,23.12],[-80.33,23.14],[-80.29,23.14],[-80.31,23.11]],[[-80.45,23.13],[-80.45,23.15],[-80.39,23.15],[-80.44,23.13],[-80.45,23.13]],[[-80.39,23.12],[-80.39,23.15],[-80.37,23.15],[-80.37,23.14],[-80.39,23.12]],[[-80.25,23.07],[-80.26,23.07],[-80.25,23.09],[-80.25,23.07]],[[-80.25,23.09],[-80.28,23.1],[-80.27,23.12],[-80.24,23.1],[-80.25,23.09]],[[-80.24,23.1],[-80.2,23.12],[-80.17,23.07]],[[-80.23,23.13],[-80.23,23.12],[-80.25,23.12],[-80.25,23.13],[-80.23,23.13]],[[-80.29,23.13],[-80.28,23.15],[-80.27,23.14],[-80.28,23.13],[-80.29,23.13]],[[-80.19,23.01],[-80.18,23.02],[-80.14,22.97]],[[-80.16,23.0],[-80.15,23.02],[-80.14,23.0],[-80.16,23.0]],[[-80.09,23.02],[-80.07,23.0],[-80.13,23.0],[-80.12,23.02],[-80.09,23.02]],[[-80.0,23.03],[-80.0,23.01],[-80.03,23.0],[-80.02,23.05],[-79.99,23.04],[-80.0,23.03]],[[-80.16,23.02],[-80.18,23.04],[-80.17,23.09],[-80.13,23.08],[-80.16,23.05],[-80.16,23.02]],[[-80.04,23.03],[-80.08,23.03],[-80.09,23.07],[-80.08,23.07],[-80.04,23.03]],[[-79.71,22.85],[-79.74,22.87],[-79.73,22.89],[-79.72,22.87]],[[-79.71,22.88],[-79.7,22.87],[-79.69,22.89],[-79.69,22.86],[-79.65,22.85],[-79.69,22.84]],[[-79.88,22.94],[-79.88,22.91],[-79.92,22.95],[-79.85,22.96]],[[-79.93,22.92],[-79.94,22.92],[-79.95,22.95],[-79.92,22.95],[-79.93,22.92]],[[-79.84,22.96],[-79.83,22.96],[-79.81,22.94],[-79.83,22.94],[-79.84,22.96]],[[-79.18,22.55],[-79.15,22.55],[-79.14,22.53],[-79.17,22.53]],[[-79.08,22.6],[-79.07,22.62],[-79.07,22.58],[-79.09,22.56],[-79.08,22.6]],[[-79.23,22.64],[-79.17,22.65],[-79.2,22.62]],[[-79.4,22.62],[-79.44,22.62],[-79.5,22.65],[-79.45,22.64],[-79.49,22.66],[-79.43,22.66],[-79.43,22.68],[-79.4,22.62]],[[-79.38,22.6],[-79.39,22.59],[-79.41,22.6],[-79.4,22.62],[-79.38,22.6]],[[-79.06,22.64],[-79.04,22.64],[-79.07,22.63],[-79.06,22.64]],[[-79.51,22.65],[-79.53,22.66],[-79.51,22.67],[-79.51,22.65]],[[-79.37,22.67],[-79.32,22.61],[-79.43,22.69],[-79.49,22.68],[-79.5,22.71],[-79.53,22.72],[-79.56,22.79],[-79.37,22.67]],[[-79.63,22.79],[-79.58,22.81],[-79.56,22.8],[-79.56,22.79],[-79.63,22.79]],[[-78.83,22.55],[-78.82,22.55],[-78.82,22.53],[-78.83,22.53],[-78.83,22.55]],[[-78.98,22.59],[-78.99,22.57],[-79.02,22.56],[-78.99,22.63],[-78.97,22.61],[-78.98,22.59]],[[-78.99,22.53],[-78.95,22.54],[-78.93,22.52],[-78.99,22.51],[-79.01,22.56],[-78.99,22.53]],[[-78.91,22.53],[-78.89,22.52],[-78.89,22.5],[-78.92,22.51],[-78.91,22.53]],[[-78.84,22.51],[-78.82,22.49],[-78.79,22.52],[-78.79,22.49],[-78.83,22.48],[-78.89,22.5],[-78.84,22.51]]]},"Sancti Spíritus":{"S":[[[-80.0,21.76],[-80.01,21.74],[-80.03,21.8],[-80.11,21.82]],[[-78.97,21.59],[-79.06,21.59],[-79.21,21.54],[-79.3,21.56],[-79.33,21.6],[-79.45,21.6],[-79.51,21.64],[-79.54,21.62],[-79.56,21.64],[-79.6,21.64],[-79.6,21.66],[-79.63,21.68],[-79.72,21.68],[-79.76,21.72],[-79.81,21.71],[-79.82,21.67],[-79.84,21.7],[-79.89,21.7],[-79.87,21.72],[-79.9,21.72]],[[-79.91,21.73],[-79.96,21.74]],[[-79.99,21.74],[-79.97,21.73],[-79.97,21.72],[-80.01,21.74],[-79.99,21.74]]],"N":[[[-79.41,22.46],[-79.25,22.37],[-79.22,22.39],[-79.16,22.37],[-79.14,22.4],[-79.07,22.37],[-79.03,22.4],[-78.93,22.39]],[[-79.24,22.42],[-79.25,22.42],[-79.23,22.44],[-79.24,22.42]],[[-79.27,22.44],[-79.31,22.44],[-79.28,22.46],[-79.26,22.45],[-79.27,22.44]],[[-79.34,22.46],[-79.3,22.47],[-79.33,22.45],[-79.34,22.46]]]},"Ciego de Ávila":{"S":[[[-78.77,21.43],[-78.76,21.44],[-78.76,21.41],[-78.77,21.41],[-78.77,21.43]],[[-78.79,21.46],[-78.78,21.46],[-78.78,21.44],[-78.79,21.46]],[[-78.83,21.48],[-78.82,21.47],[-78.83,21.46],[-78.84,21.48],[-78.83,21.48]],[[-78.85,21.62],[-78.89,21.59],[-78.97,21.6]],[[-78.63,21.52],[-78.68,21.56],[-78.74,21.57],[-78.78,21.53],[-78.78,21.56],[-78.74,21.59],[-78.69,21.58]],[[-78.73,21.62],[-78.76,21.64],[-78.85,21.62]],[[-78.77,21.48],[-78.77,21.5],[-78.75,21.47],[-78.77,21.48]]],"N":[[[-78.93,22.39],[-78.78,22.39],[-78.76,22.32],[-78.72,22.3],[-78.7,22.35],[-78.72,22.37],[-78.69,22.37],[-78.5,22.26],[-78.43,22.25]],[[-78.42,22.25],[-78.36,22.22],[-78.34,22.17]],[[-78.3,22.14],[-78.27,22.15],[-78.23,22.12],[-78.16,22.13],[-78.13,22.11],[-78.15,22.1],[-78.1,22.1],[-78.11,22.09],[-78.06,22.05]],[[-78.74,22.37],[-78.73,22.39],[-78.72,22.37],[-78.74,22.37]],[[-78.72,22.38],[-78.72,22.39],[-78.69,22.37],[-78.72,22.38]],[[-78.33,22.2],[-78.33,22.19],[-78.33,22.18],[-78.34,22.2],[-78.33,22.2]],[[-78.29,22.16],[-78.29,22.17],[-78.27,22.15],[-78.29,22.16]],[[-78.2,22.15],[-78.2,22.16],[-78.18,22.15],[-78.18,22.13],[-78.2,22.15]],[[-78.74,22.5],[-78.75,22.5],[-78.75,22.51],[-78.73,22.51],[-78.74,22.5]],[[-78.74,22.52],[-78.77,22.53],[-78.77,22.55],[-78.72,22.55],[-78.74,22.52]],[[-78.52,22.44],[-78.66,22.48],[-78.64,22.52]],[[-78.65,22.55],[-78.63,22.56],[-78.61,22.53],[-78.59,22.55],[-78.56,22.52],[-78.46,22.52],[-78.43,22.56],[-78.38,22.55],[-78.33,22.52],[-78.36,22.52],[-78.27,22.43],[-78.22,22.42],[-78.22,22.46],[-78.18,22.46],[-78.16,22.48],[-78.16,22.44],[-78.18,22.45],[-78.18,22.43]],[[-78.2,22.44],[-78.18,22.42],[-78.12,22.42]],[[-78.1,22.4],[-78.09,22.42],[-78.06,22.33],[-78.07,22.3],[-78.02,22.28]],[[-78.01,22.28],[-78.02,22.31],[-77.98,22.3],[-77.96,22.27],[-77.99,22.26],[-77.99,22.23]],[[-78.04,22.16],[-78.07,22.16],[-78.09,22.19],[-78.06,22.18],[-78.07,22.19],[-78.04,22.21]],[[-78.03,22.22],[-78.09,22.3],[-78.2,22.3],[-78.19,22.31],[-78.26,22.34],[-78.3,22.4]],[[-78.3,22.38],[-78.33,22.39],[-78.3,22.44],[-78.42,22.41],[-78.41,22.45],[-78.48,22.44]],[[-78.59,22.45],[-78.61,22.44],[-78.61,22.46],[-78.59,22.46],[-78.59,22.45]],[[-78.37,22.24],[-78.35,22.25],[-78.35,22.24],[-78.37,22.24]],[[-78.34,22.25],[-78.3,22.26],[-78.32,22.23]],[[-78.32,22.22],[-78.34,22.22],[-78.32,22.23],[-78.32,22.22]],[[-78.12,22.24],[-78.13,22.26],[-78.14,22.28],[-78.12,22.26],[-78.12,22.24]],[[-78.45,22.39],[-78.45,22.4],[-78.43,22.41],[-78.45,22.39]],[[-78.47,22.43],[-78.48,22.43],[-78.48,22.44],[-78.46,22.44],[-78.47,22.43]],[[-78.67,22.54],[-78.67,22.49],[-78.7,22.5],[-78.69,22.52],[-78.72,22.57],[-78.7,22.57],[-78.7,22.61],[-78.66,22.6],[-78.63,22.56],[-78.67,22.59],[-78.69,22.57],[-78.65,22.54],[-78.67,22.54]],[[-78.11,22.42],[-78.09,22.43],[-78.09,22.42],[-78.11,22.42]],[[-77.98,22.35],[-77.98,22.34],[-78.0,22.35],[-77.98,22.35]]]},"Camagüey":{"S":[[[-78.72,20.68],[-78.72,20.67],[-78.75,20.69],[-78.72,20.68]],[[-78.77,20.74],[-78.76,20.72],[-78.8,20.73],[-78.77,20.74]],[[-78.83,20.77],[-78.82,20.77],[-78.84,20.75],[-78.84,20.76],[-78.83,20.77]],[[-78.86,20.77],[-78.86,20.78],[-78.84,20.78],[-78.84,20.76],[-78.86,20.77]],[[-78.86,20.8],[-78.87,20.77],[-78.9,20.78],[-78.88,20.8],[-78.86,20.8]],[[-78.92,20.8],[-78.92,20.82],[-78.93,20.83],[-78.91,20.83],[-78.92,20.8]],[[-78.94,20.79],[-78.96,20.8],[-78.94,20.82],[-78.94,20.79]],[[-79.17,21.0],[-79.18,20.97],[-79.23,21.01],[-79.21,21.02],[-79.17,21.0]],[[-79.09,20.92],[-79.07,20.9],[-79.11,20.91],[-79.17,20.98],[-79.09,20.92]],[[-79.05,20.91],[-79.05,20.9],[-79.09,20.92],[-79.05,20.91]],[[-79.0,20.87],[-78.97,20.87],[-78.97,20.84],[-79.05,20.87],[-79.07,20.9],[-79.0,20.87]],[[-79.29,21.05],[-79.29,21.04],[-79.31,21.05],[-79.29,21.05]],[[-78.83,21.05],[-78.84,21.05],[-78.84,21.06],[-78.82,21.05],[-78.83,21.05]],[[-79.28,21.05],[-79.33,21.07],[-79.31,21.07],[-79.33,21.1],[-79.3,21.09],[-79.28,21.05]],[[-79.34,21.09],[-79.35,21.09],[-79.39,21.12],[-79.36,21.13],[-79.33,21.1],[-79.34,21.09]],[[-78.74,21.1],[-78.74,21.11],[-78.71,21.09],[-78.74,21.1]],[[-79.44,21.11],[-79.46,21.13],[-79.43,21.12]],[[-79.4,21.1],[-79.44,21.1],[-79.43,21.11]],[[-78.44,20.59],[-78.42,20.6],[-78.41,20.58],[-78.45,20.59],[-78.47,20.6],[-78.46,20.61]],[[-78.49,20.63],[-78.49,20.61],[-78.53,20.62],[-78.49,20.63]],[[-78.56,20.62],[-78.56,20.63],[-78.53,20.63],[-78.53,20.62],[-78.56,20.62]],[[-78.65,20.65],[-78.71,20.65],[-78.71,20.67],[-78.65,20.65]],[[-78.65,20.66],[-78.58,20.66],[-78.57,20.64],[-78.65,20.65]],[[-78.49,20.71],[-78.51,20.7],[-78.55,20.7],[-78.49,20.72],[-78.49,20.71]],[[-78.65,20.75],[-78.63,20.74],[-78.64,20.73],[-78.66,20.76],[-78.64,20.78],[-78.65,20.75]],[[-78.65,20.84],[-78.63,20.85],[-78.63,20.81],[-78.65,20.84]],[[-78.54,21.3],[-78.55,21.36],[-78.63,21.52]],[[-77.81,20.71],[-77.9,20.73],[-77.92,20.69],[-78.04,20.7],[-78.05,20.72],[-78.06,20.71],[-78.14,20.76],[-78.21,20.84],[-78.24,20.83],[-78.26,20.9],[-78.4,20.96],[-78.4,20.99],[-78.49,21.03],[-78.48,21.12],[-78.5,21.12],[-78.51,21.22]],[[-78.52,21.22],[-78.53,21.25],[-78.5,21.28]],[[-78.38,20.6],[-78.4,20.59],[-78.39,20.64],[-78.37,20.62],[-78.38,20.6]],[[-78.38,20.58],[-78.35,20.56],[-78.39,20.57],[-78.38,20.58]],[[-78.33,20.54],[-78.33,20.52],[-78.4,20.56],[-78.34,20.53],[-78.34,20.56],[-78.33,20.54]],[[-78.39,20.64],[-78.4,20.65],[-78.38,20.66],[-78.39,20.64]],[[-78.41,20.68],[-78.39,20.68],[-78.39,20.67],[-78.41,20.68]],[[-78.39,20.68],[-78.39,20.69],[-78.38,20.69],[-78.38,20.67],[-78.39,20.68]],[[-78.43,20.72],[-78.44,20.72],[-78.41,20.73],[-78.43,20.72]],[[-78.38,20.7],[-78.37,20.75],[-78.36,20.74],[-78.38,20.7]],[[-78.25,20.63],[-78.24,20.63],[-78.25,20.61],[-78.25,20.63]],[[-78.26,20.76],[-78.25,20.78],[-78.22,20.77]],[[-78.22,20.76],[-78.19,20.78],[-78.2,20.75],[-78.22,20.75]],[[-78.25,20.79],[-78.24,20.8],[-78.23,20.8],[-78.23,20.79],[-78.25,20.79]],[[-77.87,20.57],[-77.89,20.55],[-77.89,20.57],[-77.87,20.57]]],"N":[[[-78.09,22.09],[-78.01,22.01],[-77.99,21.96]],[[-77.98,21.97],[-77.92,21.91],[-77.9,21.86],[-77.87,21.86],[-77.85,21.9],[-77.87,21.92],[-77.86,21.96],[-77.83,21.97]],[[-77.8,21.95],[-77.86,21.93],[-77.82,21.87],[-77.77,21.87],[-77.75,21.8],[-77.54,21.75],[-77.48,21.77],[-77.46,21.74]],[[-77.46,21.73],[-77.42,21.65],[-77.37,21.64],[-77.35,21.67],[-77.36,21.69],[-77.4,21.7],[-77.39,21.72]],[[-77.44,21.81],[-77.17,21.65],[-77.14,21.66],[-77.14,21.63],[-77.11,21.61]],[[-77.09,21.61],[-76.95,21.45]],[[-77.82,21.98],[-77.85,22.02],[-77.86,21.99],[-77.9,22.01],[-77.94,22.05],[-77.95,22.11],[-78.01,22.14],[-78.01,22.12],[-78.04,22.16]],[[-77.99,22.23],[-77.94,22.23],[-77.92,22.2]],[[-77.91,22.23],[-77.87,22.24],[-77.89,22.22],[-77.86,22.18]],[[-77.85,22.15],[-77.84,22.17],[-77.84,22.1],[-77.79,22.1],[-77.75,22.06]],[[-77.75,22.05],[-77.74,22.07],[-77.69,22.05],[-77.65,22.06],[-77.62,22.0],[-77.66,21.96],[-77.63,21.95]],[[-77.63,21.94],[-77.61,21.95],[-77.6,21.92],[-77.62,21.9],[-77.62,21.88],[-77.6,21.89],[-77.61,21.86],[-77.67,21.9],[-77.7,21.9],[-77.71,21.88]],[[-77.72,21.91],[-77.72,21.94],[-77.75,21.96],[-77.75,21.94],[-77.76,21.96],[-77.8,21.95]],[[-77.83,22.24],[-77.84,22.25],[-77.85,22.29],[-77.81,22.23],[-77.83,22.24]],[[-77.87,22.3],[-77.86,22.32],[-77.85,22.29],[-77.87,22.3]],[[-77.79,22.21],[-77.74,22.17],[-77.81,22.19],[-77.82,22.22]],[[-77.91,22.26],[-77.92,22.25],[-77.93,22.25],[-77.91,22.27],[-77.91,22.26]],[[-77.93,22.25],[-77.93,22.23],[-77.95,22.24],[-77.95,22.25],[-77.93,22.25]],[[-77.94,22.28],[-77.93,22.29],[-77.93,22.26],[-77.94,22.28]],[[-77.78,22.11],[-77.79,22.12],[-77.76,22.12],[-77.76,22.11],[-77.78,22.11]],[[-77.57,21.84],[-77.59,21.86],[-77.59,21.9]],[[-77.58,21.92],[-77.57,21.93],[-77.48,21.83],[-77.44,21.81]],[[-77.48,21.79],[-77.5,21.81],[-77.5,21.79],[-77.56,21.82],[-77.61,21.82],[-77.56,21.83]],[[-77.73,21.88],[-77.75,21.89],[-77.74,21.9],[-77.73,21.88]]]},"Las Tunas":{"N":[[[-77.63,20.51],[-77.64,20.5],[-77.63,20.53],[-77.63,20.51]],[[-76.95,21.46],[-76.84,21.42],[-76.83,21.39],[-76.78,21.37],[-76.66,21.36],[-76.63,21.32],[-76.65,21.3],[-76.56,21.27],[-76.55,21.29],[-76.53,21.25],[-76.5,21.28],[-76.38,21.28],[-76.3,21.24]],[[-77.23,20.66],[-77.26,20.66],[-77.26,20.64],[-77.34,20.71],[-77.43,20.7],[-77.47,20.67],[-77.56,20.7],[-77.61,20.69],[-77.61,20.67],[-77.62,20.69],[-77.72,20.7],[-77.75,20.68],[-77.75,20.7],[-77.81,20.71]]]},"Holguín":{"N":[[[-76.3,21.24],[-76.15,21.17],[-76.13,21.15],[-76.13,21.09],[-76.1,21.09],[-76.11,21.11],[-76.03,21.09]],[[-76.01,21.09],[-75.81,21.13],[-75.72,21.13],[-75.67,21.07],[-75.62,21.07],[-75.57,21.01],[-75.61,20.92],[-75.67,20.87],[-75.61,20.87],[-75.58,20.85],[-75.55,20.83],[-75.55,20.79],[-75.66,20.85]],[[-75.66,20.83],[-75.69,20.84],[-75.7,20.82],[-75.71,20.84],[-75.77,20.84],[-75.76,20.81],[-75.78,20.79],[-75.78,20.75],[-75.76,20.7],[-75.69,20.7],[-75.66,20.77],[-75.62,20.76],[-75.62,20.78],[-75.59,20.73]],[[-75.61,20.72],[-75.58,20.72],[-75.58,20.69],[-75.55,20.72],[-75.54,20.69],[-75.5,20.69],[-75.47,20.73]],[[-75.47,20.74],[-75.43,20.75],[-75.33,20.71],[-75.23,20.72],[-75.15,20.69],[-75.15,20.67]],[[-75.14,20.68],[-74.95,20.69],[-74.93,20.66],[-74.88,20.66],[-74.85,20.63],[-74.73,20.61],[-74.76,20.55]],[[-75.57,20.74],[-75.55,20.74],[-75.58,20.72],[-75.57,20.74]],[[-75.53,20.77],[-75.52,20.79],[-75.47,20.74],[-75.51,20.73],[-75.52,20.75]],[[-75.53,20.73],[-75.58,20.78]]]},"Granma":{"S":[[[-77.51,19.84],[-77.59,19.85],[-77.67,19.83],[-77.74,19.84],[-77.74,19.87],[-77.71,19.93],[-77.67,19.94],[-77.68,19.96],[-77.66,19.96],[-77.6,20.05],[-77.57,20.06],[-77.58,20.09],[-77.51,20.09],[-77.47,20.15],[-77.38,20.21],[-77.28,20.24],[-77.25,20.29],[-77.22,20.3],[-77.22,20.27],[-77.18,20.29],[-77.12,20.36],[-77.08,20.47],[-77.09,20.5],[-77.09,20.46],[-77.12,20.52],[-77.19,20.55],[-77.25,20.55],[-77.24,20.59],[-77.2,20.63],[-77.24,20.65],[-77.24,20.67]],[[-76.99,19.89],[-77.17,19.9],[-77.18,19.92],[-77.21,19.9],[-77.29,19.91],[-77.34,19.89],[-77.31,19.88],[-77.34,19.86],[-77.51,19.84]]]},"Santiago de Cuba":{"S":[[[-75.33,19.88],[-75.42,19.88],[-75.44,19.9],[-75.54,19.88],[-75.7,19.94],[-75.7,19.96],[-75.97,19.96],[-76.23,20.0],[-76.35,19.96],[-76.41,19.97],[-76.58,19.94],[-76.67,19.96],[-76.79,19.93],[-76.87,19.94],[-76.92,19.9],[-76.99,19.89]]]},"Guantánamo":{"S":[[[-75.16,19.94],[-75.19,19.93],[-75.19,19.9],[-75.33,19.88]],[[-74.57,20.05],[-74.8,20.04],[-74.9,19.98],[-74.96,19.98],[-74.97,19.96],[-74.95,19.97],[-74.95,19.95],[-75.05,19.9]],[[-75.06,19.9],[-75.17,19.89],[-75.16,19.92],[-75.14,19.92],[-75.14,19.97]],[[-75.14,19.98],[-75.17,19.97],[-75.16,19.94]]],"N":[[[-74.74,20.58],[-74.7,20.53],[-74.57,20.46],[-74.54,20.39],[-74.5,20.37],[-74.51,20.35],[-74.45,20.35],[-74.4,20.31]],[[-74.39,20.28],[-74.23,20.32],[-74.15,20.26],[-74.13,20.21],[-74.23,20.13],[-74.23,20.09],[-74.27,20.07],[-74.36,20.08],[-74.57,20.05]]]},"Isla de la Juventud":{"C":[[[-83.11,21.56],[-83.07,21.55],[-83.07,21.57],[-83.03,21.54]],[[-83.03,21.55],[-83.0,21.55],[-83.01,21.57],[-82.97,21.56],[-82.96,21.6],[-82.98,21.6],[-83.01,21.68],[-83.09,21.78],[-83.06,21.85],[-82.95,21.93],[-82.84,21.93],[-82.69,21.88],[-82.68,21.86],[-82.71,21.83],[-82.68,21.82],[-82.68,21.8],[-82.65,21.8]],[[-82.61,21.77],[-82.58,21.74],[-82.6,21.66],[-82.56,21.64],[-82.57,21.61],[-82.54,21.59],[-82.55,21.56],[-82.63,21.51],[-82.88,21.44],[-83.07,21.47],[-83.14,21.53],[-83.19,21.62],[-83.11,21.56]],[[-83.0,21.93],[-82.98,21.94],[-82.95,21.93],[-83.0,21.93]],[[-83.4,21.95],[-83.35,21.94],[-83.43,21.94],[-83.4,21.95]],[[-83.53,21.95],[-83.46,21.95],[-83.43,21.94],[-83.53,21.95]],[[-83.59,21.97],[-83.53,21.96],[-83.61,21.96],[-83.64,22.01],[-83.59,21.97]],[[-82.82,22.06],[-82.79,22.07],[-82.76,22.06],[-82.77,22.05],[-82.82,22.06]],[[-82.87,22.03],[-82.86,22.05],[-82.82,22.06],[-82.87,22.03]],[[-82.88,22.05],[-82.86,22.07],[-82.86,22.05],[-82.88,22.05]],[[-82.91,22.13],[-82.91,22.12],[-82.93,22.12],[-82.91,22.13]],[[-82.81,22.23],[-82.81,22.22],[-82.83,22.22],[-82.81,22.23]],[[-82.79,22.26],[-82.78,22.25],[-82.8,22.24],[-82.79,22.26]],[[-82.43,21.55],[-82.47,21.58],[-82.41,21.57],[-82.43,21.55]],[[-82.38,21.63],[-82.38,21.6],[-82.42,21.62],[-82.38,21.63]],[[-82.33,21.61],[-82.33,21.59],[-82.38,21.6],[-82.33,21.61]],[[-82.43,21.69],[-82.46,21.65],[-82.47,21.66],[-82.44,21.69],[-82.51,21.71],[-82.43,21.69]],[[-82.51,21.69],[-82.53,21.7],[-82.51,21.71],[-82.51,21.69]],[[-82.54,21.75],[-82.53,21.72],[-82.55,21.72],[-82.54,21.75]],[[-82.63,21.79],[-82.59,21.79],[-82.63,21.78]],[[-82.64,21.98],[-82.62,21.95],[-82.68,21.98],[-82.68,22.0],[-82.64,21.98]],[[-82.76,22.28],[-82.76,22.26],[-82.78,22.29],[-82.76,22.29],[-82.76,22.28]],[[-82.38,21.56],[-82.35,21.57],[-82.36,21.56],[-82.38,21.56]],[[-82.34,21.56],[-82.3,21.59],[-82.28,21.59],[-82.28,21.57],[-82.34,21.56]],[[-82.24,21.58],[-82.2,21.59],[-82.21,21.57],[-82.27,21.57],[-82.24,21.58]],[[-81.97,21.61],[-82.11,21.56],[-82.08,21.6],[-82.06,21.59]],[[-82.05,21.61],[-81.96,21.64],[-81.97,21.61]],[[-82.1,21.59],[-82.13,21.61],[-82.06,21.61],[-82.08,21.6],[-82.1,21.59]],[[-81.92,21.6],[-81.94,21.65],[-81.92,21.62],[-81.83,21.66],[-81.92,21.6]],[[-81.96,21.68],[-81.95,21.7],[-81.94,21.68],[-81.96,21.68]],[[-81.67,21.64],[-81.65,21.63],[-81.67,21.63],[-81.67,21.64]],[[-81.56,21.59],[-81.57,21.63],[-81.51,21.63]],[[-81.51,21.61],[-81.49,21.63],[-81.5,21.64],[-81.44,21.65],[-81.51,21.6],[-81.56,21.59]],[[-81.42,21.68],[-81.36,21.7],[-81.43,21.65],[-81.42,21.68]],[[-81.79,21.64],[-81.82,21.66],[-81.81,21.66],[-81.79,21.64]],[[-81.86,21.68],[-81.85,21.7],[-81.83,21.7],[-81.86,21.68]],[[-81.83,21.88],[-81.81,21.88],[-81.84,21.87],[-81.83,21.88]]]}};
+
+/* ================= MOTOR DE NIVELES ================= */
+function seg(a, d){ return a.slice(d*24, d*24+24); }
+function mx(a){ let m = null; for (const v of a){ if (v != null && (m === null || v > m)) m = v; } return m; }
+function mn(a){ let m = null; for (const v of a){ if (v != null && (m === null || v < m)) m = v; } return m; }
+function f1(v){ return v == null ? "—" : (Math.round(v*10)/10).toString().replace(".", ","); }
+function f0(v){ return v == null ? "—" : Math.round(v).toString(); }
+function rainMax(P, d, w){
+  let best = 0;
+  for (let end = d*24; end < d*24+24; end++){
+    let s = 0;
+    for (let i = Math.max(0, end-w+1); i <= end; i++) s += (P[i] || 0);
+    if (s > best) best = s;
+  }
+  return best;
+}
+function havKm(lat1, lon1, lat2, lon2){
+  const R = 6371, rad = Math.PI/180;
+  const dLa = (lat2-lat1)*rad, dLo = (lon2-lon1)*rad;
+  const a = Math.sin(dLa/2)**2 + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+/* Devuelve {clave:{n:nivel|null, det:texto}} para la provincia p y el día d */
+function calcular(p, d, F, M, ciclones){
+  const H = F.hourly, out = {};
+  const P = H.precipitation;
+
+  /* Calor extremo — índice de calor máx. del día */
+  const ic = mx(seg(H.apparent_temperature, d));
+  if (ic === null) out.calor = { n:null, det:"Sin datos del modelo" };
+  else {
+    const n = ic >= 47 ? 4 : ic >= 45 ? 3 : ic >= 42 ? 2 : ic >= 39 ? 1 : 0;
+    out.calor = { n, det:"Índice de calor máx.: " + f1(ic) + " °C" };
+  }
+
+  /* Frío extremo — sensación térmica MÍN. del día, con los valores y la
+     terminología de las madrugadas invernales de Cuba:
+     Amarillo 10-13 °C (madrugada fría) · Naranja 7-10 °C (madrugada muy fría) ·
+     Rojo 4-7 °C (madrugada notablemente fría) · Morado < 4 °C (frío excepcional,
+     posible helada en zonas bajas del interior) */
+  const st = mn(seg(H.apparent_temperature, d));
+  if (st === null) out.frio = { n:null, det:"Sin datos del modelo" };
+  else {
+    const n = st < 4 ? 4 : st < 7 ? 3 : st < 10 ? 2 : st <= 13 ? 1 : 0;
+    const desc = ["", "Madrugada fría", "Madrugada muy fría", "Madrugada notablemente fría",
+                  "Frío excepcional · posible helada en zonas bajas del interior"][n];
+    out.frio = { n, det:(desc ? desc + " · " : "") + "Sensación térmica mín.: " + f1(st) + " °C" };
+  }
+
+  /* Lluvia intensa e inundaciones — ventanas móviles */
+  const m1 = rainMax(P, d, 1), m3 = rainMax(P, d, 3), m6 = rainMax(P, d, 6),
+        m12 = rainMax(P, d, 12), m24 = rainMax(P, d, 24);
+  let nl;
+  if ((m1 > 50 && m24 >= 150) || m3 >= 75) nl = 4;
+  else if (m1 > 50 || m24 >= 100 || m6 >= 100) nl = 3;
+  else if ((m1 >= 36 && m1 <= 50) || m12 >= 50 || m6 >= 75) nl = 2;
+  else if ((m1 >= 25 && m1 <= 35) || m6 >= 40) nl = 1;
+  else nl = 0;
+  out.lluvia = { n:nl, det: f1(m24) + " mm en 24 h · máx. " + f1(m1) + " mm/1 h" + (m6 >= 40 ? " · " + f1(m6) + " mm/6 h" : "") };
+
+  /* Viento fuerte (+ subregla del sur) */
+  const sust = mx(seg(H.wind_speed_10m, d)), gust = mx(seg(H.wind_gusts_10m, d));
+  const dirD = seg(H.wind_direction_10m, d), spdD = seg(H.wind_speed_10m, d);
+  let racha = 0, corrida = 0;
+  for (let i = 0; i < 24; i++){
+    if (dirD[i] != null && spdD[i] != null && dirD[i] >= 157.5 && dirD[i] <= 202.5 && spdD[i] > 35){ corrida++; if (corrida > racha) racha = corrida; }
+    else corrida = 0;
+  }
+  const sur = racha >= 3;
+  if (sust === null) out.viento = { n:null, det:"Sin datos del modelo" };
+  else {
+    /* Nivel = el mayor entre la escala de SOSTENIDOS de LABMET (Amarillo
+       35-45 · Naranja 45-65 · Rojo 65-95 · Morado ≥95 km/h) y la escala de
+       RACHAS (Amarillo ≥50 · Naranja ≥70 · Rojo ≥90 · Morado ≥100 km/h):
+       en Cuba el daño lo hacen las rachas (techos de zinc, objetos
+       sueltos), así que también mandan. Umbrales definidos por Jorge. */
+    const nS = sust >= 95 ? 4 : sust >= 65 ? 3 : sust >= 45 ? 2 : sust >= 35 ? 1 : 0;
+    const nG = (gust == null) ? 0 : gust >= 100 ? 4 : gust >= 90 ? 3 : gust >= 70 ? 2 : gust >= 50 ? 1 : 0;
+    let n = Math.max(nS, nG);
+    if (sur && n < 1) n = 1;
+    out.viento = { n, det:"Sostenido máx. " + f0(sust) + " km/h · racha " + f0(gust) + " km/h" + (sur ? " · Sur establecido: " + racha + " h seguidas del sur a más de 35 km/h" : "") };
+  }
+
+  /* Índice interno de inestabilidad (CAPE/rachas): ya NO es un peligro visible;
+     solo alimenta la regla de Morado de las tormentas eléctricas. */
+  const cape = mx(seg(H.cape, d)), gustT = mx(seg(H.wind_gusts_10m, d));
+  const codes = seg(H.weather_code, d);
+  const hayTor = codes.some(c => c === 95 || c === 96 || c === 99);
+  const hayGran = codes.some(c => c === 96 || c === 99);
+  if (cape === null && gustT === null) out.tls = { n:null, det:"Sin datos del modelo" };
+  else {
+    let n;
+    if (gustT != null && gustT >= 121) n = 4;
+    else if ((gustT != null && gustT >= 93) || (cape != null && cape >= 3000 && hayTor)) n = 3;
+    else if ((cape != null && cape >= 2000 && cape <= 2999) || (gustT != null && gustT >= 50 && gustT <= 92)) n = 2;
+    else if ((cape != null && cape >= 1000 && cape <= 1999) || (gustT != null && gustT >= 40 && gustT <= 49)) n = 1;
+    else n = 0;
+    out.tls = { n, det:"CAPE máx. " + f0(cape) + " J/kg · racha máx. " + f0(gustT) + " km/h" + (hayGran ? " · el modelo indica tormenta con granizo" : "") };
+  }
+
+  /* Tormentas eléctricas — cobertura según el modelo */
+  const horasTor = codes.filter(c => c === 95 || c === 96 || c === 99).length;
+  const prob = mx(seg(H.precipitation_probability, d)) || 0;
+  let ne;
+  if (hayGran || horasTor >= 8) ne = 3;
+  else if (horasTor >= 4) ne = 2;
+  else if (horasTor >= 1) ne = 1;
+  else ne = 0;
+  /* La probabilidad por sí sola NO sube el nivel (ajuste aprobado por Jorge):
+     con un 40 % el modelo pintaba de Amarillo casi todo el país a diario.
+     La probabilidad solo se muestra como dato en la descripción. */
+  if (ne === 3 && out.tls.n != null && out.tls.n >= 3) ne = 4;
+  out.electricas = { n:ne, det: horasTor > 0 ? horasTor + " h con tormenta según el modelo" + (hayGran ? " · con granizo" : "") : "Prob. máx. de tormenta: " + f0(prob) + " %" };
+
+  /* Niebla — visibilidad mínima de la MADRUGADA y la primera mañana
+     (3 a 10 a. m.): en Cuba la niebla es un fenómeno de esas horas; la de
+     la tarde o la noche no es niebla típica. Y solo en horas SIN lluvia:
+     el modelo también baja la visibilidad cuando llueve (el agua en el
+     aire), y eso NO es niebla. Si en esa ventana llueve a todas horas, se
+     usa su mínimo pero el nivel se limita a Amarillo, porque no se puede
+     separar la niebla de la lluvia. */
+  const visD = seg(H.visibility, d), prD = seg(H.precipitation, d);
+  let visSeca = null, visToda = null;
+  for (let i = 3; i <= 10; i++){
+    const v = visD[i]; if (v == null) continue;
+    if (visToda === null || v < visToda) visToda = v;
+    if ((prD[i] ?? 0) < 1 && (visSeca === null || v < visSeca)) visSeca = v;
+  }
+  if (visToda === null) out.niebla = { n:null, det:"Sin datos del modelo" };
+  else if (visSeca !== null) {
+    const km = visSeca/1000;
+    const n = km < 0.4 ? 4 : km < 1 ? 3 : km < 3 ? 2 : km <= 5 ? 1 : 0;
+    out.niebla = { n, det:"Visibilidad mín. " + f1(km) + " km" };
+  } else {
+    const km = visToda/1000;
+    const n = km < 1 ? 1 : km <= 5 ? 1 : 0;
+    out.niebla = { n, det:"Visibilidad mín. " + f1(km) + " km (con lluvia: no se distingue de la niebla)" };
+  }
+
+  /* Estado del mar + corrientes de resaca, POR COSTA (norte y sur por separado;
+     la Isla de la Juventud usa su anillo costero como una sola costa «C»).
+     El mar NO pinta la provincia: se representa con franjas sobre la costa. */
+  function datosMar(idxs){
+    let Hmax = null, Per = null;
+    if (M){
+      for (const mi of idxs){
+        const loc = M[mi]; if (!loc || !loc.hourly) continue;
+        const wh = seg(loc.hourly.wave_height, d), wp = seg(loc.hourly.wave_period, d);
+        for (let i = 0; i < 24; i++){
+          if (wh[i] != null && (Hmax === null || wh[i] > Hmax)){ Hmax = wh[i]; Per = wp[i]; }
+        }
+      }
+    }
+    return { Hmax, Per };
+  }
+  function nivelesMar(Hmax, Per){
+    if (Hmax === null) return { oleaje: { n:null, det:"Sin datos del estado del mar" }, resaca: { n:null, det:"Sin datos del estado del mar" } };
+    const no = Hmax > 5 ? 4 : Hmax > 4 ? 3 : Hmax > 3 ? 2 : Hmax >= 1.5 ? 1 : 0;
+    let nr;
+    if (Hmax > 2.5) nr = 4;
+    else if (Hmax > 1.5) nr = 3;
+    else if (Hmax > 1.0) nr = 2;
+    else if (Hmax >= 0.6 && Per != null && Per >= 8) nr = 1;
+    else nr = 0;
+    return {
+      oleaje: { n:no, det:"H máx " + f1(Hmax) + " m" },
+      resaca: { n:nr, det:"Rompientes ≈ " + f1(Hmax) + " m · período " + (Per == null ? "—" : f1(Per)) + " s" }
+    };
+  }
+  out.mar = {};
+  for (const [cl, idxs] of [["N", p.marN], ["S", p.marS], ["C", p.marC]]){
+    if (!idxs || !idxs.length) continue;
+    const dm = datosMar(idxs);
+    out.mar[cl] = nivelesMar(dm.Hmax, dm.Per);
+  }
+  /* Compatibilidad: el oleaje/resaca «de la provincia» es el máximo entre sus costas
+     (lo usa la tabla nacional; el mapa, la lista y el detalle trabajan por costa). */
+  const peorCosta = (k) => {
+    let best = null;
+    for (const cl of ["N", "S", "C"]){
+      const v = out.mar[cl] && out.mar[cl][k];
+      if (v && v.n != null && (best === null || v.n > best.n)) best = v;
+    }
+    return best || { n:null, det:"Sin datos del estado del mar" };
+  };
+  out.oleaje = peorCosta("oleaje");
+  out.resaca = peorCosta("resaca");
+
+  /* Ciclones tropicales (NHC, cuenca atlántica) */
+  if (ciclones === null) out.ciclon = { n:null, det:"Sin datos del NHC en este momento" };
+  else {
+    let mejor = null;
+    for (const st of ciclones){
+      let dmin = Infinity;
+      for (const pt of st.pts) dmin = Math.min(dmin, havKm(p.lat, p.lon, pt.lat, pt.lon));
+      if (dmin <= 600 && (mejor === null || dmin < mejor.dist)) mejor = { st, dist: dmin };
+    }
+    if (!mejor) out.ciclon = { n:0, det:"Sin ciclón tropical cercano" };
+    else {
+      const kmh = Math.round(mejor.st.kt * 1.852);
+      const directo = kmh < 96 ? 2 : kmh < 178 ? 3 : 4;
+      const n = mejor.dist <= 250 ? directo : (kmh >= 96 ? 2 : 1);
+      out.ciclon = { n, det: mejor.st.name + " a unos " + f0(mejor.dist) + " km · vientos de " + f0(kmh) + " km/h" };
+    }
+  }
+  return out;
+}
+
+const PELIGROS = [
+  ["ciclon",     "Ciclones tropicales"],
+  ["lluvia",     "Lluvia intensa e inundaciones"],
+  ["viento",     "Viento fuerte"],
+  ["oleaje",     "Estado del mar"],
+  ["resaca",     "Corrientes de resaca"],
+  ["calor",      "Calor extremo"],
+  ["frio",       "Frío extremo"],
+  ["electricas", "Tormentas eléctricas"],
+  ["niebla",     "Niebla"]
+];
+/* Máximo entre los peligros de tierra: lo usan los chips de la lista y el
+   RELLENO del mapa (también al seleccionar una provincia): el mar jamás tiñe
+   la provincia entera. El «Tipo de alerta» de la ficha y de la tarjeta PNG es
+   otra cosa: manda principalDe (el fenómeno más significativo en conjunto,
+   tierra o mar por costa), para que una provincia con un peligro de mar en
+   Rojo nunca se anuncie como «Verde · Ninguno». */
+const PEL_TIERRA = ["calor", "frio", "lluvia", "viento", "niebla", "electricas", "ciclon"];
+function nivelMaximo(res){
+  let m = null, clave = null;
+  for (const k of PEL_TIERRA){
+    const v = res[k];
+    if (v && v.n != null && (m === null || v.n > m)){ m = v.n; clave = k; }
+  }
+  return { n:m, clave };
+}
+const COSTA_TXT = { N: "costa norte", S: "costa sur", C: "costa" };
+/* Fenómeno principal: manda el mayor peligro de tierra; el mar solo se nombra
+   si el nivel de alguna de sus costas supera al máximo de tierra. */
+function principalDe(res){
+  const t = nivelMaximo(res);
+  let mejor = t.clave ? { clave: t.clave, n: t.n, costa: null, det: res[t.clave].det } : null;
+  if (res.mar){
+    for (const cl of ["N", "S", "C"]){
+      const mc = res.mar[cl]; if (!mc) continue;
+      for (const k of ["oleaje", "resaca"]){
+        const v = mc[k];
+        if (v && v.n != null && (mejor === null || v.n > mejor.n))
+          mejor = { clave: k, n: v.n, costa: cl, det: v.det };
+      }
+    }
+  }
+  return mejor;
+}
+/* ================= FIN MOTOR ================= */
+
+/* ================= APLICACIÓN ================= */
+let datosF = null, datosM = null, ciclones = null, diaSel = 0, provSel = null;
+let resultados = {}; // resultados[dia][provIdx] = {res, max}
+let mapa = null, capaProv = null, capasPorId = {}, etiquetas = [];
+let franjas = []; // franjas costeras: {prov, costa:"N"|"S"|"C", linea}
+let modoPeligro = null;      // clave del peligro activo (modo peligro) o null
+let sateliteActivo = false;  // satélite encendido
+let radarActivo = false;     // radar encendido (con el satélite, activa la vista sin rellenos de alerta)
+const PEL_NOM = Object.fromEntries(PELIGROS);
+const PEL_ORDEN = ["calor","frio","lluvia","viento","oleaje","resaca","niebla","electricas","ciclon"]; // orden de las tablas tipo GHWO (9 peligros)
+const DIAS_TXT = ["Hoy","Mañana","Pasado mañana"];
+
+async function cargar(){
+  const lats = PROVS.map(p => p.lat).join(","), lons = PROVS.map(p => p.lon).join(",");
+  const urlF = "https://api.open-meteo.com/v1/forecast?latitude=" + lats + "&longitude=" + lons +
+    "&hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,visibility&timezone=America%2FHavana&forecast_days=3";
+  const mlats = MARPTS.map(q => q[0]).join(","), mlons = MARPTS.map(q => q[1]).join(",");
+  const urlM = "https://marine-api.open-meteo.com/v1/marine?latitude=" + mlats + "&longitude=" + mlons +
+    "&hourly=wave_height,wave_period&timezone=America%2FHavana&forecast_days=3";
+  const urlN = "https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather_summary/MapServer/5/query?where=" +
+    encodeURIComponent("basin='AL'") + "&outFields=stormname,stormtype,maxwind,lat,lon,tau,stormnum&returnGeometry=false&f=json";
+
+  const pF = fetch(urlF).then(r => { if (!r.ok) throw new Error("forecast"); return r.json(); });
+  const pM = fetch(urlM).then(r => r.json()).catch(() => null);
+  const pN = fetch(urlN).then(r => r.json()).then(j => {
+    const storms = {};
+    for (const f of (j.features || [])){
+      const a = f.attributes;
+      if (a.lat == null || a.lon == null) continue;
+      const key = (a.stormnum || a.stormname || "?") + "";
+      if (!storms[key]) storms[key] = { name: a.stormname || "Ciclón", pts: [], kt: 0 };
+      storms[key].pts.push({ lat: a.lat, lon: a.lon });
+      if ((a.tau === 0 || a.tau == null) && a.maxwind != null) storms[key].kt = Math.max(storms[key].kt, a.maxwind);
+      if (a.maxwind != null && storms[key].kt === 0) storms[key].kt = a.maxwind;
+    }
+    return Object.values(storms).filter(s => s.pts.length && s.kt > 0);
+  }).catch(() => null);
+
+  try {
+    datosF = await pF;
+  } catch(e) {
+    document.getElementById("cargando").classList.add("oculto");
+    const er = document.getElementById("error");
+    er.style.display = "block";
+    er.innerHTML = "No se pudieron cargar los datos del modelo (Open-Meteo). Compruebe su conexión e inténtelo de nuevo.<br><button onclick='location.reload()'>Reintentar</button>";
+    return;
+  }
+  datosM = await pM;
+  ciclones = await pN;
+
+  for (let d = 0; d < 3; d++){
+    resultados[d] = PROVS.map((p, i) => {
+      const res = calcular(p, d, datosF[i], datosM, ciclones);
+      return { res, max: nivelMaximo(res) };
+    });
+  }
+
+  document.getElementById("cargando").classList.add("oculto");
+  document.getElementById("app").classList.remove("oculto");
+  const ahora = new Date();
+  document.getElementById("actualizado").textContent = "Actualizado: " + ahora.toLocaleDateString("es", { day:"numeric", month:"short" }) + " " + ahora.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit" });
+  ponerFechas();
+  iniciarMapa();
+  pintar();
+}
+
+function ponerFechas(){
+  const diasSem = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+  const meses = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  const t = datosF[0].hourly.time;
+  document.querySelectorAll("#dias button").forEach((b, d) => {
+    const iso = t[d*24].slice(0, 10).split("-");
+    const fecha = new Date(Date.UTC(+iso[0], +iso[1]-1, +iso[2]));
+    b.querySelector("small").textContent = diasSem[fecha.getUTCDay()] + " " + (+iso[2]) + " " + meses[+iso[1]-1];
+  });
+}
+
+function estiloProv(feature){
+  const idx = PROVS.findIndex(p => p.id === feature.properties.NAME_1);
+  const sel = feature.properties.NAME_1 === provSel;
+  /* Vista limpia: con satélite o radar encendidos, las provincias van SIN relleno
+     de alerta (fillOpacity 0), solo el borde; al apagar ambas capas se restaura
+     el estado en que estuviera el mapa (base / selección / modo fenómeno). */
+  const limpia = sateliteActivo || radarActivo;
+  /* MODELO DE ESTADOS DEL MAPA (como el GHWO del NWS de Miami):
+     - Al abrir: TODAS las provincias se pintan con el color de su fenómeno más
+       significativo (máximo de TIERRA); el mar va en las franjas costeras y
+       NUNCA rellena la provincia.
+     - Al tocar una provincia: el resto del mapa queda en BLANCO y solo ella
+       conserva su color más significativo (y sus franjas).
+     - Modo fenómeno activo: las provincias se pintan por ese fenómeno; en
+       los de MAR (oleaje/resaca) las provincias quedan SIN relleno — el
+       mapa conserva su aspecto original y el peligro se ve SOLO en las
+       franjas costeras (el mar nunca pinta la provincia).
+     - El selector de día repinta todo según la fecha elegida. */
+  let n = null, rellena = false, blanco = false;
+  if (idx >= 0 && !limpia){
+    if (modoPeligro){
+      if (modoPeligro === "oleaje" || modoPeligro === "resaca"){
+        rellena = false; // modo de mar: solo la costa; la provincia, sin relleno
+      } else {
+        n = resultados[diaSel][idx].res[modoPeligro].n;
+        rellena = true;
+      }
+    } else if (provSel !== null && !sel){
+      blanco = true; rellena = true; // aislamiento: el resto del mapa en blanco
+    } else {
+      n = resultados[diaSel][idx].max.n; // máximo de TIERRA: el mar no pinta la provincia
+      rellena = true;
+    }
+  }
+  const col = blanco ? "#ffffff" : (n === null ? SIN_DATOS.c : NIVELES[n].c);
+  let borde, peso;
+  if (limpia){ borde = sateliteActivo ? "#ffffff" : "#08304f"; peso = sel ? 2.5 : 1.7; }
+  else if (sel){ borde = "#ffffff"; peso = 2.5; }
+  else if (blanco){ borde = "#8a979e"; peso = 1.2; }
+  else if (rellena){ borde = "#ffffff"; peso = 1.2; }
+  else { borde = "#8a979e"; peso = 1.2; }
+  return {
+    color: borde,
+    weight: peso,
+    fillColor: col,
+    fillOpacity: rellena ? (blanco ? 1 : 0.78) : 0
+  };
+}
+
+/* Etiquetas de provincia: solo visibles con zoom 7 o más (en la vista inicial se solapaban) */
+function actEtiquetas(){
+  if (!mapa) return;
+  const ver = mapa.getZoom() >= 7;
+  for (const t of etiquetas){
+    if (ver && !mapa.hasLayer(t)) t.addTo(mapa);
+    else if (!ver && mapa.hasLayer(t)) mapa.removeLayer(t);
+  }
+}
+
+function iniciarMapa(){
+  mapa = L.map("map", { scrollWheelZoom: false }).setView([21.6, -79.3], 6);
+  mapa.createPane("refPane");
+  mapa.getPane("refPane").style.zIndex = 450;
+  mapa.getPane("refPane").style.pointerEvents = "none";
+  L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+    attribution: "© Esri, DeLorme, NAVTEQ · Datos © OpenStreetMap y colaboradores", maxZoom: 12
+  }).addTo(mapa);
+  L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+    pane: "refPane", maxZoom: 12
+  }).addTo(mapa);
+  capaProv = L.geoJSON(CUBA_GEOJSON, {
+    style: estiloProv,
+    onEachFeature: (feature, layer) => {
+      capasPorId[feature.properties.NAME_1] = layer;
+      layer.on("click", () => seleccionar(feature.properties.NAME_1, true));
+      const c = layer.getBounds().getCenter();
+      const tip = L.tooltip({ permanent: true, direction: "center", className: "lbl", interactive: false })
+        .setLatLng(c)
+        .setContent((PROVS.find(p => p.id === feature.properties.NAME_1) || {}).nom || feature.properties.NAME_1);
+      etiquetas.push(tip);
+    }
+  }).addTo(mapa);
+  /* Franjas costeras: polilíneas pegadas a la costa real de cada provincia,
+     coloreadas por el nivel del Estado del mar (o de la resaca en su modo). */
+  for (const p of PROVS){
+    const cg = COSTAS_GEO[p.id] || {};
+    for (const cl of ["N", "S", "C"]){
+      for (const linea of (cg[cl] || [])){
+        const l = L.polyline(linea.map(pt => [pt[1], pt[0]]),
+          { color: "#9aa7ad", weight: 6, opacity: 0.95, lineCap: "round", lineJoin: "round", interactive: false }).addTo(mapa);
+        franjas.push({ prov: p.id, costa: cl, linea: l });
+      }
+    }
+  }
+  mapa.on("zoomend", actEtiquetas);
+  munCapa = L.layerGroup().addTo(mapa);
+  mapa.on("zoomend", () => pintarMunicipios());
+  mapa.fitBounds(capaProv.getBounds(), { padding: [10, 10] });
+  actEtiquetas();
+}
+
+/* Recolorea las franjas según día y modo. Visibilidad por estado del mapa:
+   con satélite/radar se ocultan (mapa sin alertas); con modo fenómeno se ven
+   todas; con provincia seleccionada, solo las de esa provincia; en el estado
+   base (sin selección ni modo) no se muestra ninguna. */
+/* Nivel del mar en una costa: el mayor entre Estado del mar y Corrientes de
+   resaca. La franja costera se pinta con ESE nivel (así una resaca en Rojo
+   pinta la costa de rojo, sin tocar el relleno de la provincia). */
+function nivelMarCosta(mc){
+  if (!mc) return null;
+  let n = null;
+  for (const k of ["oleaje", "resaca"]){
+    const v = mc[k];
+    if (v && v.n != null && (n === null || v.n > n)) n = v.n;
+  }
+  return n;
+}
+function pintarFranjas(){
+  if (!franjas.length) return;
+  const limpia = sateliteActivo || radarActivo;
+  for (const f of franjas){
+    /* En modo fenómeno de TIERRA las franjas se ocultan: el mapa muestra
+       SOLO ese peligro (si hay resaca en Rojo, no puede sombrear un mapa
+       de calor). En modo oleaje/resaca se ven con ese fenómeno; sin modo,
+       con el fenómeno de mar más alto de cada costa. */
+    const esModoMar = modoPeligro === "oleaje" || modoPeligro === "resaca";
+    const visible = !limpia && (esModoMar || (modoPeligro === null && (provSel === null || f.prov === provSel)));
+    if (!visible){ f.linea.setStyle({ opacity: 0 }); continue; }
+    const idx = PROVS.findIndex(p => p.id === f.prov);
+    const rr = resultados[diaSel] && resultados[diaSel][idx];
+    const mc = rr && rr.res.mar ? rr.res.mar[f.costa] : null;
+    let n = null;
+    if (mc){
+      if (modoPeligro === "oleaje") n = mc.oleaje ? mc.oleaje.n : null;
+      else if (modoPeligro === "resaca") n = mc.resaca ? mc.resaca.n : null;
+      else n = nivelMarCosta(mc); // vista normal: manda el fenómeno de mar más alto de esa costa
+    }
+    f.linea.setStyle({ opacity: 0.95, color: n === null ? SIN_DATOS.c : NIVELES[n].c });
+  }
+}
+
+/* Nivel de una provincia según el modo: peligro activo o máximo general */
+function nivelDe(i){
+  if (modoPeligro){
+    const v = resultados[diaSel][i].res[modoPeligro];
+    return { n: v ? v.n : null, det: v ? v.det : "", k: modoPeligro };
+  }
+  const m = resultados[diaSel][i].max;
+  return { n: m.n, det: m.clave ? PEL_NOM[m.clave] : "—", k: null };
+}
+/* Nivel máximo nacional de un peligro en un día (para la tabla tipo GHWO) */
+function maxNacional(k, d){
+  let m = null;
+  for (let i = 0; i < PROVS.length; i++){
+    const v = resultados[d][i].res[k];
+    if (v && v.n != null && (m === null || v.n > m)) m = v.n;
+  }
+  return m;
+}
+
+function pintarTabla(){
+  let h = "<tr><th style='text-align:left'>Peligro</th>";
+  for (let d = 0; d < 3; d++)
+    h += '<th data-dia="' + d + '" class="' + (d === diaSel ? "diacur" : "") + '">' + DIAS_TXT[d] + "</th>";
+  h += "</tr>";
+  for (const k of PEL_ORDEN){
+    h += '<tr class="pelrow' + (k === modoPeligro ? " activa" : "") + '" data-pel="' + k + '">' +
+      '<td class="pelnom">' + PEL_NOM[k] + "</td>";
+    for (let d = 0; d < 3; d++){
+      const m = maxNacional(k, d);
+      const nv = m === null ? SIN_DATOS : NIVELES[m];
+      h += '<td class="' + (d === diaSel ? "diacur" : "") + '"><span class="pill" style="background:' + nv.c + ";color:" + nv.t + '">' +
+        (m === null ? "Sin datos" : nomNivel(k, m)) + "</span></td>";
+    }
+    h += "</tr>";
+  }
+  const t = document.getElementById("tablaPel");
+  t.innerHTML = h;
+  t.querySelectorAll(".pelrow").forEach(f =>
+    f.addEventListener("click", () => activarModoPeligro(f.dataset.pel)));
+  /* Las cabeceras de día de la tabla TAMBIÉN cambian el día (igual que los
+     botones de arriba): tocar «Mañana» en la tabla ajusta mapa, lista y detalle */
+  t.querySelectorAll("th[data-dia]").forEach(th =>
+    th.addEventListener("click", () => { const d = +th.dataset.dia; if (d !== diaSel){ diaSel = d; pintar(); rotarAnuncios(); } }));
+}
+
+function activarModoPeligro(k){
+  modoPeligro = (modoPeligro === k) ? null : k;
+  pintar(); rotarAnuncios();
+  if (modoPeligro) document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+/* Al salir del modo fenómeno se vuelve al estado base; si sigue habiendo una
+   provincia seleccionada, su color (fenómeno más relevante) es el que manda. */
+function salirModoPeligro(){ modoPeligro = null; pintar(); rotarAnuncios(); }
+/* Barra de peligros estilo WeatherWise, sobre el mapa: elegir el fenómeno
+   desde arriba, sin bajar a la tabla. Reutiliza activarModoPeligro (el
+   mismo procedimiento que tocar un fenómeno en la tabla). */
+function construirChips(){
+  const c = document.getElementById("chips");
+  let h = '<button data-pel="">Todos</button>';
+  for (const k of PEL_ORDEN) h += '<button data-pel="' + k + '">' + PEL_NOM[k] + "</button>";
+  c.innerHTML = h;
+  c.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.pel === "") salirModoPeligro();
+    else activarModoPeligro(b.dataset.pel);
+  }));
+}
+function cerrarDetalle(){
+  provSel = null;
+  if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+  mostrarDetalle();
+}
+
+function pintar(){
+  pintarMunicipios();
+  syncObs();
+  document.querySelectorAll("#dias button").forEach(b =>
+    b.classList.toggle("act", +b.dataset.dia === diaSel));
+  document.querySelectorAll("#chips button").forEach(b =>
+    b.classList.toggle("act", b.dataset.pel === "" ? modoPeligro === null : b.dataset.pel === modoPeligro));
+  document.getElementById("leyenda").innerHTML =
+    (modoPeligro ? '<span style="background:#08304f;color:#fff">Peligro: ' + PEL_NOM[modoPeligro] + "</span>" : "") +
+    NIVELES.map(nv => '<span style="background:' + nv.c + ';color:' + nv.t + '">' + nv.largo + "</span>").join("");
+  if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+
+  pintarTabla();
+
+  const bar = document.getElementById("modoBar");
+  document.getElementById("listaTitulo").textContent = modoPeligro
+    ? "Provincias — " + PEL_NOM[modoPeligro]
+    : "Provincias por nivel de riesgo";
+  if (modoPeligro){
+    bar.classList.remove("oculto");
+    bar.innerHTML = "<span>Mapa y lista muestran solo: <b>" + PEL_NOM[modoPeligro] + "</b> (" + DIAS_TXT[diaSel].toLowerCase() + ")</span>" +
+      '<button id="btnTodos">Ver todos los peligros</button>';
+    document.getElementById("btnTodos").addEventListener("click", salirModoPeligro);
+  } else {
+    bar.classList.add("oculto");
+    bar.innerHTML = "";
+  }
+
+  const esMar = modoPeligro === "oleaje" || modoPeligro === "resaca";
+  if (esMar){
+    /* Modo peligro de mar: una fila por provincia-costa, ordenada por su nivel */
+    const filasC = [];
+    PROVS.forEach((p, i) => {
+      const mar = resultados[diaSel][i].res.mar || {};
+      for (const cl of ["N", "S", "C"]){
+        if (!mar[cl]) continue;
+        const v = mar[cl][modoPeligro];
+        filasC.push({ i, cl, n: v ? v.n : null, det: v ? v.det : "" });
+      }
+    });
+    filasC.sort((a, b) => ((b.n === null ? -1 : b.n) - (a.n === null ? -1 : a.n)) || PROVS[a.i].nom.localeCompare(PROVS[b.i].nom));
+    document.getElementById("lista").innerHTML = filasC.map(fc => {
+      const p = PROVS[fc.i];
+      const nv = fc.n === null ? SIN_DATOS : NIVELES[fc.n];
+      const etiq = fc.cl === "C" ? "Costa" : "Costa " + (fc.cl === "N" ? "norte" : "sur");
+      return '<div class="fila" data-prov="' + p.id + '">' +
+        '<span class="pto" style="background:' + nv.c + '"></span>' +
+        '<span class="nom">' + p.nom + " · " + etiq + '<span class="pel">' + fc.det + "</span></span>" +
+        '<span class="niv" style="background:' + nv.c + ";color:" + nv.t + '">' + (fc.n === null ? "Sin datos" : NIVELES[fc.n].n) + "</span></div>";
+    }).join("");
+  } else {
+    const orden = PROVS.map((p, i) => i).sort((a, b) => {
+      const na = nivelDe(a).n, nb = nivelDe(b).n;
+      return (nb === null ? -1 : nb) - (na === null ? -1 : na) || PROVS[a].nom.localeCompare(PROVS[b].nom);
+    });
+    document.getElementById("lista").innerHTML = orden.map(i => {
+      const p = PROVS[i], nd = nivelDe(i);
+      const nv = nd.n === null ? SIN_DATOS : NIVELES[nd.n];
+      /* Mini-pastillas del mar por costa (N / S / Mar en la Isla): color del
+         fenómeno de mar más alto de esa costa (oleaje o resaca). SOLO en la
+         vista general: en un modo de peligro de tierra la lista muestra
+         únicamente ese peligro, igual que el mapa. */
+      let chips = "";
+      const mar = resultados[diaSel][i].res.mar || {};
+      if (!modoPeligro) for (const cl of ["N", "S", "C"]){
+        if (!mar[cl]) continue;
+        const nMar = nivelMarCosta(mar[cl]);
+        const cch = (nMar === null) ? SIN_DATOS : NIVELES[nMar];
+        chips += '<span class="niv" style="background:' + cch.c + ";color:" + cch.t + ';margin-left:4px" title="Mar (Estado del mar y resaca) · ' + COSTA_TXT[cl] + '">' + (cl === "C" ? "Mar" : cl) + "</span>";
+      }
+      return '<div class="fila" data-prov="' + p.id + '">' +
+        '<span class="pto" style="background:' + nv.c + '"></span>' +
+        '<span class="nom">' + p.nom + '<span class="pel">' + nd.det + "</span></span>" +
+        '<span class="niv" style="background:' + nv.c + ";color:" + nv.t + '">' + (nd.n === null ? "Sin datos" : nomNivel(nd.k, nd.n)) + "</span>" + chips + "</div>";
+    }).join("");
+  }
+  document.querySelectorAll("#lista .fila").forEach(el =>
+    el.addEventListener("click", () => seleccionar(el.dataset.prov, false)));
+
+  mostrarDetalle();
+  if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas(); // reaplica el resaltado de la provincia elegida
+}
+
+function mostrarDetalle(){
+  const idx = PROVS.findIndex(p => p.id === provSel);
+  if (idx < 0){
+    document.getElementById("detalle").innerHTML = '<div style="padding:14px 12px;font-size:14px;color:#51626c">Toque una provincia en el mapa o en la lista para ver su desglose por peligro.</div>';
+    return;
+  }
+  const p = PROVS[idx], r = resultados[diaSel][idx];
+  /* Tipo de alerta = fenómeno más significativo EN CONJUNTO (tierra o mar por
+     costa): una provincia con resaca en Rojo NUNCA se anuncia «Verde · Ninguno».
+     Lo que el mar no hace es PINTAR el mapa: el relleno sigue siendo de tierra
+     y el mar va en sus franjas costeras. */
+  const pr = principalDe(r.res);
+  const nv = (!pr || pr.n === null) ? SIN_DATOS : NIVELES[pr.n];
+  let h = '<div class="cab" style="background:' + nv.c + ";color:" + nv.t + '">' +
+    '<button id="btnCerrarDet" title="Cerrar detalle" style="float:right;border:1px solid rgba(255,255,255,.65);background:rgba(255,255,255,.14);color:inherit;border-radius:7px;font-size:15px;font-weight:700;padding:2px 10px;cursor:pointer">✕</button>' +
+    '<div class="pn">' + p.nom + "</div>" +
+    '<div class="pn2">Tipo de alerta: <b>' + ((!pr || pr.n === null) ? "Sin datos" : NIVELES[pr.n].largo) + "</b></div>";
+  if (pr){
+    const det1 = (pr.det || "").split("·")[0].trim();
+    const nomFen = PEL_NOM[pr.clave] + (pr.costa ? " (" + COSTA_TXT[pr.costa] + ")" : "");
+    const extra = pr.costa ? (" — " + NIVELES[pr.n].n + (det1 ? " · " + det1 : "")) : (det1 ? " — " + det1 : "");
+    h += '<div class="pn2">Fenómeno principal: <b>' + nomFen + "</b>" + extra + "</div>";
+  }
+  h += "</div>";
+  /* Mini-tabla tipo GHWO de la provincia: peligros × 3 días */
+  h += '<div style="padding:8px 12px 2px"><table class="mini"><tr><th>Peligro</th>';
+  for (let d = 0; d < 3; d++)
+    h += '<th data-dia="' + d + '" class="' + (d === diaSel ? "diacur" : "") + '">' + DIAS_TXT[d] + "</th>";
+  h += "</tr>";
+  for (const k of PEL_ORDEN){
+    h += "<tr><td>" + PEL_NOM[k] + "</td>";
+    for (let d = 0; d < 3; d++){
+      const v = resultados[d][idx].res[k];
+      const col = (!v || v.n === null) ? SIN_DATOS.c : NIVELES[v.n].c;
+      const nom = (!v || v.n === null) ? "Sin datos" : tituloNivel(k, v.n);
+      h += '<td class="' + (d === diaSel ? "diacur" : "") + '"><span class="pillMini" style="background:' + col + '" title="' + nom + '"></span></td>';
+    }
+    h += "</tr>";
+  }
+  h += "</table></div>";
+  h += '<div style="padding:8px 12px 12px"><button class="btnImg" id="btnImgProv">⬇ Descargar imagen de esta provincia</button></div>';
+  const filaPel = (nombreTxt, v, k) => {
+    const vv = !v || v.n === null ? SIN_DATOS : NIVELES[v.n];
+    return '<div class="pel-fila"><span class="pto" style="background:' + vv.c + '"></span>' +
+      '<div><span class="pn3">' + nombreTxt + '</span> — <span class="niv3" style="color:' + (vv === SIN_DATOS ? "#667" : vv.c === "#f2d13c" ? "#8a7203" : vv.c) + '">' +
+      (!v || v.n === null ? "Sin datos" : nomNivel(k, v.n)) + '</span>' +
+      '<span class="det">' + (v ? v.det : "") + "</span></div></div>";
+  };
+  for (const [k, nombre] of PELIGROS){
+    if (k === "oleaje" || k === "resaca"){
+      /* Los peligros de mar se desdoblan por costa (norte / sur) */
+      const mar = r.res.mar || {};
+      const costas = ["N", "S", "C"].filter(cl => mar[cl]);
+      if (!costas.length){ h += filaPel(nombre, r.res[k], k); continue; }
+      for (const cl of costas)
+        h += filaPel(nombre + (cl === "C" ? "" : " · Costa " + (cl === "N" ? "norte" : "sur")), mar[cl][k], k);
+      continue;
+    }
+    h += filaPel(nombre, r.res[k], k);
+  }
+  document.getElementById("detalle").innerHTML = h;
+  document.getElementById("btnCerrarDet").addEventListener("click", cerrarDetalle);
+  document.getElementById("btnImgProv").addEventListener("click", () => descargarTarjetaProvincia(idx));
+  /* Las cabeceras de día de la mini-tabla también cambian el día seleccionado */
+  document.querySelectorAll("#detalle th[data-dia]").forEach(th =>
+    th.addEventListener("click", () => { const d = +th.dataset.dia; if (d !== diaSel){ diaSel = d; pintar(); rotarAnuncios(); } }));
+}
+
+function seleccionar(id, desdeMapa){
+  provSel = id;
+  if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas(); // borde blanco de selección en la provincia elegida
+  if (capasPorId[id]) capasPorId[id].bringToFront();
+  mostrarDetalle();
+  /* SIN salto automático a la ficha (corrección de Jorge): la provincia se
+     marca en el mapa y el usuario se queda ahí, viendo los fenómenos; la
+     ficha se actualiza debajo del mapa para cuando baje a verla. Solo si la
+     selección viene de la LISTA se sube al mapa, que es donde se ve la
+     provincia marcada. */
+  if (!desdeMapa) document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  rotarAnuncios();
+}
+
+document.querySelectorAll("#dias button").forEach(b =>
+  b.addEventListener("click", () => { diaSel = +b.dataset.dia; pintar(); rotarAnuncios(); }));
+
+/* ================= ANUNCIOS / PATROCINADORES (rotación por toques) =================
+   Varios anuncios en rotación: cada toque principal del usuario (provincia,
+   fenómeno o cambio de día) avanza al siguiente anuncio en los dos espacios.
+   Para vender un espacio: agregar una entrada { nom, txt, url } a la lista;
+   si lleva url, el anuncio completo es tocable y abre ese enlace. */
+const ANUNCIOS = [
+  { nom: "LABMET · YouTube", txt: "@labmet · 94,9 mil suscriptores — huracanes y pronóstico del tiempo", url: "https://www.youtube.com/@labmet", ico: "▶", col: "#c4302b" },
+  { nom: "SU MARCA AQUÍ", txt: "Espacio publicitario disponible", url: "", ico: "★", col: "#b8860b", pub: true },
+  { nom: "Meteorólogo Jorge F Hernández · TikTok", txt: "@jorgefelixmeteorologo · 233,7 mil seguidores", url: "https://www.tiktok.com/@jorgefelixmeteorologo", ico: "♪", col: "#111111" },
+  { nom: "Weather Latino USA · YouTube", txt: "@WeatherLatinoUSA · El tiempo para los hispanos en EE. UU.", url: "https://www.youtube.com/@WeatherLatinoUSA", ico: "▶", col: "#c4302b" },
+  { nom: "Jorge Felix Hernández · Instagram", txt: "@jorgefelix_met · 126 mil seguidores", url: "https://www.instagram.com/jorgefelix_met", ico: "◎", col: "#c13584" },
+  { nom: "Clima y Tiempo MX · YouTube", txt: "@ClimayTiempoMX · 12,1 mil suscriptores — el pronóstico para México", url: "https://www.youtube.com/@ClimayTiempoMX", ico: "▶", col: "#c4302b" },
+  { nom: "Meteorólogo Jorge Félix Hernández · Facebook", txt: "Síguenos en Facebook para el pronóstico diario", url: "", ico: "f", col: "#1877f2" },
+  { nom: "VITALAIR", txt: "Pronóstico de salud y tiempo: migraña, alergias, asma y calidad del aire", url: "", ico: "✚", col: "#0e7a5f" }
+];
+let adIdx = 0;
+const impresiones = {}; // veces que se ha mostrado cada anuncio en esta sesión
+function pintarAnuncios(avanzar){
+  if (!ANUNCIOS.length) return;
+  if (avanzar) adIdx = (adIdx + 1) % ANUNCIOS.length;
+  const pintar = (id, a, etiqueta) => {
+    const el = document.getElementById(id); if (!el || !a) return;
+    impresiones[a.nom] = (impresiones[a.nom] || 0) + 1;
+    const inner = '<span class="adico" style="background:' + a.col + '">' + a.ico + "</span>" +
+      '<span class="adbody"><span class="adt">' + etiqueta + '</span>' +
+      '<span class="adnom">' + a.nom + "</span>" +
+      (a.txt ? '<span class="adx">' + a.txt + "</span>" : "") + "</span>" +
+      (a.url ? '<span class="adgo">›</span>' : "");
+    const cls = "adcard" + (a.pub ? " pub" : "");
+    el.innerHTML = a.url
+      ? '<a class="' + cls + '" href="' + a.url + '" target="_blank" rel="noopener">' + inner + "</a>"
+      : '<div class="' + cls + '">' + inner + "</div>";
+  };
+  pintar("adTop", ANUNCIOS[adIdx], "Presentado por");
+  pintar("adMid", ANUNCIOS[(adIdx + 1) % ANUNCIOS.length], "Publicidad");
+}
+function rotarAnuncios(){ pintarAnuncios(true); }
+pintarAnuncios(false);
+
+/* ================= RADAR RAINVIEWER (apagado por defecto) ================= */
+let radarCapas = [], radarTimer = null, radarIdx = 0, radarDatos = null, radarPausado = false;
+async function radarToggle(on){
+  const hora = document.getElementById("radarHora");
+  const btn = document.getElementById("radarPlay");
+  if (!on){
+    radarActivo = false;
+    if (radarTimer) clearInterval(radarTimer);
+    radarTimer = null;
+    radarCapas.forEach(l => mapa.removeLayer(l));
+    radarCapas = [];
+    hora.textContent = ""; btn.classList.add("oculto");
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+    return;
+  }
+  try {
+    if (!radarDatos){
+      const j = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
+      radarDatos = j;
+    }
+    const host = radarDatos.host, frames = radarDatos.radar.past.slice(-8);
+    radarCapas = frames.map(fr => {
+      const l = L.tileLayer(host + fr.path + "/256/{z}/{x}/{y}/2/1_1.png", { opacity: 0, zIndex: 50, maxNativeZoom: 7 }); // RainViewer solo sirve teselas hasta zoom 7; más allá devuelve el cartel «Zoom Level Not Supported»
+      l._t = fr.time;
+      return l.addTo(mapa);
+    });
+    radarActivo = true; // mapa sin rellenos de alerta bajo el radar
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+    radarIdx = radarCapas.length - 1;
+    mostrarFrame();
+    btn.classList.remove("oculto");
+    radarTimer = setInterval(() => { if (!radarPausado){ radarIdx = (radarIdx + 1) % radarCapas.length; mostrarFrame(); } }, 800);
+  } catch(e) {
+    hora.textContent = "Radar no disponible ahora mismo.";
+    document.getElementById("radarChk").checked = false;
+  }
+}
+function mostrarFrame(){
+  radarCapas.forEach((l, i) => l.setOpacity(i === radarIdx ? 0.68 : 0));
+  const t = new Date(radarCapas[radarIdx]._t * 1000);
+  document.getElementById("radarHora").textContent =
+    "Imagen: " + t.toLocaleTimeString("es", { timeZone: "America/Havana", hour: "2-digit", minute: "2-digit" }) + " (hora de Cuba)";
+}
+document.getElementById("radarChk").addEventListener("change", e => radarToggle(e.target.checked));
+document.getElementById("radarPlay").addEventListener("click", e => {
+  radarPausado = !radarPausado;
+  e.target.textContent = radarPausado ? "▶ Reanudar" : "⏸ Pausar";
+});
+
+/* ================= SATÉLITE GOES (NASA GIBS, apagado por defecto) =================
+   Dos tipos de imagen: GeoColor (día) e infrarroja limpia banda 13 (noche).
+   OJO: la capa infrarroja solo ofrece GoogleMapsCompatible_Level6 en GIBS
+   (con Level7 devuelve error 400); la GeoColor ofrece Level7. */
+const SAT_TIPOS = {
+  geo: { capa: "GOES-East_ABI_GeoColor",              tms: "GoogleMapsCompatible_Level7", maxZ: 7 },
+  ir:  { capa: "GOES-East_ABI_Band13_Clean_Infrared", tms: "GoogleMapsCompatible_Level6", maxZ: 6 }
+};
+let satCapas = [], satTimer = null, satIdx = 0, satPausado = false;
+let satTipo = "geo";              // tipo elegido; se recuerda mientras la app esté abierta
+let satCapsXml = null;            // WMTSCapabilities en caché
+const satTiemposPorTipo = {};     // lista de tiempos por tipo de imagen
+
+async function satTiemposDe(tipo){
+  if (satTiemposPorTipo[tipo]) return satTiemposPorTipo[tipo];
+  if (!satCapsXml){
+    satCapsXml = await (await fetch("https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml")).text();
+  }
+  let def = null;
+  for (const chunk of satCapsXml.split("<Layer>")){
+    if (chunk.indexOf("<ows:Identifier>" + SAT_TIPOS[tipo].capa + "</ows:Identifier>") >= 0){
+      const m = chunk.match(/<Default>([^<]+)<\/Default>/);
+      if (m) def = m[1];
+      break;
+    }
+  }
+  if (!def) throw new Error("sin hora por defecto");
+  const t0 = Date.parse(def);
+  const lista = [];
+  for (let i = 9; i >= 0; i--)
+    lista.push(new Date(t0 - i * 600000).toISOString().replace(/\.\d{3}Z$/, "Z"));
+  satTiemposPorTipo[tipo] = lista;
+  return lista;
+}
+function satLimpiar(){
+  if (satTimer) clearInterval(satTimer);
+  satTimer = null;
+  satCapas.forEach(l => mapa.removeLayer(l));
+  satCapas = [];
+}
+async function satConstruir(){
+  const cfg = SAT_TIPOS[satTipo];
+  const tiempos = await satTiemposDe(satTipo);
+  satLimpiar();
+  satCapas = tiempos.map(t => {
+    const l = L.tileLayer("https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/" + cfg.capa + "/default/" + t + "/" + cfg.tms + "/{z}/{y}/{x}.png",
+      { opacity: 0, zIndex: 40, maxNativeZoom: cfg.maxZ });
+    l._t = t;
+    return l.addTo(mapa);
+  });
+  satIdx = satCapas.length - 1;
+  satMostrar();
+  satTimer = setInterval(() => { if (!satPausado){ satIdx = (satIdx + 1) % satCapas.length; satMostrar(); } }, 900);
+}
+async function satToggle(on){
+  const hora = document.getElementById("satHora");
+  const btn = document.getElementById("satPlay");
+  const selTipo = document.getElementById("satTipo");
+  if (!on){
+    sateliteActivo = false;
+    satLimpiar();
+    hora.textContent = ""; btn.classList.add("oculto"); selTipo.classList.add("oculto");
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+    return;
+  }
+  try {
+    sateliteActivo = true; // mapa sin rellenos de alerta sobre la imagen
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+    await satConstruir();
+    btn.classList.remove("oculto");
+    selTipo.classList.remove("oculto");
+  } catch(e) {
+    hora.textContent = "Satélite no disponible ahora mismo.";
+    document.getElementById("satChk").checked = false;
+    sateliteActivo = false;
+    satLimpiar();
+    selTipo.classList.add("oculto");
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+  }
+}
+async function satCambiarTipo(nuevo){
+  if (nuevo === satTipo) return;
+  satTipo = nuevo;
+  if (!sateliteActivo) return;
+  try {
+    await satConstruir();
+  } catch(e) {
+    document.getElementById("satHora").textContent = "Satélite no disponible ahora mismo.";
+  }
+}
+function satMostrar(){
+  satCapas.forEach((l, i) => l.setOpacity(i === satIdx ? 0.97 : 0));
+  const t = new Date(satCapas[satIdx]._t);
+  document.getElementById("satHora").textContent =
+    "Imagen: " + t.toLocaleTimeString("es", { timeZone: "America/Havana", hour: "2-digit", minute: "2-digit" }) + " (hora de Cuba)";
+}
+document.getElementById("satChk").addEventListener("change", e => satToggle(e.target.checked));
+document.querySelectorAll('input[name="sattipo"]').forEach(r =>
+  r.addEventListener("change", e => satCambiarTipo(e.target.value)));
+document.getElementById("satPlay").addEventListener("click", e => {
+  satPausado = !satPausado;
+  e.target.textContent = satPausado ? "▶ Reanudar" : "⏸ Pausar";
+});
+
+/* ================= IMÁGENES DESCARGABLES (Canvas 2D, sin librerías) ================= */
+const CREDITO = "Creado por el meteorólogo MSc. JORGE FÉLIX HERNÁNDEZ CAPOTE";
+const PIE2 = "Producto informativo de LABMET. No es un aviso oficial.";
+const FUENTE_IMG = "system-ui, Arial, sans-serif";
+function colorTextoNivel(n){ return n === 1 ? "#8a7203" : NIVELES[n].c; }
+function fechaCorta(d){ return datosF[0].hourly.time[d * 24].slice(0, 10); }
+function fechaLarga(d){
+  const t = fechaCorta(d).split("-");
+  const f = new Date(Date.UTC(+t[0], +t[1] - 1, +t[2]));
+  const ds = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+  const ms = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  return ds[f.getUTCDay()] + " " + (+t[2]) + " de " + ms[+t[1] - 1] + " de " + t[0];
+}
+function slug(s){ return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-"); }
+function rr(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function envolver(ctx, texto, x, y, maxW, lh){
+  let linea = "", yy = y;
+  for (const p of texto.split(" ")){
+    const prueba = linea ? linea + " " + p : p;
+    if (ctx.measureText(prueba).width > maxW && linea){ ctx.fillText(linea, x, yy); linea = p; yy += lh; }
+    else linea = prueba;
+  }
+  if (linea) ctx.fillText(linea, x, yy);
+  return yy + lh;
+}
+/* --- Proyección lineal simple del GeoJSON incrustado --- */
+function bboxFeatures(features){
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  (function walk(c){
+    if (typeof c[0] === "number"){
+      if (c[0] < minX) minX = c[0]; if (c[0] > maxX) maxX = c[0];
+      if (c[1] < minY) minY = c[1]; if (c[1] > maxY) maxY = c[1];
+    } else for (const s of c) walk(s);
+  })(features.map(f => f.geometry.coordinates));
+  return [minX, minY, maxX, maxY];
+}
+function hacerProy(bb, x0, y0, w, h){
+  const k = Math.min(w / (bb[2] - bb[0]), h / (bb[3] - bb[1]));
+  const ox = x0 + (w - (bb[2] - bb[0]) * k) / 2, oy = y0 + (h - (bb[3] - bb[1]) * k) / 2;
+  return (lon, lat) => [ox + (lon - bb[0]) * k, oy + (bb[3] - lat) * k];
+}
+function trazar(ctx, feature, proy){
+  const g = feature.geometry;
+  const polys = g.type === "Polygon" ? [g.coordinates] : g.coordinates;
+  ctx.beginPath();
+  for (const poly of polys) for (const ring of poly){
+    ring.forEach((pt, i) => { const q = proy(pt[0], pt[1]); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); });
+    ctx.closePath();
+  }
+}
+function cabeceraImg(ctx, subtitulo){
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 1080, 1350);
+  const grd = ctx.createLinearGradient(0, 0, 1080, 0);
+  grd.addColorStop(0, "#08304f"); grd.addColorStop(1, "#0f5d8f");
+  ctx.fillStyle = grd; ctx.fillRect(0, 0, 1080, 148);
+  ctx.fillStyle = "#ffffff"; ctx.font = "700 56px " + FUENTE_IMG;
+  ctx.fillText("LABMET · Avisos Cuba", 64, 80);
+  ctx.fillStyle = "#cfe6f5"; ctx.font = "400 30px " + FUENTE_IMG;
+  ctx.fillText(subtitulo, 64, 124);
+}
+function pieImg(ctx){
+  ctx.strokeStyle = "#d5e0e6"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(64, 1218); ctx.lineTo(1016, 1218); ctx.stroke();
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#0b3a57"; ctx.font = "700 29px " + FUENTE_IMG;
+  ctx.fillText(CREDITO, 540, 1264);
+  ctx.fillStyle = "#5b7180"; ctx.font = "400 23px " + FUENTE_IMG;
+  ctx.fillText(PIE2, 540, 1302);
+  ctx.textAlign = "left";
+}
+function descargarCanvas(cv, nombre){
+  cv.toBlob(b => {
+    if (!b) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(b);
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }, "image/png");
+}
+
+/* Tarjeta de una provincia (1080×1350) */
+function descargarTarjetaProvincia(idx){
+  const p = PROVS[idx], r = resultados[diaSel][idx], m = r.max;
+  const pr = principalDe(r.res); // alerta de la ficha = fenómeno más significativo en conjunto (tierra o mar)
+  const cv = document.createElement("canvas"); cv.width = 1080; cv.height = 1350;
+  const ctx = cv.getContext("2d");
+  cabeceraImg(ctx, DIAS_TXT[diaSel] + " · " + fechaLarga(diaSel));
+  let y = 238;
+  ctx.fillStyle = "#17394d"; ctx.font = "700 62px " + FUENTE_IMG;
+  y = envolver(ctx, p.nom, 64, y, 952, 68);
+  if (!pr || pr.n === null){
+    ctx.fillStyle = "#667077"; ctx.font = "700 42px " + FUENTE_IMG;
+    ctx.fillText("Tipo de alerta: Sin datos", 64, y + 4); y += 58;
+  } else {
+    ctx.fillStyle = colorTextoNivel(pr.n); ctx.font = "700 44px " + FUENTE_IMG;
+    ctx.fillText("Tipo de alerta: " + NIVELES[pr.n].largo, 64, y + 6); y += 60;
+  }
+  if (pr){
+    const det1 = (pr.det || "").split("·")[0].trim();
+    const fenTxt = PEL_NOM[pr.clave] + (pr.costa ? " (" + COSTA_TXT[pr.costa] + ") — " + NIVELES[pr.n].n + (det1 ? " · " + det1 : "") : (det1 ? " — " + det1 : ""));
+    ctx.fillStyle = "#1c2b33"; ctx.font = "600 34px " + FUENTE_IMG;
+    y = envolver(ctx, "Fenómeno principal: " + fenTxt, 64, y + 2, 952, 43);
+  }
+  /* Silueta de la provincia: relleno SOLO con el nivel de tierra (m)… */
+  const feat = CUBA_GEOJSON.features.find(f => f.properties.NAME_1 === p.id);
+  if (feat){
+    const boxY = y + 4, boxH = Math.max(170, 696 - boxY);
+    const proyP = hacerProy(bboxFeatures([feat]), 64, boxY, 952, boxH);
+    trazar(ctx, feat, proyP);
+    ctx.fillStyle = m.n === null ? SIN_DATOS.c : NIVELES[m.n].c;
+    ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "#ffffff"; ctx.stroke();
+    ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(8,48,79,.55)"; ctx.stroke();
+    /* …y franjas costeras con el color del mar de cada costa (el mayor entre
+       Estado del mar y resaca: si la resaca está en Rojo, la costa va en rojo) */
+    const cg = COSTAS_GEO[p.id] || {};
+    ctx.lineWidth = 9; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    for (const cl of ["N", "S", "C"]){
+      const nMar = r.res.mar && r.res.mar[cl] ? nivelMarCosta(r.res.mar[cl]) : null;
+      ctx.strokeStyle = (nMar === null) ? SIN_DATOS.c : NIVELES[nMar].c;
+      for (const linea of (cg[cl] || [])){
+        ctx.beginPath();
+        linea.forEach((pt, i2) => { const q = proyP(pt[0], pt[1]); if (i2) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); });
+        ctx.stroke();
+      }
+    }
+  }
+  /* Lista de peligros del día: pastilla con nombre del nivel + fenómeno + valor */
+  y = 726;
+  ctx.fillStyle = "#0b3a57"; ctx.font = "700 30px " + FUENTE_IMG;
+  ctx.fillText("Peligros del día", 64, y);
+  /* Filas del día: los peligros de mar se desdoblan por costa, igual que en el detalle */
+  const filasImg = [];
+  for (const k of PEL_ORDEN){
+    if (k === "oleaje" || k === "resaca"){
+      const mar = r.res.mar || {};
+      const cs = ["N", "S", "C"].filter(cl => mar[cl]);
+      if (!cs.length) filasImg.push({ nombre: PEL_NOM[k], v: r.res[k] });
+      for (const cl of cs)
+        filasImg.push({ nombre: PEL_NOM[k] + (cl === "C" ? "" : " · Costa " + (cl === "N" ? "norte" : "sur")), v: mar[cl][k] });
+    } else filasImg.push({ nombre: PEL_NOM[k], v: r.res[k] });
+  }
+  /* Ancho de pastilla uniforme: el que necesite el nombre de nivel más largo */
+  ctx.font = "700 20px " + FUENTE_IMG;
+  let pw = 150;
+  for (const f of filasImg){
+    pw = Math.max(pw, ctx.measureText((!f.v || f.v.n === null) ? "Sin datos" : NIVELES[f.v.n].n).width + 28);
+  }
+  const paso = filasImg.length > 10 ? 42 : filasImg.length > 9 ? 46 : 54;
+  for (const f of filasImg){
+    const v = f.v;
+    const nv = (!v || v.n === null) ? SIN_DATOS : NIVELES[v.n];
+    y += paso - 20;
+    ctx.fillStyle = nv.c; rr(ctx, 64, y - 25, pw, 37, 8); ctx.fill();
+    ctx.fillStyle = nv.t; ctx.font = "700 20px " + FUENTE_IMG; ctx.textAlign = "center";
+    ctx.fillText((!v || v.n === null) ? "Sin datos" : NIVELES[v.n].n, 64 + pw / 2, y + 3);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#1c2b33"; ctx.font = "600 27px " + FUENTE_IMG;
+    ctx.fillText(f.nombre, 64 + pw + 18, y + 2);
+    const nw = ctx.measureText(f.nombre).width;
+    let det = v ? v.det : "";
+    ctx.fillStyle = "#51626c"; ctx.font = "400 24px " + FUENTE_IMG;
+    const maxDetW = 1016 - (64 + pw + 18 + nw + 14);
+    if (ctx.measureText(det).width > maxDetW){
+      while (det.length && ctx.measureText(det + "…").width > maxDetW) det = det.slice(0, -1);
+      det = det.trimEnd() + "…";
+    }
+    ctx.fillText(det, 254 + nw + 14, y + 2);
+    y += 20;
+  }
+  pieImg(ctx);
+  descargarCanvas(cv, "avisos-cuba-" + slug(p.nom) + "-" + fechaCorta(diaSel) + ".png");
+}
+
+/* Resumen nacional (1080×1350): mapa completo + leyenda + más afectadas */
+function descargarResumen(){
+  const cv = document.createElement("canvas"); cv.width = 1080; cv.height = 1350;
+  const ctx = cv.getContext("2d");
+  cabeceraImg(ctx, "Resumen nacional · " + DIAS_TXT[diaSel] + " · " + fechaLarga(diaSel));
+  const proy = hacerProy(bboxFeatures(CUBA_GEOJSON.features), 64, 190, 952, 440);
+  for (const f of CUBA_GEOJSON.features){
+    const idx = PROVS.findIndex(p => p.id === f.properties.NAME_1);
+    const n = idx >= 0 ? resultados[diaSel][idx].max.n : null;
+    trazar(ctx, f, proy);
+    ctx.fillStyle = n === null ? SIN_DATOS.c : NIVELES[n].c;
+    ctx.fill();
+    ctx.lineWidth = 1.4; ctx.strokeStyle = "#ffffff"; ctx.stroke();
+  }
+  /* Franjas costeras de todas las provincias (mar por costa: el mayor entre
+     Estado del mar y resaca) */
+  ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  for (const f of CUBA_GEOJSON.features){
+    const idx = PROVS.findIndex(p => p.id === f.properties.NAME_1);
+    if (idx < 0) continue;
+    const res = resultados[diaSel][idx].res;
+    const cg = COSTAS_GEO[f.properties.NAME_1] || {};
+    for (const cl of ["N", "S", "C"]){
+      const nMar = res.mar && res.mar[cl] ? nivelMarCosta(res.mar[cl]) : null;
+      ctx.strokeStyle = (nMar === null) ? SIN_DATOS.c : NIVELES[nMar].c;
+      for (const linea of (cg[cl] || [])){
+        ctx.beginPath();
+        linea.forEach((pt, i2) => { const q = proy(pt[0], pt[1]); if (i2) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); });
+        ctx.stroke();
+      }
+    }
+  }
+  /* Leyenda de niveles */
+  let lx = 64, ly = 690;
+  ctx.font = "700 22px " + FUENTE_IMG;
+  for (const nv of NIVELES){
+    const w = ctx.measureText(nv.largo).width + 36;
+    if (lx + w > 1016){ lx = 64; ly += 54; }
+    ctx.fillStyle = nv.c; rr(ctx, lx, ly - 27, w, 39, 8); ctx.fill();
+    ctx.fillStyle = nv.t; ctx.textAlign = "center";
+    ctx.fillText(nv.largo, lx + w / 2, ly + 2);
+    ctx.textAlign = "left";
+    lx += w + 12;
+  }
+  /* Provincias más afectadas con su tipo de alerta y fenómeno principal */
+  let y = ly + 84;
+  ctx.fillStyle = "#0b3a57"; ctx.font = "700 34px " + FUENTE_IMG;
+  ctx.fillText("Provincias más afectadas", 64, y);
+  const orden = PROVS.map((p, i) => i).sort((a, b) => {
+    const pa = principalDe(resultados[diaSel][a].res), pb = principalDe(resultados[diaSel][b].res);
+    const na = pa ? pa.n : null, nb = pb ? pb.n : null;
+    return (nb === null ? -1 : nb) - (na === null ? -1 : na) || PROVS[a].nom.localeCompare(PROVS[b].nom);
+  }).slice(0, 5);
+  for (const i of orden){
+    const p = PROVS[i], m = resultados[diaSel][i].max;
+    const pr = principalDe(resultados[diaSel][i].res);
+    y += 46;
+    ctx.fillStyle = m.n === null ? SIN_DATOS.c : NIVELES[m.n].c;
+    ctx.beginPath(); ctx.arc(80, y - 9, 11, 0, Math.PI * 2); ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = "rgba(0,0,0,.25)"; ctx.stroke();
+    const fenRes = !pr ? "" : PEL_NOM[pr.clave] + (pr.costa ? " (" + COSTA_TXT[pr.costa] + ")" : "");
+    const linea = p.nom + " — " + (m.n === null ? "Sin datos" : NIVELES[m.n].largo) +
+      (fenRes ? " · " + fenRes : "");
+    ctx.fillStyle = "#1c2b33"; ctx.font = "600 28px " + FUENTE_IMG;
+    y = envolver(ctx, linea, 104, y, 912, 35) - 35;
+  }
+  pieImg(ctx);
+  descargarCanvas(cv, "resumen-avisos-cuba-" + fechaCorta(diaSel) + ".png");
+}
+document.getElementById("btnResumen").addEventListener("click", descargarResumen);
+
+/* ================= ESTACIONES / AEROPUERTOS (METAR, apagado por defecto) =================
+   Fuentes libres con CORS verificado (la app corre desde file://):
+   - IEM (Iowa State), red CU__ASOS: observaciones actuales con humedad, nubosidad y tiempo presente.
+   - GIS de observaciones del NWS (surface_obs, capa 60): respaldo y campos que falten.
+   Ambas difunden los METAR cubanos que circulan por la red mundial de la OMM (GTS).
+   Solo se pide datos al activar el interruptor (ligereza). */
+const EST_NOMBRES = {
+  MUHA: "La Habana (José Martí)", MUVR: "Varadero (Juan Gualberto Gómez)",
+  MUCM: "Camagüey (Ignacio Agramonte)", MUCU: "Santiago de Cuba (Antonio Maceo)",
+  MUGM: "Guantánamo (base naval de EE. UU.)", MUHG: "Holguín (Frank País)",
+  MUSC: "Santa Clara (Abel Santamaría)", MUCF: "Cienfuegos (Jaime González)",
+  MUCC: "Cayo Coco (Jardines del Rey)", MUBY: "Bayamo (Carlos M. de Céspedes)",
+  MUNG: "Nueva Gerona (Rafael Cabrera)", MUBA: "Baracoa (Gustavo Rizo)",
+  MUGT: "Guantánamo (Mariana Grajales)", MUMO: "Moa (Orestes Acosta)",
+  MUCL: "Cayo Largo del Sur (Vilo Acuña)", MUMZ: "Manzanillo (Sierra Maestra)"
+};
+let estCapa = null;
+const RUMBOS = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO","O","ONO","NO","NNO"];
+const aC = f => (f === null || f === undefined || isNaN(f)) ? null : (f - 32) * 5 / 9;
+const num1 = x => (Math.round(x * 10) / 10).toString().replace(".", ",");
+function humedadRel(t, td){
+  if (t === null || td === null) return null;
+  return Math.round(100 * Math.exp(17.625 * td / (243.04 + td)) / Math.exp(17.625 * t / (243.04 + t)));
+}
+const WX_FEN = { RA: "lluvia", DZ: "llovizna", SN: "nieve", GR: "granizo", GS: "granizo pequeño",
+  BR: "neblina", FG: "niebla", HZ: "calima", FU: "humo", DU: "polvo", SQ: "turbonada",
+  FC: "tromba", PL: "hielo granulado", SG: "gránulos de nieve" };
+function decodWx(code){
+  if (!code) return null;
+  let s = String(code).toUpperCase().trim(), vc = false, inten = "";
+  if (s.startsWith("VC")){ vc = true; s = s.slice(2); }
+  if (s[0] === "-"){ inten = " ligera"; s = s.slice(1); }
+  else if (s[0] === "+"){ inten = " fuerte"; s = s.slice(1); }
+  let desc = "";
+  if (s.startsWith("TS")){ desc = "tormenta"; s = s.slice(2); }
+  else if (s.startsWith("SH")){ desc = "chubascos"; s = s.slice(2); }
+  else if (s.startsWith("FZ")){ s = s.slice(2); }
+  const fen = WX_FEN[s] || "";
+  let txt = null;
+  if (desc === "tormenta") txt = fen ? "Tormenta con " + fen : "Tormenta";
+  else if (desc === "chubascos") txt = "Chubascos" + (fen && fen !== "lluvia" ? " de " + fen : "");
+  else if (fen) txt = fen.charAt(0).toUpperCase() + fen.slice(1);
+  else if (desc) txt = desc;
+  if (!txt) return null;
+  return txt + inten + (vc ? " en las cercanías" : "");
+}
+function wxDesdeCrudo(raw){
+  if (!raw) return null;
+  const m = raw.match(/(?:^|\s)(VC|\+|-)?((?:TS|SH|FZ)?(?:DZ|RA|SN|SG|PL|GR|GS|BR|FG|FU|VA|HZ|DU|SQ|FC|PO))(?=\s|$)/);
+  return m ? decodWx((m[1] || "") + m[2]) : null;
+}
+const COV_TXT = { FEW: "pocas nubes", SCT: "nubes dispersas", BKN: "nublado", OVC: "cubierto", VV: "cielo oscurecido" };
+const COV_RES = { FEW: "Casi despejado", SCT: "Parcialmente nublado", BKN: "Nublado", OVC: "Cubierto", VV: "Cielo oscurecido" };
+const COV_ORD = { FEW: 1, SCT: 2, BKN: 3, OVC: 4, VV: 5 };
+function nubesDesdeCrudo(raw){
+  const lista = [];
+  if (!raw) return lista;
+  const re = /(FEW|SCT|BKN|OVC|VV)(\d{3})/g;
+  let m;
+  while ((m = re.exec(raw))) lista.push({ cov: m[1], pies: parseInt(m[2], 10) * 100 });
+  return lista;
+}
+function textoNubes(lista, despejado){
+  if (!lista || !lista.length) return despejado ? "Despejado" : null;
+  const mayor = lista.reduce((a, b) => (COV_ORD[b.cov] > COV_ORD[a.cov] ? b : a));
+  const det = lista.map(n => COV_TXT[n.cov] + " a " + (Math.round(n.pies * 0.3048 / 10) * 10) + " m").join(", ");
+  return COV_RES[mayor.cov] + " (" + det + ")";
+}
+function qnhDesdeCrudo(raw){
+  if (!raw) return null;
+  let m = raw.match(/Q(\d{4})/);
+  if (m) return parseInt(m[1], 10);
+  m = raw.match(/A(\d{4})/);
+  if (m) return Math.round(parseInt(m[1], 10) / 100 * 33.8639);
+  return null;
+}
+function visDesdeCrudo(raw){
+  if (!raw) return null;
+  let m = raw.match(/(\d+(?:\.\d+)?)SM/);
+  if (m) return parseFloat(m[1]) * 1.60934;
+  m = raw.match(/(?:^|\s)(9999|\d{4,5})(?=\s)/);
+  if (m) return parseInt(m[1], 10) / 1000;
+  return null;
+}
+async function cargarEstaciones(){
+  const horaEl = document.getElementById("estHora");
+  horaEl.textContent = "Cargando estaciones…";
+  const urlIEM = "https://mesonet.agron.iastate.edu/api/1/currents.json?network=CU__ASOS";
+  const urlNWS = "https://mapservices.weather.noaa.gov/vector/rest/services/obs/surface_obs/MapServer/60/query?where=" +
+    encodeURIComponent("stationname LIKE 'MU%'") +
+    "&outFields=stationname,locationname,timeobs,temperature,dewpoint,winddir,windspeed,windgust,sealevelpress,visibility,cloudcover,cloudbase,rawdata&orderByFields=timeobs%20DESC&f=geojson";
+  const pIEM = fetch(urlIEM).then(r => { if (!r.ok) throw new Error("iem"); return r.json(); }).catch(() => null);
+  const pNWS = fetch(urlNWS).then(r => { if (!r.ok) throw new Error("nws"); return r.json(); }).catch(() => null);
+  const [jIEM, jNWS] = await Promise.all([pIEM, pNWS]);
+  const ahora = Date.now(), LIM = 3 * 3600 * 1000;
+  const porId = {};
+  const base = id => (porId[id] = porId[id] || { id, nom: EST_NOMBRES[id] || id, lat: null, lon: null, tObs: 0,
+    tc: null, td: null, hr: null, wdir: null, wspd: null, wgust: null, pres: null, vis: null,
+    wx: null, nubes: [], despejado: false, fuentes: [] });
+  if (jIEM && Array.isArray(jIEM.data)){
+    for (const r of jIEM.data){
+      const t = Date.parse(r.utc_valid || "");
+      if (!r.station || isNaN(t) || ahora - t > LIM) continue;
+      const e = base(r.station);
+      e.fuentes.push("IEM");
+      if (t >= e.tObs){
+        e.tObs = t;
+        if (r.lat != null && r.lon != null){ e.lat = r.lat; e.lon = r.lon; }
+        e.tc = aC(r.tmpf); e.td = aC(r.dwpf);
+        e.hr = (r.relh != null) ? Math.round(r.relh) : humedadRel(e.tc, e.td);
+        e.wdir = (r.drct != null) ? r.drct : null;
+        e.wspd = (r.sknt != null) ? r.sknt : null;
+        e.wgust = (r.gust != null && r.gust > 0) ? r.gust : null;
+        e.pres = (r.mslp != null && r.mslp > 800) ? r.mslp : (r.alti != null ? Math.round(r.alti * 33.8639) : null);
+        e.vis = (r.vsby != null) ? r.vsby * 1.60934 : null;
+        e.wx = decodWx(r.wxcodes) || wxDesdeCrudo(r.raw);
+        e.nubes = [];
+        for (let i = 1; i <= 4; i++){
+          const c = r["skyc" + i], l = r["skyl" + i];
+          if (c && l != null) e.nubes.push({ cov: c, pies: l });
+        }
+        if (!e.nubes.length) e.nubes = nubesDesdeCrudo(r.raw);
+        e.despejado = !e.nubes.length && /(NSC|SKC|CLR|CAVOK)/.test(r.raw || "");
+        if (e.vis === null) e.vis = visDesdeCrudo(r.raw);
+        if (e.pres === null) e.pres = qnhDesdeCrudo(r.raw);
+      }
+    }
+  }
+  if (jNWS && Array.isArray(jNWS.features)){
+    for (const f of jNWS.features){
+      const p = f.properties || {};
+      const id = p.stationname;
+      if (!id || !/^MU/.test(id) || p.timeobs == null || ahora - p.timeobs > LIM) continue;
+      const e = base(id);
+      e.fuentes.push("NWS");
+      if (e.lat === null && f.geometry && f.geometry.coordinates){ e.lon = f.geometry.coordinates[0]; e.lat = f.geometry.coordinates[1]; }
+      if (p.timeobs >= e.tObs){
+        e.tObs = p.timeobs;
+        if (e.tc === null) e.tc = aC(p.temperature);
+        if (e.td === null) e.td = aC(p.dewpoint);
+        if (e.hr === null) e.hr = humedadRel(e.tc, e.td);
+        if (e.wdir === null && p.winddir != null) e.wdir = p.winddir;
+        if (e.wspd === null && p.windspeed != null) e.wspd = p.windspeed;
+        if (e.wgust === null && p.windgust != null && p.windgust > 0) e.wgust = p.windgust;
+        if (e.pres === null && p.sealevelpress != null && p.sealevelpress > 800) e.pres = Math.round(p.sealevelpress);
+        if (e.vis === null && p.visibility != null) e.vis = p.visibility * 1.60934;
+        if (e.wx === null) e.wx = wxDesdeCrudo(p.rawdata);
+        if (!e.nubes.length){
+          e.nubes = nubesDesdeCrudo(p.rawdata);
+          if (!e.nubes.length && p.cloudcover && p.cloudbase != null)
+            e.nubes = [{ cov: p.cloudcover, pies: p.cloudbase }];
+          if (!e.nubes.length) e.despejado = e.despejado || /(NSC|SKC|CLR|CAVOK)/.test(p.rawdata || "");
+        }
+        if (e.vis === null) e.vis = visDesdeCrudo(p.rawdata);
+        if (e.pres === null) e.pres = qnhDesdeCrudo(p.rawdata);
+      }
+    }
+  }
+  const lista = Object.values(porId).filter(e => e.lat !== null && e.lon !== null && e.tObs > 0);
+  if (estCapa) { mapa.removeLayer(estCapa); estCapa = null; }
+  if (!lista.length){
+    horaEl.textContent = (jIEM || jNWS) ? "Sin reportes recientes (últimas 3 h)." : "Estaciones no disponibles ahora mismo.";
+    if (!jIEM && !jNWS) document.getElementById("estChk").checked = false;
+    if (typeof syncObs === "function") syncObs();
+    document.getElementById("estAct").classList.toggle("oculto", !document.getElementById("estChk").checked);
+    return;
+  }
+  estCapa = L.layerGroup();
+  for (const e of lista){
+    const tempTxt = (e.tc === null) ? "—" : Math.round(e.tc) + "°";
+    const icono = L.divIcon({ className: "estDiv", iconSize: [36, 36], iconAnchor: [18, 18],
+      html: '<div class="est-marc">' + tempTxt + "</div>" });
+    const filas = [];
+    filas.push('<span class="tit">' + e.nom + " · " + e.id + "</span>");
+    filas.push("Aeropuerto · METAR (red OMM)");
+    filas.push("Reporte: " + new Date(e.tObs).toLocaleTimeString("es", { timeZone: "America/Havana", hour: "2-digit", minute: "2-digit" }) + " (hora de Cuba)");
+    if (e.tc !== null) filas.push("Temperatura: <b>" + num1(e.tc) + " °C</b>" + (e.td !== null ? " · Punto de rocío: " + num1(e.td) + " °C" : "") + (e.hr !== null ? " · Humedad: " + e.hr + " %" : ""));
+    if (e.wspd !== null){
+      const kmh = Math.round(e.wspd * 1.852);
+      let w;
+      if (e.wspd === 0) w = "En calma";
+      else if (e.wdir === null) w = "Variable a " + kmh + " km/h";
+      else w = RUMBOS[Math.round(e.wdir / 22.5) % 16] + " (" + Math.round(e.wdir) + "°) a " + kmh + " km/h";
+      if (e.wgust) w += ", rachas de " + Math.round(e.wgust * 1.852) + " km/h";
+      filas.push("Viento: " + w);
+    }
+    if (e.pres !== null) filas.push("Presión: " + e.pres + " hPa");
+    if (e.vis !== null) filas.push("Visibilidad: " + (e.vis >= 9.95 ? "10 km o más" : num1(e.vis) + " km"));
+    if (e.wx) filas.push("Tiempo: " + e.wx);
+    const nub = textoNubes(e.nubes, e.despejado);
+    if (nub) filas.push("Nubes: " + nub);
+    filas.push('<span class="fuente">Fuente: ' + e.fuentes.join(" · ") + " (datos libres de la red OMM)</span>");
+    L.marker([e.lat, e.lon], { icon: icono }).bindPopup('<div class="est-pop">' + filas.join("<br>") + "</div>").addTo(estCapa);
+  }
+  estCapa.addTo(mapa);
+  document.getElementById("estAct").classList.remove("oculto");
+  horaEl.textContent = lista.length + (lista.length === 1 ? " estación" : " estaciones") + " con reporte reciente.";
+}
+function estacionesToggle(on){
+  const horaEl = document.getElementById("estHora");
+  if (!on){
+    if (estCapa) { mapa.removeLayer(estCapa); estCapa = null; }
+    document.getElementById("estAct").classList.add("oculto");
+    horaEl.textContent = "";
+    return;
+  }
+  cargarEstaciones();
+}
+document.getElementById("estChk").addEventListener("change", e => estacionesToggle(e.target.checked));
+
+/* ================= ANÁLISIS DE SUPERFICIE ================= */
+const ANA_BBOX = "-92,16.5,-70,31";
+const ANA_BASE_URL = "https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/export?bbox=" + ANA_BBOX + "&bboxSR=4326&imageSR=4326&size=1100,724&format=png32&f=image";
+function anaURL(dia){
+  const capas = dia === 1 ? "1,2,3,4" : "13,14,15,16";
+  return "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/natl_fcst_wx_chart/MapServer/export?bbox=" + ANA_BBOX + "&bboxSR=4326&imageSR=4326&size=1100,724&format=png32&transparent=true&layers=show:" + capas + "&f=image";
+}
+let anaBaseCargada = false;
+document.querySelectorAll(".anaTabs button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".anaTabs button").forEach(x => x.classList.toggle("act", x === b));
+  const v = +b.dataset.ana;
+  document.getElementById("anaActual").classList.toggle("oculto", v !== 0);
+  const pron = document.getElementById("anaPron");
+  pron.classList.toggle("oculto", v === 0);
+  if (v !== 0){
+    if (!anaBaseCargada){ pron.querySelector(".anaBase").src = ANA_BASE_URL; anaBaseCargada = true; }
+    pron.querySelector(".anaOver").src = anaURL(v);
+  }
+}));
+
+
+/* ================= OBSERVACIÓN (botones como los de Peligro) ================= */
+const obsCont = document.getElementById("obsChips");
+[["radarChk", "Radar"], ["satChk", "Satélite"], ["estChk", "Estaciones"], ["munChk", "Municipios"]].forEach(([id, txt]) => {
+  const b = document.createElement("button");
+  b.textContent = txt; b.dataset.chk = id;
+  b.addEventListener("click", () => {
+    const c = document.getElementById(id);
+    c.checked = !c.checked;
+    c.dispatchEvent(new Event("change"));
+  });
+  obsCont.appendChild(b);
+});
+function syncObs(){
+  obsCont.querySelectorAll("button").forEach(b => b.classList.toggle("act", document.getElementById(b.dataset.chk).checked));
+  document.getElementById("ctlRadar").classList.toggle("oculto", !document.getElementById("radarChk").checked);
+  document.getElementById("ctlSat").classList.toggle("oculto", !document.getElementById("satChk").checked);
+  document.getElementById("ctlEst").classList.toggle("oculto", !document.getElementById("estChk").checked);
+  document.getElementById("ctlMun").classList.toggle("oculto", !document.getElementById("munChk").checked);
+}
+["radarChk", "satChk", "estChk", "munChk"].forEach(id => document.getElementById(id).addEventListener("change", syncObs));
+
+/* ================= MUNICIPIOS (pronóstico al ampliar) ================= */
+let munDatos = null, munCapa = null, munCargando = false;
+async function cargarMunicipios(){
+  if (munDatos || munCargando) return;
+  munCargando = true;
+  document.getElementById("munHora").textContent = " · Cargando los 168 municipios…";
+  const url = "https://api.open-meteo.com/v1/forecast?latitude=" + MUNICIPIOS.map(m => m[2]).join(",") +
+    "&longitude=" + MUNICIPIOS.map(m => m[3]).join(",") +
+    "&daily=temperature_2m_max,temperature_2m_min,cloud_cover_mean,precipitation_sum&timezone=America%2FHavana&forecast_days=3";
+  try {
+    const r = await fetch(url);
+    munDatos = await r.json();
+    document.getElementById("munHora").textContent = " · Toque un punto para ver su pronóstico";
+  } catch(e) {
+    document.getElementById("munHora").textContent = " · No se pudo cargar (sin conexión)";
+  }
+  munCargando = false;
+  pintarMunicipios();
+}
+function pintarMunicipios(){
+  if (!munCapa) return;
+  munCapa.clearLayers();
+  if (!document.getElementById("munChk").checked || !munDatos) return;
+  if (mapa.getZoom() < 8){
+    document.getElementById("munHora").textContent = " · Amplíe el mapa (zoom 8 o más) para verlos";
+    return;
+  }
+  document.getElementById("munHora").textContent = " · Toque un punto para ver su pronóstico";
+  MUNICIPIOS.forEach((m, i) => {
+    const loc = munDatos[i];
+    if (!loc || !loc.daily) return;
+    const tx = Math.round(loc.daily.temperature_2m_max[diaSel]);
+    const tn = Math.round(loc.daily.temperature_2m_min[diaSel]);
+    const nub = loc.daily.cloud_cover_mean && loc.daily.cloud_cover_mean[diaSel] != null ? Math.round(loc.daily.cloud_cover_mean[diaSel]) : null;
+    const pr = loc.daily.precipitation_sum && loc.daily.precipitation_sum[diaSel] != null ? loc.daily.precipitation_sum[diaSel] : 0;
+    const mk = L.marker([m[2], m[3]], { icon: L.divIcon({ className: "munIcon", html: '<div class="munPill">' + tx + "°</div>" }) });
+    mk.bindPopup('<div class="est-pop"><div class="tit">' + m[0] + '</div><div>' + m[1] + " · " + DIAS_TXT[diaSel] + "</div>" +
+      "<div>Máxima: <b>" + tx + " °C</b> · Mínima: <b>" + tn + " °C</b></div>" +
+      (nub !== null ? "<div>Nubosidad media: <b>" + nub + " %</b></div>" : "") +
+      "<div>Precipitación: <b>" + pr.toFixed(1).replace(".", ",") + " mm</b></div></div>");
+    mk.addTo(munCapa);
+  });
+}
+document.getElementById("munChk").addEventListener("change", async e => {
+  if (e.target.checked) await cargarMunicipios();
+  pintarMunicipios();
+});
+
+document.getElementById("estAct").addEventListener("click", () => cargarEstaciones());
+
+construirChips();
+cargar();
+</script>
+<script>
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js").catch(() => {}); }
+</script>
+</body>
+</html>
