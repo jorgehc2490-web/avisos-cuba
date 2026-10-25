@@ -224,6 +224,18 @@
       <span id="munHora"></span>
       <span class="nota">Un punto por municipio con su temperatura máxima; tóquelo para ver la mínima, la nubosidad y la precipitación del día elegido arriba.</span>
     </div>
+    <div class="radarctl oculto" id="ctlOwm">
+      <input type="checkbox" id="owmChk" class="oculto">
+      <span id="owmCapas">
+        <label><input type="radio" name="owmcapa" value="clouds_new" checked> Nubes</label>
+        <label><input type="radio" name="owmcapa" value="precipitation_new"> Lluvia</label>
+        <label><input type="radio" name="owmcapa" value="temp_new"> Temperatura</label>
+        <label><input type="radio" name="owmcapa" value="wind_new"> Viento</label>
+        <label><input type="radio" name="owmcapa" value="pressure_new"> Presión</label>
+      </span>
+      <span id="owmHora"></span>
+      <span class="nota">Capas del tiempo actual de OpenWeatherMap sobre el mapa. Con una capa activa, el mapa se muestra sin los colores de alerta, como con el radar o el satélite.</span>
+    </div>
   </div>
 
   <div id="map"></div>
@@ -293,7 +305,7 @@
 </div>
 
 <footer>
-  Datos: Open-Meteo (modelo GFS) · Estado del mar: Open-Meteo Marine · Ciclones: NHC (NOAA) · Estaciones: IEM / NWS (METAR, red OMM) · <span id="actualizado">Actualizado: —</span><br>
+  Datos: Open-Meteo (modelo GFS) · Estado del mar: Open-Meteo Marine · Ciclones: NHC (NOAA) · Estaciones: IEM / NWS (METAR, red OMM) · Tiempo hoy: OpenWeatherMap · <span id="actualizado">Actualizado: —</span><br>
   LABMET · Laboratorio Meteorológico — Producto informativo, no oficial. · <a href="/privacidad.html" style="color:#5b7180">Privacidad</a>
 </footer>
 
@@ -600,6 +612,7 @@ let franjas = []; // franjas costeras: {prov, costa:"N"|"S"|"C", linea}
 let modoPeligro = null;      // clave del peligro activo (modo peligro) o null
 let sateliteActivo = false;  // satélite encendido
 let radarActivo = false;     // radar encendido (con el satélite, activa la vista sin rellenos de alerta)
+let owmActivo = false;       // capa «Tiempo hoy» (OpenWeatherMap) encendida: misma vista sin rellenos
 const PEL_NOM = Object.fromEntries(PELIGROS);
 const PEL_ORDEN = ["calor","frio","lluvia","viento","oleaje","resaca","niebla","electricas","ciclon"]; // orden de las tablas tipo GHWO (9 peligros)
 const DIAS_TXT = ["Hoy","Mañana","Pasado mañana"];
@@ -675,7 +688,7 @@ function estiloProv(feature){
   /* Vista limpia: con satélite o radar encendidos, las provincias van SIN relleno
      de alerta (fillOpacity 0), solo el borde; al apagar ambas capas se restaura
      el estado en que estuviera el mapa (base / selección / modo fenómeno). */
-  const limpia = sateliteActivo || radarActivo;
+  const limpia = sateliteActivo || radarActivo || owmActivo;
   /* MODELO DE ESTADOS DEL MAPA (como el GHWO del NWS de Miami):
      - Al abrir: TODAS las provincias se pintan con el color de su fenómeno más
        significativo (máximo de TIERRA); el mar va en las franjas costeras y
@@ -788,7 +801,7 @@ function nivelMarCosta(mc){
 }
 function pintarFranjas(){
   if (!franjas.length) return;
-  const limpia = sateliteActivo || radarActivo;
+  const limpia = sateliteActivo || radarActivo || owmActivo;
   for (const f of franjas){
     /* En modo fenómeno de TIERRA las franjas se ocultan: el mapa muestra
        SOLO ese peligro (si hay resaca en Rojo, no puede sombrear un mapa
@@ -1241,6 +1254,33 @@ document.getElementById("satPlay").addEventListener("click", e => {
   satPausado = !satPausado;
   e.target.textContent = satPausado ? "▶ Reanudar" : "⏸ Pausar";
 });
+
+
+/* ================= TIEMPO HOY (OpenWeatherMap, apagado por defecto) =================
+   Teselas del tiempo actual (nubes, lluvia, temperatura, viento y presión)
+   servidas por el proxy propio del dominio (/api/owm): la llave de
+   OpenWeatherMap vive como variable de entorno en Vercel y NUNCA se escribe
+   en esta página. En el archivo local (file://), las teselas vienen del
+   mismo dominio ya publicado. Con la capa activa, el mapa va sin rellenos
+   de alerta (provincias solo con borde), como con radar o satélite. */
+const OWM_BASE = "https://www.labmetweather.com/api/owm";
+let owmCapaTiles = null, owmSel = "clouds_new";
+function owmPoner(){
+  if (owmCapaTiles){ mapa.removeLayer(owmCapaTiles); owmCapaTiles = null; }
+  if (!owmActivo) return;
+  owmCapaTiles = L.tileLayer(OWM_BASE + "?layer=" + owmSel + "&z={z}&x={x}&y={y}", { opacity: 0.65, zIndex: 45 }).addTo(mapa);
+  document.getElementById("owmHora").textContent = " · Tiempo actual (OpenWeatherMap)";
+}
+function owmToggle(on){
+  owmActivo = on;
+  if (!on && owmCapaTiles){ mapa.removeLayer(owmCapaTiles); owmCapaTiles = null; }
+  if (!on) document.getElementById("owmHora").textContent = "";
+  if (on) owmPoner();
+  if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+}
+document.getElementById("owmChk").addEventListener("change", e => owmToggle(e.target.checked));
+document.querySelectorAll('input[name="owmcapa"]').forEach(r =>
+  r.addEventListener("change", e => { owmSel = e.target.value; if (owmActivo) owmPoner(); }));
 
 /* ================= IMÁGENES DESCARGABLES (Canvas 2D, sin librerías) ================= */
 const CREDITO = "Creado por el meteorólogo MSc. JORGE FÉLIX HERNÁNDEZ CAPOTE";
@@ -1746,7 +1786,7 @@ if ("IntersectionObserver" in window){
 
 /* ================= OBSERVACIÓN (botones como los de Peligro) ================= */
 const obsCont = document.getElementById("obsChips");
-[["radarChk", "Radar"], ["satChk", "Satélite"], ["estChk", "Estaciones"], ["munChk", "Municipios"]].forEach(([id, txt]) => {
+[["radarChk", "Radar"], ["satChk", "Satélite"], ["estChk", "Estaciones"], ["munChk", "Municipios"], ["owmChk", "Tiempo hoy"]].forEach(([id, txt]) => {
   const b = document.createElement("button");
   b.textContent = txt; b.dataset.chk = id;
   b.addEventListener("click", () => {
@@ -1762,8 +1802,9 @@ function syncObs(){
   document.getElementById("ctlSat").classList.toggle("oculto", !document.getElementById("satChk").checked);
   document.getElementById("ctlEst").classList.toggle("oculto", !document.getElementById("estChk").checked);
   document.getElementById("ctlMun").classList.toggle("oculto", !document.getElementById("munChk").checked);
+  document.getElementById("ctlOwm").classList.toggle("oculto", !document.getElementById("owmChk").checked);
 }
-["radarChk", "satChk", "estChk", "munChk"].forEach(id => document.getElementById(id).addEventListener("change", syncObs));
+["radarChk", "satChk", "estChk", "munChk", "owmChk"].forEach(id => document.getElementById(id).addEventListener("change", syncObs));
 
 /* ================= MUNICIPIOS (pronóstico al ampliar) ================= */
 let munDatos = null, munCapa = null, munCargando = false;
