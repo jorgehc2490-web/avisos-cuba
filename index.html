@@ -105,8 +105,7 @@
      padding:5px 13px; font-size:13px; font-weight:700; cursor:pointer; }
    .anaTabs button.act { background:#0f4c81; border-color:#0f4c81; color:#fff; }
   #anaMapa { height:clamp(340px, 56vw, 460px); border-radius:8px; background:#e8edf0; }
-  .anaBlend { mix-blend-mode:multiply; }
-  #anaMapa .leaflet-overlay-pane { z-index:auto; } /* sin esto, el panel de Leaflet aísla la capa y la mezcla no se aplica */
+  #anaMapa .leaflet-overlay-pane { mix-blend-mode:multiply; } /* la mezcla va en el panel: así se mezcla contra el mapa base y no contra un fondo vacío */
    .anaWrap { position:relative; border-radius:8px; overflow:hidden; line-height:0; }
    .anaWrap img { display:block; width:100%; }
    .anaWrap .anaOver { position:absolute; inset:0; height:100%; }
@@ -1743,7 +1742,7 @@ function anaPoner(v){
   if (link) link.href = url;
   if (!anaMapa) return;
   if (anaCapa){ anaMapa.removeLayer(anaCapa); anaCapa = null; }
-  anaCapa = L.imageOverlay(url, v === 0 ? ANA_USA_BORDES : ANA_ATL_BORDES, { opacity: 1, className: "anaBlend" }).addTo(anaMapa);
+  anaCapa = L.imageOverlay(url, v === 0 ? ANA_USA_BORDES : ANA_ATL_BORDES, { opacity: 1 }).addTo(anaMapa);
 }
 document.querySelectorAll(".anaTabs button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".anaTabs button").forEach(x => x.classList.toggle("act", x === b));
