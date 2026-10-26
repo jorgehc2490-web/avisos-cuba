@@ -522,7 +522,7 @@ function calcular(p, d, F, M, ciclones){
   }
   function nivelesMar(Hmax, Per){
     if (Hmax === null) return { oleaje: { n:null, det:"Sin datos del estado del mar" }, resaca: { n:null, det:"Sin datos del estado del mar" } };
-    const no = Hmax > 5 ? 4 : Hmax > 4 ? 3 : Hmax > 3 ? 2 : Hmax >= 1.5 ? 1 : 0;
+    const no = Hmax >= 4.6 ? 4 : Hmax >= 3 ? 3 : Hmax >= 2.1 ? 2 : Hmax >= 1.5 ? 1 : 0;
     let nr;
     if (Hmax > 2.5) nr = 4;
     else if (Hmax > 1.5) nr = 3;
