@@ -890,7 +890,7 @@ async function cargar(){
   ponerFechas();
   iniciarMapa();
   pintar();
-  pintarFranjas();
+  pintarPanelFranjas();
 }
 
 function ponerFechas(){
@@ -2219,7 +2219,7 @@ function colorTemp(t){
   return stops[stops.length - 1][1];
 }
 const FR_OFF = { 1: [-14, 36], 2: [34, -14], 3: [26, 64], 4: [0, 34], 5: [-6, 42], 6: [0, -44], 7: [4, 40], 8: [10, -42], 9: [0, 38], 10: [-4, -40], 11: [22, -6], 12: [-16, 40], 13: [-24, -16], 14: [16, 26] }; // capitales cercanas: pastillas alternadas para que no se encimen
-function pintarFranjas(){
+function pintarPanelFranjas(){
   const box = document.getElementById("frMapa");
   if (!box || !datosF) return;
   if (franjaSel === null) franjaSel = franjaActual();
@@ -2276,7 +2276,7 @@ function pintarFranjas(){
     ". El color de cada provincia es su temperatura media del bloque y la pastilla trae el icono del estado del tiempo predominante." +
     (lluv ? "<br>Lluvia en este bloque: <b>" + lluv + "</b>." : "<br>Sin lluvia significativa en este bloque.");
 }
-document.querySelectorAll("#frTabs button").forEach(b => b.addEventListener("click", () => { franjaSel = +b.dataset.fr; pintarFranjas(); }));
+document.querySelectorAll("#frTabs button").forEach(b => b.addEventListener("click", () => { franjaSel = +b.dataset.fr; pintarPanelFranjas(); }));
 function franjasPopup(mi){
   if (!datosF || !datosF[mi] || !datosF[mi].hourly) return "";
   let s = '<div style="margin-top:5px;border-top:1px solid #dbe5ec;padding-top:4px">';
