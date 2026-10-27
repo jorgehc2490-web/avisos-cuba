@@ -136,6 +136,10 @@
   #error button { margin-top:8px; padding:7px 14px; border-radius:7px; border:1px solid #c96a5f; background:#fff; cursor:pointer; }
   .oculto { display:none !important; }
   .recModo { display:block; margin-top:6px; background:#fff8e1; border:1px solid #e3cf8a; color:#5b4a08; border-radius:8px; padding:7px 9px; font-size:13px; line-height:1.45; }
+  .frNota { font-size:12.5px; color:#5b7180; margin:8px 2px 0; }
+  #frMapa svg { width:100%; height:auto; display:block; border-radius:10px; }
+  #frTabs small { font-weight:400; opacity:.75; }
+  .modelos { text-align:center; color:#bcd3e6; font-size:12.5px; margin-top:3px; }
 </style>
 </head>
 <body>
@@ -161,6 +165,7 @@
     </div>
   </div>
   <div class="autor">Creado por el meteorólogo MSc. JORGE FÉLIX HERNÁNDEZ CAPOTE</div>
+  <div class="modelos" id="modelosHora"></div>
 </header>
 
 <div class="sponsor" id="adTop"></div>
@@ -236,6 +241,18 @@
 
   <div id="modoBar" class="oculto"></div>
 
+  <h2 class="sec">El tiempo hoy por franjas</h2>
+  <div class="panel" id="franjasPanel">
+    <div class="anaTabs" id="frTabs">
+      <button data-fr="0">Madrugada <small>12–6 AM</small></button>
+      <button data-fr="1">Mañana <small>6 AM–12 PM</small></button>
+      <button data-fr="2">Tarde <small>12–6 PM</small></button>
+      <button data-fr="3">Noche <small>6 PM–12 AM</small></button>
+    </div>
+    <div id="frMapa"></div>
+    <p class="frNota" id="frNota"></p>
+  </div>
+
   <h2 class="sec">Detalle por provincia</h2>
   <div id="detalle"></div>
 
@@ -292,6 +309,7 @@
       <p>El viento se clasifica combinando el viento sostenido (<b>Amarillo</b> 35-45 km/h, <b>Naranja</b> 45-65, <b>Rojo</b> 65-95, <b>Morado</b> 95 o más) con las rachas (Amarillo desde 50 km/h, Naranja desde 70, Rojo desde 90, Morado desde 100): manda el nivel más alto de las dos escalas, porque en Cuba el daño lo hacen las rachas. Se mantiene además la regla del sur: viento del sur a más de 35 km/h durante 3 horas o más eleva el nivel al menos a Amarillo.</p>
       <p>El estado del mar se clasifica por la altura de ola significativa máxima del día: <b>Verde</b> (menos de 1,5 m), <b>Amarillo</b> (de 1,5 a 3,0 m), <b>Naranja</b> (más de 3,0 a 4,0 m; inundación costera ligera), <b>Rojo</b> (más de 4,0 a 5,0 m; moderada) y <b>Morado</b> (más de 5,0 m; fuerte).</p>
       <p>Al abrir, cada provincia se pinta con el color de su fenómeno más significativo (el máximo entre sus peligros de tierra). Al tocar una provincia, el resto del mapa queda en blanco y solo ella conserva su color; al tocar un fenómeno en la tabla, el mapa entero se pinta por ese fenómeno, y con el selector de día se ajusta todo a la fecha elegida. El estado del mar y las corrientes de resaca nunca pintan la provincia entera: se representan como franjas de color sobre la línea de costa, calculadas por separado para la costa norte y la costa sur (cada franja lleva el nivel más alto entre ambos fenómenos en esa costa), porque la situación en una y otra puede ser muy distinta. Los espacios de patrocinador rotan: cada vez que usted toca una provincia, un fenómeno o cambia el día, se muestra el siguiente anuncio.</p>
+      <p>El panel «El tiempo hoy por franjas» resume el día de hoy en cuatro bloques (madrugada, mañana, tarde y noche) con el mismo muestreo de los 168 municipios: el color de cada provincia es la temperatura media del bloque, el icono es el estado del tiempo predominante (cielo, nubosidad, lluvia o tormentas según el código del modelo) y la lluvia es la acumulada media del bloque. Al abrir la página se muestra el bloque de la hora actual de Cuba. En la capa de Municipios, la ficha de cada municipio trae también sus cuatro bloques.</p>
     </div>
   </details>
 
@@ -872,6 +890,7 @@ async function cargar(){
   ponerFechas();
   iniciarMapa();
   pintar();
+  pintarFranjas();
 }
 
 function ponerFechas(){
@@ -2117,7 +2136,7 @@ function pintarMunicipios(){
     mk.bindPopup('<div class="est-pop"><div class="tit">' + m[0] + '</div><div>' + m[1] + " · " + DIAS_TXT[diaSel] + "</div>" +
       "<div>Máxima: <b>" + tx + " °C</b> · Mínima: <b>" + tn + " °C</b></div>" +
       (nub !== null ? "<div>Nubosidad media: <b>" + nub + " %</b></div>" : "") +
-      "<div>Precipitación: <b>" + pr.toFixed(1).replace(".", ",") + " mm</b></div></div>");
+      "<div>Precipitación: <b>" + pr.toFixed(1).replace(".", ",") + " mm</b></div>" + franjasPopup(i) + "</div>");
     mk.addTo(munCapa);
   });
 }
@@ -2127,6 +2146,164 @@ document.getElementById("munChk").addEventListener("change", async e => {
 });
 
 document.getElementById("estAct").addEventListener("click", () => cargarEstaciones());
+
+
+/* ================= EL TIEMPO HOY POR FRANJAS =================
+   Mapa tipo TV (idea de Jorge, 26-oct): cada provincia con su icono, su
+   temperatura y su lluvia en el bloque del día —madrugada, mañana, tarde
+   o noche— según la hora de Cuba al abrir; las pestañas cambian el bloque.
+   Datos: el mismo muestreo de los 168 municipios (datosF). */
+const FRANJAS = [
+  { nom: "la madrugada", corto: "Madrugada", horas: [0, 1, 2, 3, 4, 5], noche: true },
+  { nom: "la mañana", corto: "Mañana", horas: [6, 7, 8, 9, 10, 11], noche: false },
+  { nom: "la tarde", corto: "Tarde", horas: [12, 13, 14, 15, 16, 17], noche: false },
+  { nom: "la noche", corto: "Noche", horas: [18, 19, 20, 21, 22, 23], noche: true }
+];
+let franjaSel = null;
+function franjaActual(){ const h = HORA_HAB; return h < 6 ? 0 : h < 12 ? 1 : h < 18 ? 2 : 3; }
+function rangoCodigo(code){
+  if (code >= 95) return 6;
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 5;
+  if ([51, 53, 55, 56, 57].includes(code)) return 4;
+  if (code === 45 || code === 48) return 3;
+  if (code === 3) return 2;
+  if (code === 2) return 1.5;
+  if (code === 1) return 0.5;
+  return 0;
+}
+function codigoDominante(codes){
+  if (!codes.length) return 0;
+  const porRango = {};
+  for (const c of codes){ const r = rangoCodigo(c); (porRango[r] = porRango[r] || []).push(c); }
+  const rangos = Object.keys(porRango).map(Number).sort((a, b) => b - a);
+  let grupo = null;
+  for (const r of rangos){ if (porRango[r].length / codes.length >= 0.2){ grupo = porRango[r]; break; } }
+  if (!grupo) grupo = codes;
+  const frec = {}; let mejor = grupo[0], n = 0;
+  for (const c of grupo){ frec[c] = (frec[c] || 0) + 1; if (frec[c] > n){ n = frec[c]; mejor = c; } }
+  return mejor;
+}
+function iconoCodigo(code, deNoche){
+  if (code >= 95) return ["⛈️", "Tormentas"];
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return ["🌧️", "Lluvia"];
+  if ([51, 53, 55, 56, 57].includes(code)) return ["🌦️", "Llovizna"];
+  if (code === 45 || code === 48) return ["🌫️", "Niebla"];
+  if (code === 3) return ["☁️", "Nublado"];
+  if (code === 2) return ["⛅", "Parcialmente nublado"];
+  if (code === 1) return [deNoche ? "🌙" : "🌤️", deNoche ? "Cielo claro" : "Mayormente despejado"];
+  return [deNoche ? "🌙" : "☀️", deNoche ? "Despejado" : "Soleado"];
+}
+function bloqueMunicipio(H, d, fr){
+  const hs = FRANJAS[fr].horas.map(h => d * 24 + h);
+  const t = [], codes = []; let mm = 0, prob = 0;
+  for (const i of hs){
+    if (H.temperature_2m[i] != null) t.push(H.temperature_2m[i]);
+    if (H.weather_code[i] != null) codes.push(H.weather_code[i]);
+    if (H.precipitation[i] != null) mm += H.precipitation[i];
+    if (H.precipitation_probability && H.precipitation_probability[i] != null) prob = Math.max(prob, H.precipitation_probability[i]);
+  }
+  return { temp: t.length ? t.reduce((a, b) => a + b, 0) / t.length : null, code: codigoDominante(codes), mm, prob };
+}
+function colorTemp(t){
+  if (t === null) return "#b9c8d2";
+  const stops = [[16, "#2c7fb8"], [20, "#41b6c4"], [23, "#a1dab4"], [25, "#ffffcc"], [27, "#fee090"], [29, "#fdae61"], [31, "#f46d43"], [33, "#d73027"], [35, "#a50026"]];
+  const rgb = x => [parseInt(x.slice(1, 3), 16), parseInt(x.slice(3, 5), 16), parseInt(x.slice(5, 7), 16)];
+  if (t <= stops[0][0]) return stops[0][1];
+  for (let i = 1; i < stops.length; i++){
+    if (t <= stops[i][0]){
+      const k = (t - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0]);
+      const a = rgb(stops[i - 1][1]), b = rgb(stops[i][1]);
+      return "rgb(" + a.map((v, j) => Math.round(v + (b[j] - v) * k)).join(",") + ")";
+    }
+  }
+  return stops[stops.length - 1][1];
+}
+const FR_OFF = { 1: [-14, 36], 2: [34, -14], 3: [26, 64], 4: [0, 34], 5: [-6, 42], 6: [0, -44], 7: [4, 40], 8: [10, -42], 9: [0, 38], 10: [-4, -40], 11: [22, -6], 12: [-16, 40], 13: [-24, -16], 14: [16, 26] }; // capitales cercanas: pastillas alternadas para que no se encimen
+function pintarFranjas(){
+  const box = document.getElementById("frMapa");
+  if (!box || !datosF) return;
+  if (franjaSel === null) franjaSel = franjaActual();
+  const fr = franjaSel;
+  document.querySelectorAll("#frTabs button").forEach(b => b.classList.toggle("act", +b.dataset.fr === fr));
+  const feats = CUBA_GEOJSON.features;
+  let minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+  const caminar = c => { if (typeof c[0] === "number"){ minx = Math.min(minx, c[0]); maxx = Math.max(maxx, c[0]); miny = Math.min(miny, c[1]); maxy = Math.max(maxy, c[1]); } else c.forEach(caminar); };
+  feats.forEach(f => caminar(f.geometry.coordinates));
+  const W = 1000, kx = W / (maxx - minx), H = Math.round((maxy - miny) * kx * 1.12) + 34;
+  const X = lon => (lon - minx) * kx, Y = lat => 30 + (maxy - lat) * kx * 1.12;
+  const datos = PROVS.map((p, pi) => {
+    const temps = [], codes = []; let mm = 0, nMm = 0, prob = 0;
+    MUNICIPIOS.forEach((m, mi) => {
+      if (MUN_PROV[mi] !== pi || !datosF[mi] || !datosF[mi].hourly) return;
+      const Hh = datosF[mi].hourly, b = bloqueMunicipio(Hh, 0, fr);
+      if (b.temp !== null) temps.push(b.temp);
+      for (const h of FRANJAS[fr].horas) if (Hh.weather_code[h] != null) codes.push(Hh.weather_code[h]);
+      mm += b.mm; nMm++; prob = Math.max(prob, b.prob);
+    });
+    return { temp: temps.length ? temps.reduce((a, b) => a + b, 0) / temps.length : null,
+             code: codigoDominante(codes), mm: nMm ? mm / nMm : 0, prob };
+  });
+  let s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Mapa del tiempo de hoy por provincia">';
+  s += '<rect width="' + W + '" height="' + H + '" fill="#dcebf5"/>';
+  feats.forEach((f, pi) => {
+    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+    let d = "";
+    for (const poly of polys) for (const ring of poly){
+      ring.forEach((c, i) => { d += (i === 0 ? "M" : "L") + X(c[0]).toFixed(1) + "," + Y(c[1]).toFixed(1); });
+      d += "Z";
+    }
+    s += '<path d="' + d + '" fill="' + colorTemp(datos[pi].temp) + '" stroke="#ffffff" stroke-width="1.6"/>';
+  });
+  PROVS.forEach((p, pi) => {
+    const off = FR_OFF[pi] || [0, 0];
+    const cx = X(p.lon) + off[0], cy = Y(p.lat) + off[1];
+    const [ic] = iconoCodigo(datos[pi].code, FRANJAS[fr].noche);
+    const t = datos[pi].temp === null ? "—" : Math.round(datos[pi].temp) + "°";
+    s += '<g transform="translate(' + cx.toFixed(0) + "," + cy.toFixed(0) + ')">' +
+      '<rect x="-44" y="-25" width="88" height="50" rx="10" fill="rgba(8,24,40,0.88)"/>' +
+      '<text x="-36" y="3" font-size="22" font-weight="800" fill="#ffffff">' + t + '</text>' +
+      '<text x="13" y="4" font-size="18">' + ic + '</text>' +
+      '<text x="0" y="18" font-size="8.5" fill="#cfe0ec" text-anchor="middle">' + p.nom.toUpperCase() + '</text></g>';
+  });
+  s += "</svg>";
+  box.innerHTML = s;
+  const lluv = PROVS.map((p, pi) => ({ nom: p.nom, mm: datos[pi].mm, prob: datos[pi].prob }))
+    .filter(x => x.mm >= 1 || x.prob >= 50)
+    .sort((a, b) => b.mm - a.mm)
+    .map(x => x.nom + " (" + (x.mm >= 1 ? x.mm.toFixed(1).replace(".", ",") + " mm" : "prob. " + Math.round(x.prob) + " %") + ")").join(" · ");
+  document.getElementById("frNota").innerHTML =
+    "Se muestra <b>" + FRANJAS[fr].nom + "</b> de hoy" + (fr === franjaActual() ? " — es la franja de ahora en Cuba" : "") +
+    ". El color de cada provincia es su temperatura media del bloque y la pastilla trae el icono del estado del tiempo predominante." +
+    (lluv ? "<br>Lluvia en este bloque: <b>" + lluv + "</b>." : "<br>Sin lluvia significativa en este bloque.");
+}
+document.querySelectorAll("#frTabs button").forEach(b => b.addEventListener("click", () => { franjaSel = +b.dataset.fr; pintarFranjas(); }));
+function franjasPopup(mi){
+  if (!datosF || !datosF[mi] || !datosF[mi].hourly) return "";
+  let s = '<div style="margin-top:5px;border-top:1px solid #dbe5ec;padding-top:4px">';
+  FRANJAS.forEach((f, fi) => {
+    const b = bloqueMunicipio(datosF[mi].hourly, diaSel, fi);
+    const [ic] = iconoCodigo(b.code, f.noche);
+    s += "<div>" + f.corto + " " + ic + " <b>" + (b.temp === null ? "—" : Math.round(b.temp) + " °C") + "</b>" +
+      (b.mm >= 0.5 ? " · 🌧️ " + b.mm.toFixed(1).replace(".", ",") + " mm" : "") + "</div>";
+  });
+  return s + "</div>";
+}
+
+/* Horas de actualización de los modelos (UTC): las corridas del GFS entran
+   en Open-Meteo sobre las 05:00, 11:00, 17:00 y 23:00 UTC. */
+function pintarModelosHora(){
+  const el = document.getElementById("modelosHora");
+  if (!el) return;
+  const slots = [300, 660, 1020, 1380]; // minutos del día UTC
+  const ahora = new Date();
+  const mins = ahora.getUTCHours() * 60 + ahora.getUTCMinutes();
+  let ult = slots[slots.length - 1], prox = slots[0];
+  for (const s of slots){ if (s <= mins) ult = s; }
+  for (const s of slots){ if (s > mins){ prox = s; break; } }
+  const fmt = m => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+  el.textContent = "🕐 Actualización de los modelos (UTC): última " + fmt(ult) + " · próxima " + fmt(prox);
+}
+pintarModelosHora();
 
 construirChips();
 cargar();
