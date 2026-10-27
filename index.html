@@ -77,10 +77,10 @@
   h2.sec { font-size:16px; margin:18px 12px 6px; color:#0b3a57; }
   .chipsWrap { display:flex; align-items:flex-start; gap:8px; margin:12px 12px 8px; }
   .chipsTit { font-size:13px; font-weight:700; color:#0b3a57; padding-top:7px; white-space:nowrap; }
-  #chips, #obsChips { display:flex; gap:6px; overflow-x:auto; padding:2px 0; scrollbar-width:none; }
-  #chips::-webkit-scrollbar, #obsChips::-webkit-scrollbar { display:none; }
-  #chips button, #obsChips button { flex:0 0 auto; border:1.5px solid #0b5fa5; background:#fff; color:#0b5fa5; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-  #chips button.act, #obsChips button.act { background:#0b5fa5; color:#fff; }
+  #chips, #obsChips, #pronChips { display:flex; gap:6px; overflow-x:auto; padding:2px 0; scrollbar-width:none; }
+  #chips::-webkit-scrollbar, #obsChips::-webkit-scrollbar, #pronChips::-webkit-scrollbar { display:none; }
+  #chips button, #obsChips button, #pronChips button { flex:0 0 auto; border:1.5px solid #0b5fa5; background:#fff; color:#0b5fa5; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+  #chips button.act, #obsChips button.act, #pronChips button.act { background:#0b5fa5; color:#fff; }
   .anaHead { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:18px 12px 6px; }
   .anaHead h2.sec { margin:0; }
   .anaHead .anaTabs { margin-bottom:0; }
@@ -219,7 +219,7 @@
     <div class="radarctl oculto" id="ctlMun">
       <input type="checkbox" id="munChk" class="oculto">
       <span id="munHora"></span>
-      <span class="nota">Un punto por municipio con su temperatura máxima; tóquelo para ver la mínima, la nubosidad y la precipitación del día elegido arriba.</span>
+      <span class="nota">Un punto por municipio con su temperatura máxima; tóquelo para ver su pronóstico completo en el detalle de abajo.</span>
     </div>
     <div class="radarctl oculto" id="ctlOwm">
       <input type="checkbox" id="owmChk" class="oculto">
@@ -235,6 +235,13 @@
     </div>
   </div>
 
+  <div class="obs" id="pronPanel">
+    <span class="etq">Pronóstico:</span>
+    <span id="pronChips">
+      <button data-pron="prov" class="act">Provincia</button>
+      <button data-pron="mun">Municipio</button>
+    </span>
+  </div>
   <div class="modelos" id="modelosHora"></div>
   <div id="map"></div>
   <p style="margin:6px 14px 0; font-size:12.5px; color:#5b7180">Cada provincia muestra el color de su fenómeno más significativo (el mar va en su franja costera). Elija el peligro en la barra de arriba (o en la tabla) para pintar el mapa solo por ese fenómeno, y toque una provincia para ver su detalle aquí debajo.</p>
@@ -253,7 +260,7 @@
     <p class="frNota" id="frNota"></p>
   </div>
 
-  <h2 class="sec">Detalle por provincia</h2>
+  <h2 class="sec" id="detalleTitulo">Detalle por provincia</h2>
   <div id="detalle"></div>
 
   <h2 class="sec">Riesgos por peligro</h2>
@@ -1113,6 +1120,7 @@ function construirChips(){
   }));
 }
 function cerrarDetalle(){
+  munSel = -1;
   provSel = null;
   if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas(); pintarPuntos();
   mostrarDetalle();
@@ -1268,6 +1276,8 @@ function pintar(){
 }
 
 function mostrarDetalle(){
+  if (munSel >= 0){ mostrarDetalleMun(munSel); return; }
+  document.getElementById("detalleTitulo").textContent = "Detalle por provincia";
   const idx = PROVS.findIndex(p => p.id === provSel);
   if (idx < 0){
     document.getElementById("detalle").innerHTML = '<div style="padding:14px 12px;font-size:14px;color:#51626c">Toque una provincia en el mapa o en la lista para ver su desglose por peligro.</div>';
@@ -1338,6 +1348,7 @@ function mostrarDetalle(){
 }
 
 function seleccionar(id, desdeMapa){
+  munSel = -1;
   provSel = id;
   if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas(); pintarPuntos(); // borde blanco de selección en la provincia elegida + atenuar los puntos de las demás
   if (capasPorId[id]) capasPorId[id].bringToFront();
@@ -2077,7 +2088,7 @@ if ("IntersectionObserver" in window){
 
 /* ================= OBSERVACIÓN (botones como los de Peligro) ================= */
 const obsCont = document.getElementById("obsChips");
-[["radarChk", "Radar"], ["satChk", "Satélite"], ["estChk", "Estaciones"], ["munChk", "Municipios"], ["owmChk", "Tiempo hoy"]].forEach(([id, txt]) => {
+[["radarChk", "Radar"], ["satChk", "Satélite"], ["estChk", "Estaciones"]].forEach(([id, txt]) => {
   const b = document.createElement("button");
   b.textContent = txt; b.dataset.chk = id;
   b.addEventListener("click", () => {
@@ -2096,6 +2107,104 @@ function syncObs(){
   document.getElementById("ctlOwm").classList.toggle("oculto", !document.getElementById("owmChk").checked);
 }
 ["radarChk", "satChk", "estChk", "munChk", "owmChk"].forEach(id => document.getElementById(id).addEventListener("change", syncObs));
+
+/* ================= PRONÓSTICO: PROVINCIA / MUNICIPIO =================
+   Sección pedida por Jorge (27-oct): Observación queda solo con Radar,
+   Satélite y Estaciones; Municipios pasa a esta sección propia y al tocar
+   un municipio se abre su ficha elegante, como la de la provincia. */
+let pronMun = false, munSel = -1;
+function fijarPron(mun){
+  pronMun = mun;
+  document.querySelectorAll("#pronChips button").forEach(b => b.classList.toggle("act", (b.dataset.pron === "mun") === mun));
+  const c = document.getElementById("munChk");
+  if (c.checked !== mun){ c.checked = mun; c.dispatchEvent(new Event("change")); }
+  if (mun && mapa && mapa.getZoom() < 8) mapa.setZoom(8);
+  if (!mun && munSel >= 0){ munSel = -1; mostrarDetalle(); }
+}
+document.querySelectorAll("#pronChips button").forEach(b => b.addEventListener("click", () => fijarPron(b.dataset.pron === "mun")));
+
+function resumenMunDia(mi, d){
+  const H = datosF && datosF[mi] && datosF[mi].hourly;
+  if (!H || !H.temperature_2m) return null;
+  let tmax = null, sens = null, tmin = null, lluvia = 0, prob = 0;
+  for (let hh = 0; hh < 24; hh++){
+    const ix = d * 24 + hh;
+    const t = H.temperature_2m[ix], s = H.apparent_temperature ? H.apparent_temperature[ix] : null;
+    if (t != null){ tmax = tmax === null ? t : Math.max(tmax, t); tmin = tmin === null ? t : Math.min(tmin, t); }
+    if (s != null) sens = sens === null ? s : Math.max(sens, s);
+    if (H.precipitation && H.precipitation[ix] != null) lluvia += H.precipitation[ix];
+    if (H.precipitation_probability && H.precipitation_probability[ix] != null) prob = Math.max(prob, H.precipitation_probability[ix]);
+  }
+  if (tmax === null) return null;
+  let nub = null;
+  if (typeof munDatos !== "undefined" && munDatos && munDatos[mi] && munDatos[mi].daily && munDatos[mi].daily.cloud_cover_mean)
+    nub = munDatos[mi].daily.cloud_cover_mean[d];
+  return { tmax, sens, tmin, lluvia, prob, nub };
+}
+function mostrarDetalleMun(i){
+  document.getElementById("detalleTitulo").textContent = "Detalle por municipio";
+  const m = MUNICIPIOS[i], pi = MUN_PROV[i], p = PROVS[pi], zona = MUN_ZONA[i];
+  const pts = (puntosDia[diaSel] || [])[i] || {};
+  const clavesTierra = PEL_ORDEN.filter(k => k !== "oleaje" && k !== "resaca");
+  let pr = null;
+  for (const k of clavesTierra){ const v = pts[k]; if (v && v.n != null && (!pr || v.n > pr.n)) pr = { clave: k, n: v.n, det: v.det }; }
+  const nv = pr ? NIVELES[pr.n] : SIN_DATOS;
+  const zonaTxt = p.id === "isla" ? "Zona única" : (zona === "N" ? "Costa norte" : zona === "S" ? "Costa sur" : "Interior");
+  let h = '<div class="cab" style="background:' + nv.c + ";color:" + nv.t + '">' +
+    '<button id="btnCerrarDet" title="Cerrar detalle" style="float:right;border:1px solid rgba(255,255,255,.65);background:rgba(255,255,255,.14);color:inherit;border-radius:7px;font-size:15px;font-weight:700;padding:2px 10px;cursor:pointer">✕</button>' +
+    '<div class="pn">' + m[0] + "</div>" +
+    '<div class="pn2">' + p.nom + " · " + zonaTxt + "</div>" +
+    '<div class="pn2">Tipo de alerta: <b>' + (pr ? NIVELES[pr.n].largo : "Sin datos") + "</b></div>";
+  if (pr) h += '<div class="pn2">Fenómeno principal: <b>' + PEL_NOM[pr.clave] + "</b>" + (pr.det ? " — " + pr.det.split("·")[0].trim() : "") + "</div>";
+  h += "</div>";
+  const f = resumenMunDia(i, diaSel);
+  if (f) h += '<div style="padding:10px 12px 2px;font-size:14.5px">Máxima <b>' + Math.round(f.tmax) + " °C</b>" + (f.sens !== null ? " (sensación " + Math.round(f.sens) + " °C)" : "") + " · Mínima <b>" + Math.round(f.tmin) + " °C</b><br>" + (f.nub !== null ? "Nubosidad <b>" + Math.round(f.nub) + " %</b> · " : "") + "Lluvia <b>" + f.lluvia.toFixed(1).replace(".", ",") + " mm</b> (prob. " + Math.round(f.prob) + " %)</div>";
+  const valorDia = (d, k) => {
+    if (k === "oleaje" || k === "resaca"){
+      if (zona === "I") return null;
+      const mar = (resultados[d] && resultados[d][pi] && resultados[d][pi].res.mar) || {};
+      return (mar[zona] || {})[k] || null;
+    }
+    return ((puntosDia[d] || [])[i] || {})[k] || null;
+  };
+  h += '<div style="padding:8px 12px 2px"><table class="mini"><tr><th>Peligro</th>';
+  for (let d = 0; d < 3; d++) h += '<th data-dia="' + d + '" class="' + (d === diaSel ? "diacur" : "") + '">' + DIAS_TXT[d] + "</th>";
+  h += "</tr>";
+  for (const k of PEL_ORDEN){
+    h += "<tr><td>" + PEL_NOM[k] + "</td>";
+    for (let d = 0; d < 3; d++){
+      const v = valorDia(d, k);
+      const col = (!v || v.n === null) ? SIN_DATOS.c : NIVELES[v.n].c;
+      const nom = (!v || v.n === null) ? "Sin datos" : tituloNivel(k, v.n);
+      h += '<td class="' + (d === diaSel ? "diacur" : "") + '"><span class="pillMini" style="background:' + col + '" title="' + nom + '"></span></td>';
+    }
+    h += "</tr>";
+  }
+  h += "</table></div>";
+  const filaPel = (nombreTxt, v, k) => {
+    const vv = !v || v.n === null ? SIN_DATOS : NIVELES[v.n];
+    const reco = (v && v.n >= 1 && RECO[k]) ? RECO[k][v.n] : null;
+    return '<div class="pel-fila"><span class="pto" style="background:' + vv.c + '"></span>' +
+      '<div><span class="pn3">' + nombreTxt + '</span> — <span class="niv3" style="color:' + (vv === SIN_DATOS ? "#667" : vv.c === "#f2d13c" ? "#8a7203" : vv.c) + '">' +
+      (!v || v.n === null ? "Sin datos" : nomNivel(k, v.n)) + '</span>' +
+      '<span class="det">' + (v ? v.det : "") + "</span>" +
+      (reco ? '<span class="rec">' + reco + "</span>" : "") + "</div></div>";
+  };
+  for (const [k, nombre] of PELIGROS){
+    if (k === "oleaje" || k === "resaca"){
+      if (zona === "I") continue;
+      h += filaPel(nombre + " · " + zonaTxt, valorDia(diaSel, k), k);
+      continue;
+    }
+    h += filaPel(nombre, pts[k], k);
+  }
+  const fr = franjasPopup(i);
+  if (fr) h += '<div style="padding:6px 12px 12px"><div class="pn3" style="margin-bottom:2px">El tiempo por franjas · ' + DIAS_TXT[diaSel] + "</div>" + fr + "</div>";
+  document.getElementById("detalle").innerHTML = h;
+  document.getElementById("btnCerrarDet").addEventListener("click", cerrarDetalle);
+  document.querySelectorAll("#detalle th[data-dia]").forEach(th =>
+    th.addEventListener("click", () => { const d = +th.dataset.dia; if (d !== diaSel){ diaSel = d; pintar(); rotarAnuncios(); } }));
+}
 
 /* ================= MUNICIPIOS (pronóstico al ampliar) ================= */
 let munDatos = null, munCapa = null, munCargando = false;
@@ -2133,10 +2242,7 @@ function pintarMunicipios(){
     const nub = loc.daily.cloud_cover_mean && loc.daily.cloud_cover_mean[diaSel] != null ? Math.round(loc.daily.cloud_cover_mean[diaSel]) : null;
     const pr = loc.daily.precipitation_sum && loc.daily.precipitation_sum[diaSel] != null ? loc.daily.precipitation_sum[diaSel] : 0;
     const mk = L.marker([m[2], m[3]], { icon: L.divIcon({ className: "munIcon", html: '<div class="munPill">' + tx + "°</div>" }) });
-    mk.bindPopup('<div class="est-pop"><div class="tit">' + m[0] + '</div><div>' + m[1] + " · " + DIAS_TXT[diaSel] + "</div>" +
-      "<div>Máxima: <b>" + tx + " °C</b> · Mínima: <b>" + tn + " °C</b></div>" +
-      (nub !== null ? "<div>Nubosidad media: <b>" + nub + " %</b></div>" : "") +
-      "<div>Precipitación: <b>" + pr.toFixed(1).replace(".", ",") + " mm</b></div>" + franjasPopup(i) + "</div>");
+    mk.on("click", () => { munSel = i; mostrarDetalleMun(i); document.getElementById("detalle").scrollIntoView({ behavior: "smooth", block: "nearest" }); });
     mk.addTo(munCapa);
   });
 }
