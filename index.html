@@ -85,6 +85,11 @@
   .radarctl { display:flex; align-items:center; gap:9px; flex-wrap:wrap; background:#f2f7fa; border:1px solid #dde7ee; border-radius:10px; padding:8px 10px; margin-top:9px; font-size:12.5px; }
   .radarctl label { font-weight:600; color:#23404f; }
   .radarctl .nota { font-size:11.5px; color:#5b7180; flex-basis:100%; line-height:1.45; }
+  #imergInfo { position:absolute; left:10px; bottom:64px; z-index:1190; background:var(--glass); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid var(--glass-b); border-radius:12px; padding:8px 11px; color:#eef6fb; font-size:11.5px; line-height:1.45; max-width:min(300px, calc(100vw - 130px)); box-shadow:0 5px 18px rgba(0,0,0,.35); }
+  #imergInfo .imTit { font-weight:700; font-size:12px; color:#fff; }
+  #imergInfo .imBar { height:8px; border-radius:4px; margin:5px 0 2px; background:linear-gradient(90deg,#009f0f 0%,#8fd600 30%,#ffe600 55%,#ff9000 75%,#ff2a00 90%,#c000c0 100%); }
+  #imergInfo .imTicks { display:flex; justify-content:space-between; font-size:10.5px; color:#c8dbe6; }
+  #imergInfo .imCred { margin-top:4px; font-size:11px; color:#ffd968; }
   .radarctl button { border:1px solid #b9cbd6; background:#fff; border-radius:7px; padding:5px 12px; font-size:12.5px; cursor:pointer; font-family:inherit; }
   .leyenda { display:flex; flex-wrap:wrap; gap:6px; }
   .leyenda span { font-size:11.5px; padding:3px 9px; border-radius:20px; font-weight:600; }
@@ -294,6 +299,11 @@
       <span id="owmHora"></span>
       <span class="nota">Capas del tiempo actual de OpenWeatherMap sobre el mapa. Con una capa activa, el mapa se muestra sin los colores de alerta, como con el radar o el satélite.</span>
     </div>
+    <div class="radarctl oculto" id="ctlImerg">
+      <input type="checkbox" id="imergChk" class="oculto">
+      <span id="imergHora"></span>
+      <span class="nota">Lluvia ESTIMADA por satélite (GPM IMERG, NASA), cada 30 minutos: donde las estaciones no llegan. No es medición de estaciones. Con la capa activa, el mapa se muestra sin los colores de alerta, como con el radar o el satélite.</span>
+    </div>
   </div>
       <div class="popNota">Con radar, satélite o una capa activa, el mapa se muestra sin los colores de alerta.</div>
     </div>
@@ -305,6 +315,12 @@
       <button data-pron="prov" class="act">Provincia</button>
       <button data-pron="mun">Municipio</button>
     </span></div>
+    <div id="imergInfo" class="oculto">
+      <div class="imTit">Lluvia estimada por satélite (mm/h)</div>
+      <div class="imBar"></div>
+      <div class="imTicks"><span>0,2</span><span>1</span><span>4</span><span>16+</span></div>
+      <div class="imCred">Estimación satelital GPM IMERG (NASA) · No es medición de estaciones<br><span id="imergHoraMapa">última estimación disponible</span></div>
+    </div>
   </section>
 
   <div class="sponsor" id="adTop"></div>
@@ -903,6 +919,7 @@ let modoPeligro = null;      // clave del peligro activo (modo peligro) o null
 let sateliteActivo = false;  // satélite encendido
 let radarActivo = false;     // radar encendido (con el satélite, activa la vista sin rellenos de alerta)
 let owmActivo = false;       // capa «Tiempo hoy» (OpenWeatherMap) encendida: misma vista sin rellenos
+let imergActivo = false;     // capa «Lluvia satelital» (GPM IMERG) encendida: misma vista sin rellenos
 const PEL_NOM = Object.fromEntries(PELIGROS);
 const PEL_ORDEN = ["calor","frio","lluvia","viento","oleaje","resaca","niebla","electricas","ciclon"]; // orden de las tablas tipo GHWO (9 peligros)
 const DIAS_TXT = ["Hoy","Mañana","Pasado mañana"];
@@ -992,7 +1009,7 @@ function estiloProv(feature){
   /* Vista limpia: con satélite o radar encendidos, las provincias van SIN relleno
      de alerta (fillOpacity 0), solo el borde; al apagar ambas capas se restaura
      el estado en que estuviera el mapa (base / selección / modo fenómeno). */
-  const limpia = sateliteActivo || radarActivo || owmActivo;
+  const limpia = sateliteActivo || radarActivo || owmActivo || imergActivo;
   /* MODELO DE ESTADOS DEL MAPA (como el GHWO del NWS de Miami):
      - Al abrir: TODAS las provincias se pintan con el color de su fenómeno más
        significativo (máximo de TIERRA); el mar va en las franjas costeras y
@@ -1113,7 +1130,7 @@ function nivelMarCosta(mc){
 }
 function pintarFranjas(){
   if (!franjas.length) return;
-  const limpia = sateliteActivo || radarActivo || owmActivo;
+  const limpia = sateliteActivo || radarActivo || owmActivo || imergActivo;
   for (const f of franjas){
     /* En modo fenómeno de TIERRA las franjas se ocultan: el mapa muestra
        SOLO ese peligro (si hay resaca en Rojo, no puede sombrear un mapa
@@ -1219,7 +1236,7 @@ function cerrarDetalle(){
 let capaZonas = null; // L.geoJSON con los 168 municipios (se crea una sola vez)
 function pintarPuntos(){
   if (!mapa) return;
-  const limpia = sateliteActivo || radarActivo || owmActivo;
+  const limpia = sateliteActivo || radarActivo || owmActivo || imergActivo;
   const activa = !!modoPeligro && PEL_TIERRA.includes(modoPeligro) && !limpia && !!puntosDia[diaSel];
   if (!activa){
     if (capaZonas && mapa.hasLayer(capaZonas)) mapa.removeLayer(capaZonas);
@@ -1665,6 +1682,66 @@ function owmToggle(on){
 document.getElementById("owmChk").addEventListener("change", e => owmToggle(e.target.checked));
 document.querySelectorAll('input[name="owmcapa"]').forEach(r =>
   r.addEventListener("change", e => { owmSel = e.target.value; if (owmActivo) owmPoner(); }));
+
+/* ================= LLUVIA SATELITAL GPM IMERG (NASA GIBS, apagado por defecto) =================
+   Estimación de lluvia por satélite (GPM IMERG, cada 30 minutos) servida
+   como teselas WMTS por NASA GIBS, igual que el satélite GOES: gratis y
+   sin llave. Cuba solo tiene 68 estaciones meteorológicas y la red de
+   pluviómetros de Recursos Hidráulicos no está disponible en tiempo real:
+   esta capa estima la lluvia donde las estaciones no llegan. NO es
+   medición de estaciones. El producto casi en tiempo real llega con
+   varias horas de retraso: la hora efectiva se lee del «Default» de las
+   capacidades WMTS (la misma caché que usa el satélite) y se muestra
+   junto al crédito. Con la capa activa, el mapa va sin rellenos de
+   alerta (provincias solo con borde), como con radar o satélite. */
+let imergCapaTiles = null, imergTiempo = null;
+async function imergTiempoUltimo(){
+  if (imergTiempo) return imergTiempo;
+  if (!satCapsXml){
+    satCapsXml = await (await fetch("https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml")).text();
+  }
+  for (const chunk of satCapsXml.split("<Layer>")){
+    if (chunk.indexOf("<ows:Identifier>IMERG_Precipitation_Rate_30min</ows:Identifier>") >= 0){
+      const m = chunk.match(/<Default>([^<]+)<\/Default>/);
+      if (m){ imergTiempo = m[1]; return imergTiempo; }
+    }
+  }
+  throw new Error("sin hora por defecto");
+}
+async function imergToggle(on){
+  const hora = document.getElementById("imergHora");
+  const info = document.getElementById("imergInfo");
+  if (!on){
+    imergActivo = false;
+    if (imergCapaTiles){ mapa.removeLayer(imergCapaTiles); imergCapaTiles = null; }
+    hora.textContent = "";
+    info.classList.add("oculto");
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+    return;
+  }
+  try {
+    const t = await imergTiempoUltimo();
+    imergActivo = true;
+    if (imergCapaTiles){ mapa.removeLayer(imergCapaTiles); imergCapaTiles = null; }
+    imergCapaTiles = L.tileLayer("https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/IMERG_Precipitation_Rate_30min/default/" + t + "/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png",
+      { opacity: 0.8, zIndex: 48, maxNativeZoom: 6 }).addTo(mapa);
+    const f = new Date(t), hhmm = f.toISOString().slice(11, 16);
+    hora.textContent = "Estimación de las " + hhmm + " UTC (" +
+      f.toLocaleTimeString("es", { timeZone: "America/Havana", hour: "2-digit", minute: "2-digit" }) +
+      " hora de Cuba). El producto llega con varias horas de retraso.";
+    document.getElementById("imergHoraMapa").textContent = "estimación de las " + hhmm + " UTC";
+    info.classList.remove("oculto");
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+  } catch(e) {
+    hora.textContent = "Lluvia satelital no disponible ahora mismo.";
+    document.getElementById("imergChk").checked = false;
+    imergActivo = false;
+    if (imergCapaTiles){ mapa.removeLayer(imergCapaTiles); imergCapaTiles = null; }
+    info.classList.add("oculto");
+    if (capaProv) capaProv.setStyle(estiloProv); pintarFranjas();
+  }
+}
+document.getElementById("imergChk").addEventListener("change", e => imergToggle(e.target.checked));
 
 /* ================= IMÁGENES DESCARGABLES (Canvas 2D, sin librerías) ================= */
 const CREDITO = "Creado por el meteorólogo MSc. JORGE FÉLIX HERNÁNDEZ CAPOTE";
@@ -2170,7 +2247,7 @@ if ("IntersectionObserver" in window){
 
 /* ================= OBSERVACIÓN (botones como los de Peligro) ================= */
 const obsCont = document.getElementById("obsChips");
-[["radarChk", "Radar"], ["satChk", "Satélite"], ["estChk", "Estaciones"]].forEach(([id, txt]) => {
+[["radarChk", "Radar"], ["satChk", "Satélite"], ["estChk", "Estaciones"], ["imergChk", "Lluvia satelital"]].forEach(([id, txt]) => {
   const b = document.createElement("button");
   b.textContent = txt; b.dataset.chk = id;
   b.addEventListener("click", () => {
@@ -2187,8 +2264,9 @@ function syncObs(){
   document.getElementById("ctlEst").classList.toggle("oculto", !document.getElementById("estChk").checked);
   document.getElementById("ctlMun").classList.toggle("oculto", !document.getElementById("munChk").checked);
   document.getElementById("ctlOwm").classList.toggle("oculto", !document.getElementById("owmChk").checked);
+  document.getElementById("ctlImerg").classList.toggle("oculto", !document.getElementById("imergChk").checked);
 }
-["radarChk", "satChk", "estChk", "munChk", "owmChk"].forEach(id => document.getElementById(id).addEventListener("change", syncObs));
+["radarChk", "satChk", "estChk", "munChk", "owmChk", "imergChk"].forEach(id => document.getElementById(id).addEventListener("change", syncObs));
 
 /* ================= PRONÓSTICO: PROVINCIA / MUNICIPIO =================
    Sección pedida por Jorge (27-oct): Observación queda solo con Radar,
