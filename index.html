@@ -554,10 +554,10 @@ function calcularPunto(F, d){
     out.viento = { n, sust, gust, sur, racha };
   }
 
-  /* Tormentas eléctricas — cobertura según el modelo. El índice interno de
-     inestabilidad (CAPE/rachas) no es un peligro visible: solo alimenta la
-     regla de Morado (Rojo + índice alto). La probabilidad por sí sola NO
-     sube el nivel (ajuste aprobado por Jorge). */
+  /* Tormentas eléctricas — cobertura según el modelo. La probabilidad por
+     sí sola NO sube el nivel (ajuste aprobado por Jorge). El índice interno
+     de inestabilidad (CAPE/rachas) se calcula aquí y alimenta el fenómeno
+     «Tiempo severo». */
   const cape = mx(seg(H.cape, d)), gustT = mx(seg(H.wind_gusts_10m, d));
   const codes = seg(H.weather_code, d);
   const hayTor = codes.some(c => c === 95 || c === 96 || c === 99);
@@ -572,13 +572,27 @@ function calcularPunto(F, d){
   }
   const horasTor = codes.filter(c => c === 95 || c === 96 || c === 99).length;
   const prob = mx(seg(H.precipitation_probability, d)) || 0;
+  /* «Tiempo severo» (pedido y enmienda de Jorge, 30-oct-2026): la severidad
+     sale de eléctricas y vive en su propio fenómeno. Eléctricas queda SOLO
+     por cobertura (horas con tormenta), sin granizo y sin el Morado por
+     índice: su máximo es Rojo. El índice interno (tls) pasa a alimentar
+     «Tiempo severo» junto al granizo:
+     Amarillo = tormenta + tls ≥2 · Naranja = tormenta + tls ≥3 ·
+     Rojo = granizo en el modelo · Morado = granizo + tls ≥3 o
+     tormenta con rachas ≥121 km/h (tls 4). */
   let ne;
-  if (hayGran || horasTor >= 8) ne = 3;
+  if (horasTor >= 8) ne = 3;
   else if (horasTor >= 4) ne = 2;
   else if (horasTor >= 1) ne = 1;
   else ne = 0;
-  if (ne === 3 && tls !== null && tls >= 3) ne = 4;
   out.electricas = { n: ne, horasTor, prob, hayGran };
+  let nSev = 0;
+  if (hayGran && tls !== null && tls >= 3) nSev = 4;
+  else if (hayTor && tls === 4) nSev = 4;
+  else if (hayGran) nSev = 3;
+  else if (hayTor && tls !== null && tls >= 3) nSev = 2;
+  else if (hayTor && tls !== null && tls >= 2) nSev = 1;
+  out.severo = { n: nSev, tls, hayGran, cape, gustT };
   return out;
 }
 
@@ -704,8 +718,10 @@ function armarProvincia(idx, d, pts, M, ciclones){
     out.viento.det += " · sur establecido (≥3 h a más de 35 km/h) en alguna zona";
 
   out.electricas = provZonas(idx, pts, "electricas", r => f0(r.horasTor) + " h con tormenta", "Tormentas por zonas — ", (r, a) => r.horasTor > a.horasTor);
-  if (out.electricas.zonas && Object.values(out.electricas.zonas).some(r => r.hayGran))
-    out.electricas.det += " · el modelo indica granizo en alguna zona";
+
+  /* Tiempo severo por zonas: la severidad de las tormentas (granizo,
+     energía y rachas), separada de la cobertura de eléctricas. */
+  out.severo = provZonas(idx, pts, "severo", r => r.hayGran ? "granizo en el modelo" : "CAPE " + f0(r.cape) + " J/kg · rachas " + f0(r.gustT) + " km/h", "Severidad por zonas — ", (r, a) => (r.tls ?? -1) > (a.tls ?? -1));
   if (out.electricas.n === 0 && !Object.values(out.electricas.zonas || {}).some(r => r.horasTor > 0)){
     const probMax = Math.max(0, ...Object.values(out.electricas.zonas || {}).map(r => r.prob || 0));
     if (out.electricas.zonas) out.electricas.det = "Sin horas de tormenta según el modelo · prob. máx. " + f0(probMax) + " %";
@@ -755,6 +771,7 @@ const PELIGROS = [
   ["calor",      "Calor extremo"],
   ["frio",       "Frío extremo"],
   ["electricas", "Tormentas eléctricas"],
+  ["severo",     "Tiempo severo"],
   ["niebla",     "Niebla"]
 ];
 /* Máximo entre los peligros de tierra: lo usan los chips de la lista y el
@@ -813,8 +830,13 @@ const RECO = {
   electricas: {
     1: "Tormentas eléctricas en parte del día. Recomendación: si escucha truenos, busque refugio en un lugar cerrado.",
     2: "Tormentas eléctricas frecuentes. Recomendación: evite campos abiertos, el mar y los objetos metálicos mientras dure la tormenta.",
-    3: "Tormentas fuertes y prolongadas, con granizo posible. Recomendación: permanezca bajo techo y proteja vehículos y cultivos del granizo.",
-    4: "Tormentas severas y prolongadas, con granizo. Recomendación: permanezca en un lugar seguro; hay riesgo de daños por granizo y descargas eléctricas."
+    3: "Tormentas fuertes y prolongadas durante buena parte del día. Recomendación: permanezca bajo techo mientras dure la tormenta y evite campos abiertos, el mar y los objetos metálicos."
+  },
+  severo: {
+    1: "Ambiente cargado: tormentas fuertes aisladas posibles, con granizo pequeño no descartable. Recomendación: si escucha truenos, busque refugio en un lugar cerrado.",
+    2: "Tormentas severas probables de forma aislada, con granizo y rachas dañinas posibles. Recomendación: permanezca bajo techo durante la tormenta y asegure los objetos sueltos del exterior.",
+    3: "Tiempo severo probable: el modelo indica granizo, con rachas fuertes posibles. Recomendación: permanezca en un lugar seguro, proteja vehículos y cultivos del granizo y aléjese de las ventanas.",
+    4: "Tiempo severo con alta confianza: granizo en un ambiente muy inestable o rachas extremas. Recomendación: permanezca en un lugar seguro hasta que pase la tormenta; hay riesgo de daños por granizo y por el viento."
   },
   ciclon: {
     1: "Un ciclón tropical se mueve por la región, aún lejos de la provincia. Recomendación: manténgase informado; todavía no requiere medidas.",
@@ -823,7 +845,7 @@ const RECO = {
     4: "Un huracán intenso está sobre la provincia o muy próximo. Recomendación: permanezca en un lugar seguro y siga a la Defensa Civil en todo momento."
   }
 };
-const PEL_TIERRA = ["calor", "frio", "lluvia", "viento", "niebla", "electricas", "ciclon"];
+const PEL_TIERRA = ["calor", "frio", "lluvia", "viento", "niebla", "electricas", "severo", "ciclon"];
 function nivelMaximo(res){
   let m = null, clave = null;
   for (const k of PEL_TIERRA){
@@ -921,7 +943,7 @@ let radarActivo = false;     // radar encendido (con el satélite, activa la vis
 let owmActivo = false;       // capa «Tiempo hoy» (OpenWeatherMap) encendida: misma vista sin rellenos
 let imergActivo = false;     // capa «Lluvia satelital» (GPM IMERG) encendida: misma vista sin rellenos
 const PEL_NOM = Object.fromEntries(PELIGROS);
-const PEL_ORDEN = ["calor","frio","lluvia","viento","oleaje","resaca","niebla","electricas","ciclon"]; // orden de las tablas tipo GHWO (9 peligros)
+const PEL_ORDEN = ["calor","frio","lluvia","viento","oleaje","resaca","niebla","electricas","severo","ciclon"]; // orden de las tablas tipo GHWO (10 peligros)
 const DIAS_TXT = ["Hoy","Mañana","Pasado mañana"];
 
 async function cargar(){
