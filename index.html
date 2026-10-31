@@ -573,15 +573,16 @@ function calcularPunto(F, d){
   const horasTor = codes.filter(c => c === 95 || c === 96 || c === 99).length;
   const prob = mx(seg(H.precipitation_probability, d)) || 0;
     /* «Tiempo severo» con el concepto cubano de tormenta local severa
-     (corrección de Jorge, 30-oct-2026; criterios v2): una tormenta es
-     severa si produce granizo de cualquier tamaño o rachas SUPERIORES
-     a 90 km/h DURANTE la tormenta (el tornado y la tromba en la altura
-     también son severos, pero ningún dato del modelo los señala). La
-     severidad salió de eléctricas, que queda SOLO por cobertura. El
-     CAPE no entra ni en los niveles ni en los textos («en Cuba no
-     funciona»). rachaTor = racha máxima SOLO en las horas con tormenta.
-     Amarillo = rachaTor 50-74 · Naranja = 75-90 · Rojo = granizo o
-     rachaTor >90 · Morado = granizo Y rachaTor >90, o rachaTor >=120. */
+     (criterios v3, ajuste de Jorge del 30-oct-2026): severa = granizo de
+     cualquier tamaño o rachas SUPERIORES a 90 km/h DURANTE la tormenta
+     (tornado y tromba en la altura: el modelo no los señala). El CAPE no
+     entra ni en niveles ni en textos. rachaTor = racha máxima SOLO en
+     las horas con tormenta. Pata de viento: 50-74 Amarillo, 75-90
+     Naranja, >90 Rojo, >=120 Morado. Pata de granizo: el código de
+     granizo SOLO vale Amarillo; para subir necesita el aire frío en
+     altura medido EN las horas con granizo: isoterma de 0 °C a 4.500 m
+     o menos y temperatura a 500 hPa de -8 °C o menos (una puerta ->
+     Naranja; las dos -> Rojo). Morado: granizo en Rojo Y rachas >90. */
   let ne;
   if (horasTor >= 8) ne = 3;
   else if (horasTor >= 4) ne = 2;
@@ -596,12 +597,29 @@ function calcularPunto(F, d){
       if (g != null) rachaTor = (rachaTor === null) ? g : Math.max(rachaTor, g);
     }
   });
-  let nSev = 0;
-  if ((hayGran && rachaTor !== null && rachaTor > 90) || (rachaTor !== null && rachaTor >= 120)) nSev = 4;
-  else if (hayGran || (rachaTor !== null && rachaTor > 90)) nSev = 3;
-  else if (rachaTor !== null && rachaTor >= 75) nSev = 2;
-  else if (rachaTor !== null && rachaTor >= 50) nSev = 1;
-  out.severo = { n: nSev, hayGran, rachaTor };
+  const fls = H.freezing_level_height ? seg(H.freezing_level_height, d) : null;
+  const t5s = H.temperature_500hPa ? seg(H.temperature_500hPa, d) : null;
+  let granPuertas = 0, flMin = null;
+  codes.forEach((c, i) => {
+    if (c === 96 || c === 99){
+      const fl = fls ? fls[i] : null, t5 = t5s ? t5s[i] : null;
+      if (fl != null) flMin = (flMin === null) ? fl : Math.min(flMin, fl);
+      const n = ((fl != null && fl <= 4500) ? 1 : 0) + ((t5 != null && t5 <= -8) ? 1 : 0);
+      if (n > granPuertas) granPuertas = n;
+    }
+  });
+  let nGran = 0;
+  if (hayGran) nGran = granPuertas >= 2 ? 3 : granPuertas === 1 ? 2 : 1;
+  let nViento = 0;
+  if (rachaTor !== null){
+    if (rachaTor >= 120) nViento = 4;
+    else if (rachaTor > 90) nViento = 3;
+    else if (rachaTor >= 75) nViento = 2;
+    else if (rachaTor >= 50) nViento = 1;
+  }
+  let nSev = Math.max(nGran, nViento);
+  if (nGran >= 3 && rachaTor !== null && rachaTor > 90) nSev = 4;
+  out.severo = { n: nSev, hayGran, rachaTor, granPuertas, flMin };
   return out;
 }
 
@@ -728,9 +746,9 @@ function armarProvincia(idx, d, pts, M, ciclones){
 
   out.electricas = provZonas(idx, pts, "electricas", r => f0(r.horasTor) + " h con tormenta", "Tormentas por zonas — ", (r, a) => r.horasTor > a.horasTor);
 
-    /* Tiempo severo por zonas (criterios v2): granizo y rachas durante
-     la tormenta; sin CAPE en el texto. */
-  out.severo = provZonas(idx, pts, "severo", r => r.hayGran ? "granizo en el modelo" + (r.rachaTor != null ? " · rachas en tormenta " + f0(r.rachaTor) + " km/h" : "") : (r.rachaTor != null ? "rachas en tormenta hasta " + f0(r.rachaTor) + " km/h" : "tormentas sin rachas fuertes"), "Severidad por zonas — ", (r, a) => (r.rachaTor ?? -1) > (a.rachaTor ?? -1));
+    /* Tiempo severo por zonas (criterios v3): granizo con su
+     isoterma de 0 °C y rachas durante la tormenta; sin CAPE. */
+  out.severo = provZonas(idx, pts, "severo", r => r.hayGran ? "granizo en el modelo" + (r.flMin != null ? " · isoterma 0 °C a " + f0(r.flMin) + " m" : "") + (r.rachaTor != null ? " · rachas en tormenta " + f0(r.rachaTor) + " km/h" : "") : (r.rachaTor != null ? "rachas en tormenta hasta " + f0(r.rachaTor) + " km/h" : "tormentas sin rachas fuertes"), "Severidad por zonas — ", (r, a) => (r.rachaTor ?? -1) > (a.rachaTor ?? -1));
   if (out.electricas.n === 0 && !Object.values(out.electricas.zonas || {}).some(r => r.horasTor > 0)){
     const probMax = Math.max(0, ...Object.values(out.electricas.zonas || {}).map(r => r.prob || 0));
     if (out.electricas.zonas) out.electricas.det = "Sin horas de tormenta según el modelo · prob. máx. " + f0(probMax) + " %";
@@ -842,10 +860,10 @@ const RECO = {
     3: "Tormentas fuertes y prolongadas durante buena parte del día. Recomendación: permanezca bajo techo mientras dure la tormenta y evite campos abiertos, el mar y los objetos metálicos."
   },
   severo: {
-    1: "Tormentas fuertes, con rachas de 50 a 74 km/h durante la tormenta, por debajo del nivel severo. Recomendación: si escucha truenos, busque refugio en un lugar cerrado y asegure los objetos sueltos.",
-    2: "Tormentas muy fuertes, con rachas de 75 a 90 km/h durante la tormenta, cerca del nivel severo. Recomendación: permanezca bajo techo mientras dure la tormenta y asegure los objetos del exterior.",
-    3: "Tormenta local severa según el modelo: granizo de cualquier tamaño o rachas superiores a 90 km/h durante la tormenta. Recomendación: permanezca en un lugar seguro, proteja vehículos y cultivos del granizo y aléjese de las ventanas.",
-    4: "Tormenta local severa con varias señales a la vez: granizo y rachas superiores a 90 km/h, o rachas extremas durante la tormenta. Recomendación: permanezca en un lugar seguro hasta que pase la tormenta; hay riesgo de daños por el granizo y el viento."
+    1: "Tormentas fuertes, por debajo del nivel severo: rachas de hasta 74 km/h durante la tormenta o granizo pequeño posible. Recomendación: si escucha truenos, busque refugio en un lugar cerrado y asegure los objetos sueltos.",
+    2: "Tormentas muy fuertes: rachas de 75 a 90 km/h durante la tormenta, o granizo con parte del aire frío necesario en altura. Recomendación: permanezca bajo techo mientras dure la tormenta y asegure los objetos del exterior.",
+    3: "Tormenta local severa según el modelo: granizo de cualquier tamaño con el aire frío en altura necesario (isoterma de 0 °C baja y frío a 500 hPa), o rachas superiores a 90 km/h durante la tormenta. Recomendación: permanezca en un lugar seguro, proteja vehículos y cultivos del granizo y aléjese de las ventanas.",
+    4: "Tormenta local severa con varias señales a la vez: granizo con aire frío en altura y rachas superiores a 90 km/h, o rachas extremas durante la tormenta. Recomendación: permanezca en un lugar seguro hasta que pase la tormenta; hay riesgo de daños por el granizo y el viento."
   },
   ciclon: {
     1: "Un ciclón tropical se mueve por la región, aún lejos de la provincia. Recomendación: manténgase informado; todavía no requiere medidas.",
@@ -958,7 +976,7 @@ const DIAS_TXT = ["Hoy","Mañana","Pasado mañana"];
 async function cargar(){
   const lats = MUNICIPIOS.map(m => m[2]).join(","), lons = MUNICIPIOS.map(m => m[3]).join(",");
   const urlF = "https://api.open-meteo.com/v1/forecast?latitude=" + lats + "&longitude=" + lons +
-    "&hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,visibility&timezone=America%2FHavana&forecast_days=3";
+    "&hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,visibility,freezing_level_height,temperature_500hPa&timezone=America%2FHavana&forecast_days=3";
   const mlats = MARPTS.map(q => q[0]).join(","), mlons = MARPTS.map(q => q[1]).join(",");
   const urlM = "https://marine-api.open-meteo.com/v1/marine?latitude=" + mlats + "&longitude=" + mlons +
     "&hourly=wave_height,wave_period&timezone=America%2FHavana&forecast_days=3";
