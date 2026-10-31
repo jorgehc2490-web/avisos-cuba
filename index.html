@@ -556,8 +556,8 @@ function calcularPunto(F, d){
 
   /* Tormentas eléctricas — cobertura según el modelo. La probabilidad por
      sí sola NO sube el nivel (ajuste aprobado por Jorge). El índice interno
-     de inestabilidad (CAPE/rachas) se calcula aquí y alimenta el fenómeno
-     «Tiempo severo». */
+     de inestabilidad (CAPE/rachas) se calcula aquí; «Tiempo severo» usa
+     su propia regla: granizo y rachas durante la tormenta (criterios v2). */
   const cape = mx(seg(H.cape, d)), gustT = mx(seg(H.wind_gusts_10m, d));
   const codes = seg(H.weather_code, d);
   const hayTor = codes.some(c => c === 95 || c === 96 || c === 99);
@@ -572,27 +572,36 @@ function calcularPunto(F, d){
   }
   const horasTor = codes.filter(c => c === 95 || c === 96 || c === 99).length;
   const prob = mx(seg(H.precipitation_probability, d)) || 0;
-  /* «Tiempo severo» (pedido y enmienda de Jorge, 30-oct-2026): la severidad
-     sale de eléctricas y vive en su propio fenómeno. Eléctricas queda SOLO
-     por cobertura (horas con tormenta), sin granizo y sin el Morado por
-     índice: su máximo es Rojo. El índice interno (tls) pasa a alimentar
-     «Tiempo severo» junto al granizo:
-     Amarillo = tormenta + tls ≥2 · Naranja = tormenta + tls ≥3 ·
-     Rojo = granizo en el modelo · Morado = granizo + tls ≥3 o
-     tormenta con rachas ≥121 km/h (tls 4). */
+    /* «Tiempo severo» con el concepto cubano de tormenta local severa
+     (corrección de Jorge, 30-oct-2026; criterios v2): una tormenta es
+     severa si produce granizo de cualquier tamaño o rachas SUPERIORES
+     a 90 km/h DURANTE la tormenta (el tornado y la tromba en la altura
+     también son severos, pero ningún dato del modelo los señala). La
+     severidad salió de eléctricas, que queda SOLO por cobertura. El
+     CAPE no entra ni en los niveles ni en los textos («en Cuba no
+     funciona»). rachaTor = racha máxima SOLO en las horas con tormenta.
+     Amarillo = rachaTor 50-74 · Naranja = 75-90 · Rojo = granizo o
+     rachaTor >90 · Morado = granizo Y rachaTor >90, o rachaTor >=120. */
   let ne;
   if (horasTor >= 8) ne = 3;
   else if (horasTor >= 4) ne = 2;
   else if (horasTor >= 1) ne = 1;
   else ne = 0;
   out.electricas = { n: ne, horasTor, prob, hayGran };
+  const gustosTor = seg(H.wind_gusts_10m, d);
+  let rachaTor = null;
+  codes.forEach((c, i) => {
+    if (c === 95 || c === 96 || c === 99){
+      const g = gustosTor[i];
+      if (g != null) rachaTor = (rachaTor === null) ? g : Math.max(rachaTor, g);
+    }
+  });
   let nSev = 0;
-  if (hayGran && tls !== null && tls >= 3) nSev = 4;
-  else if (hayTor && tls === 4) nSev = 4;
-  else if (hayGran) nSev = 3;
-  else if (hayTor && tls !== null && tls >= 3) nSev = 2;
-  else if (hayTor && tls !== null && tls >= 2) nSev = 1;
-  out.severo = { n: nSev, tls, hayGran, cape, gustT };
+  if ((hayGran && rachaTor !== null && rachaTor > 90) || (rachaTor !== null && rachaTor >= 120)) nSev = 4;
+  else if (hayGran || (rachaTor !== null && rachaTor > 90)) nSev = 3;
+  else if (rachaTor !== null && rachaTor >= 75) nSev = 2;
+  else if (rachaTor !== null && rachaTor >= 50) nSev = 1;
+  out.severo = { n: nSev, hayGran, rachaTor };
   return out;
 }
 
@@ -719,9 +728,9 @@ function armarProvincia(idx, d, pts, M, ciclones){
 
   out.electricas = provZonas(idx, pts, "electricas", r => f0(r.horasTor) + " h con tormenta", "Tormentas por zonas — ", (r, a) => r.horasTor > a.horasTor);
 
-  /* Tiempo severo por zonas: la severidad de las tormentas (granizo,
-     energía y rachas), separada de la cobertura de eléctricas. */
-  out.severo = provZonas(idx, pts, "severo", r => r.hayGran ? "granizo en el modelo" : "CAPE " + f0(r.cape) + " J/kg · rachas " + f0(r.gustT) + " km/h", "Severidad por zonas — ", (r, a) => (r.tls ?? -1) > (a.tls ?? -1));
+    /* Tiempo severo por zonas (criterios v2): granizo y rachas durante
+     la tormenta; sin CAPE en el texto. */
+  out.severo = provZonas(idx, pts, "severo", r => r.hayGran ? "granizo en el modelo" + (r.rachaTor != null ? " · rachas en tormenta " + f0(r.rachaTor) + " km/h" : "") : (r.rachaTor != null ? "rachas en tormenta hasta " + f0(r.rachaTor) + " km/h" : "tormentas sin rachas fuertes"), "Severidad por zonas — ", (r, a) => (r.rachaTor ?? -1) > (a.rachaTor ?? -1));
   if (out.electricas.n === 0 && !Object.values(out.electricas.zonas || {}).some(r => r.horasTor > 0)){
     const probMax = Math.max(0, ...Object.values(out.electricas.zonas || {}).map(r => r.prob || 0));
     if (out.electricas.zonas) out.electricas.det = "Sin horas de tormenta según el modelo · prob. máx. " + f0(probMax) + " %";
@@ -833,10 +842,10 @@ const RECO = {
     3: "Tormentas fuertes y prolongadas durante buena parte del día. Recomendación: permanezca bajo techo mientras dure la tormenta y evite campos abiertos, el mar y los objetos metálicos."
   },
   severo: {
-    1: "Ambiente cargado: tormentas fuertes aisladas posibles, con granizo pequeño no descartable. Recomendación: si escucha truenos, busque refugio en un lugar cerrado.",
-    2: "Tormentas severas probables de forma aislada, con granizo y rachas dañinas posibles. Recomendación: permanezca bajo techo durante la tormenta y asegure los objetos sueltos del exterior.",
-    3: "Tiempo severo probable: el modelo indica granizo, con rachas fuertes posibles. Recomendación: permanezca en un lugar seguro, proteja vehículos y cultivos del granizo y aléjese de las ventanas.",
-    4: "Tiempo severo con alta confianza: granizo en un ambiente muy inestable o rachas extremas. Recomendación: permanezca en un lugar seguro hasta que pase la tormenta; hay riesgo de daños por granizo y por el viento."
+    1: "Tormentas fuertes, con rachas de 50 a 74 km/h durante la tormenta, por debajo del nivel severo. Recomendación: si escucha truenos, busque refugio en un lugar cerrado y asegure los objetos sueltos.",
+    2: "Tormentas muy fuertes, con rachas de 75 a 90 km/h durante la tormenta, cerca del nivel severo. Recomendación: permanezca bajo techo mientras dure la tormenta y asegure los objetos del exterior.",
+    3: "Tormenta local severa según el modelo: granizo de cualquier tamaño o rachas superiores a 90 km/h durante la tormenta. Recomendación: permanezca en un lugar seguro, proteja vehículos y cultivos del granizo y aléjese de las ventanas.",
+    4: "Tormenta local severa con varias señales a la vez: granizo y rachas superiores a 90 km/h, o rachas extremas durante la tormenta. Recomendación: permanezca en un lugar seguro hasta que pase la tormenta; hay riesgo de daños por el granizo y el viento."
   },
   ciclon: {
     1: "Un ciclón tropical se mueve por la región, aún lejos de la provincia. Recomendación: manténgase informado; todavía no requiere medidas.",
