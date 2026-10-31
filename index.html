@@ -749,6 +749,10 @@ function armarProvincia(idx, d, pts, M, ciclones){
     /* Tiempo severo por zonas (criterios v3): granizo con su
      isoterma de 0 °C y rachas durante la tormenta; sin CAPE. */
   out.severo = provZonas(idx, pts, "severo", r => r.hayGran ? "granizo en el modelo" + (r.flMin != null ? " · isoterma 0 °C a " + f0(r.flMin) + " m" : "") + (r.rachaTor != null ? " · rachas en tormenta " + f0(r.rachaTor) + " km/h" : "") : (r.rachaTor != null ? "rachas en tormenta hasta " + f0(r.rachaTor) + " km/h" : "tormentas sin rachas fuertes"), "Severidad por zonas — ", (r, a) => (r.rachaTor ?? -1) > (a.rachaTor ?? -1));
+  /* Sin descripción técnica por zonas en este fenómeno (decisión de Jorge,
+     30-oct-2026): en la lista y la ficha se queda el nivel, su significado
+     y la recomendación; el detalle de granizo/isoterma/rachas no se muestra. */
+  if (out.severo) out.severo.det = "";
   if (out.electricas.n === 0 && !Object.values(out.electricas.zonas || {}).some(r => r.horasTor > 0)){
     const probMax = Math.max(0, ...Object.values(out.electricas.zonas || {}).map(r => r.prob || 0));
     if (out.electricas.zonas) out.electricas.det = "Sin horas de tormenta según el modelo · prob. máx. " + f0(probMax) + " %";
