@@ -399,7 +399,7 @@
     <summary>Ver explicación breve</summary>
     <div class="cuerpo">
       <p>Cada provincia recibe un nivel por peligro (Verde, Amarillo, Naranja, Rojo, Morado) según la tabla de umbrales de LABMET, construida a través de estudios e investigaciones sobre este tema.</p>
-      <p>Los datos salen del modelo numérico GFS a través de Open-Meteo (temperatura, sensación térmica, lluvia, viento, rachas, CAPE y visibilidad), del modelo de oleaje de Open-Meteo (altura y período de ola en puntos costeros) y de los ciclones activos del Centro Nacional de Huracanes (NHC/NOAA). Como no hay un radar público en vivo para Cuba, las tormentas eléctricas se estiman a partir del modelo (horas con tormenta), no con reflectividad real.</p>
+      <p>Los datos salen del modelo numérico GFS a través de Open-Meteo (temperatura, sensación térmica, lluvia, viento, rachas, CAPE y visibilidad), del modelo de oleaje de Open-Meteo (altura y período de ola en puntos costeros) y de los ciclones activos del Centro Nacional de Huracanes (NHC/NOAA). Además, la lluvia intensa, el viento fuerte, las tormentas eléctricas y el tiempo severo se contrastan con el modelo europeo (ECMWF): cuando los dos modelos no coinciden en el nivel de un municipio, el aviso muestra el nivel más alto de los dos y la edición se marca como «escenario incierto». Como no hay un radar público en vivo para Cuba, las tormentas eléctricas se estiman a partir del modelo (horas con tormenta), no con reflectividad real.</p>
       <p>El frío extremo se clasifica por la sensación térmica mínima del día, con los valores y la terminología de las madrugadas invernales de Cuba: <b>Amarillo</b> (de 10 a 13 °C, madrugada fría), <b>Naranja</b> (de 7 a 10 °C, madrugada muy fría), <b>Rojo</b> (de 4 a 7 °C, madrugada notablemente fría) y <b>Morado</b> (menos de 4 °C, frío excepcional, con posible helada en las zonas bajas del interior). Solo se alcanza con los frentes fríos más fuertes, sobre todo en el interior de occidente y centro.</p>
       <p>Todos los peligros de tierra (calor, frío, lluvia, viento, tormentas eléctricas y niebla) se calculan <b>por zonas</b>, como en el panorama gráfico de peligros del Servicio Meteorológico Nacional de EE. UU.: el modelo se muestrea en los 168 municipios, agrupados en costa norte, interior y costa sur de cada provincia; cada zona se clasifica por su punto más desfavorable y el nivel de la provincia es el de su peor zona. Al elegir un peligro de tierra en el mapa, cada municipio se pinta con el color de su propio nivel. El estado del mar y la resaca se calculan por costa, y los ciclones tropicales se clasifican en cada municipio según su distancia al centro del ciclón.</p>
       <p>La niebla es el caso más claro de peligro por zonas: es un fenómeno del interior, de valles y llanuras, y en las costas suele ni formarse. Por eso su nivel provincial no es el de la peor zona, sino el de la zona <b>interior</b>, y su ficha desglosa las tres zonas. Se clasifica por la visibilidad mínima de la madrugada y la primera mañana (de 3 a 10 a. m., que es cuando se forma en Cuba; en el día de hoy solo cuentan las horas de esa ventana que todavía no han pasado) y solo en las horas sin lluvia (el modelo también baja la visibilidad cuando llueve, y eso no es niebla): <b>Amarillo</b> (de 3 a 5 km), <b>Naranja</b> (de 1 a 3 km), <b>Rojo</b> (menos de 1 km) y <b>Morado</b> (menos de 0,4 km, niebla densa).</p>
@@ -1095,7 +1095,7 @@ function edSelloTexto(paq){
 }
 function pintarSelloEdicion(paq){
   const el = document.getElementById("edicionSello");
-  if (el) el.textContent = " · " + edSelloTexto(paq);
+  if (el) el.textContent = " · " + edSelloTexto(paq) + (paq.escInc ? " · Escenario incierto: los modelos no coinciden" : "");
 }
 async function edFetchJSON(url, esperas){
   let lastErr = null;
@@ -1126,29 +1126,56 @@ function edParseNHC(j){
 /* Descarga fresca de las piezas del motor. Devuelve {F, M, N} o null si
    el pronóstico (la pieza imprescindible) falla tras los reintentos
    escalonados; el mar y el parte de ciclones son tolerantes (null). */
-async function edTraerFresco(urlF, urlM, urlN){
+async function edTraerFresco(urlF, urlM, urlN, urlE){
   edErrorFresco = null;
   const pF = edFetchJSON(urlF, [0, 6000, 20000]);
   const pM = new Promise(r => setTimeout(r, 1200)).then(() => edFetchJSON(urlM, [0, 9000])).catch(() => null);
   const pN = new Promise(r => setTimeout(r, 600)).then(() => fetch(urlN)).then(r => r.json()).then(edParseNHC).catch(() => null);
+  const pE = urlE ? new Promise(r => setTimeout(r, 300)).then(() => edFetchJSON(urlE, [0, 9000])).catch(() => null) : Promise.resolve(null);
   let F;
   try { F = await pF; } catch(e){ edErrorFresco = e; return null; }
-  const M = await pM, N = await pN;
-  return { F, M, N };
+  const M = await pM, N = await pN, E = await pE;
+  return { F, M, N, X: E ? edComputarX(E) : null };
 }
-async function edTraerParcial(urlM, urlN, falta){
+async function edTraerParcial(urlM, urlN, falta, urlE){
   const out = {};
   const ps = [];
   if (falta.M) ps.push(edFetchJSON(urlM, [0, 9000]).then(j => { out.M = j; }).catch(() => {}));
   if (falta.N) ps.push(fetch(urlN).then(r => r.json()).then(j => { out.N = edParseNHC(j); }).catch(() => {}));
+  if (falta.X && urlE) ps.push(edFetchJSON(urlE, [0, 9000]).then(j => { out.X = edComputarX(j); }).catch(() => {}));
   await Promise.all(ps);
   return out;
+}
+/* Capa de comparación de modelos (doble modelo, 23-nov-2026, decisión
+   de Jorge): del ECMWF (ecmwf_ifs025) solo se guardan los resultados por
+   punto de los cuatro fenómenos de seguridad — lluvia, viento,
+   eléctricas y severo — calculados con la MISMA función del modelo
+   principal. Se guardan los resultados y no la respuesta cruda para que
+   la caché de la edición no crezca. Ojo: el ECMWF de Open-Meteo no trae
+   freezing_level_height, así que su pata de granizo solo puede usar la
+   puerta de la temperatura a 500 hPa. Si la descarga del ECMWF falla, X
+   queda nulo y el motor trabaja como siempre, con el modelo principal. */
+const DOBLE_CLAVES = ["lluvia", "viento", "electricas", "severo"];
+function edComputarX(E){
+  const arrE = Array.isArray(E) ? E : [E];
+  const X = {};
+  for (let d = 0; d < 3; d++){
+    X[d] = arrE.map((loc) => {
+      if (!loc || !loc.hourly) return null;
+      const r = calcularPunto(loc, d);
+      const o = {};
+      for (const k of DOBLE_CLAVES) o[k] = r[k];
+      return o;
+    });
+  }
+  return X;
 }
 /* Cómputo completo del motor desde datos crudos (sin tocar el DOM): es
    el mismo cálculo que hacía cargar() en línea. */
 function edComputar(f){
   const arrF = Array.isArray(f.F) ? f.F : [f.F];
   const pd = {}, rs = {};
+  const diverg = { lluvia: false, viento: false, electricas: false, severo: false };
   for (let d = 0; d < 3; d++){
     pd[d] = arrF.map((loc, mi) => {
       if (!loc || !loc.hourly) return null;
@@ -1160,12 +1187,25 @@ function edComputar(f){
       r.ciclon = ciclonPunto(MUNICIPIOS[mi][2], MUNICIPIOS[mi][3], f.N);
       return r;
     });
+    if (f.X && f.X[d]){
+      for (let mi = 0; mi < pd[d].length; mi++){
+        const r = pd[d][mi], xe = f.X[d][mi];
+        if (!r || !xe) continue;
+        for (const k of DOBLE_CLAVES){
+          const a = r[k], b = xe[k];
+          if (!b || b.n == null || !a || a.n == null) continue;
+          if (a.n !== b.n) diverg[k] = true;
+          if (b.n > a.n) r[k] = b;
+        }
+      }
+    }
     rs[d] = PROVS.map((p, i) => {
       const res = armarProvincia(i, d, pd[d], f.M, f.N);
       return { res, max: nivelMaximo(res) };
     });
   }
-  return { puntosDia: pd, resultados: rs, niveles: edMatriz(rs) };
+  const escInc = DOBLE_CLAVES.some(k => diverg[k]) ? diverg : null;
+  return { puntosDia: pd, resultados: rs, niveles: edMatriz(rs), escInc };
 }
 /* Resuelve el paquete de la edición vigente: {paq, comp} o null si no
    hay datos guardados ni frescos. paq = {F, M, N, niveles, estado,
@@ -1177,21 +1217,23 @@ async function edResolver(ed, traer, computar, parcial){
     const f = await traer();
     if (!f) return null;
     const comp = computar(f);
-    paq = { F: f.F, M: f.M, N: f.N, niveles: comp.niveles, estado: "edicion", ciclo: ed.ciclo, t: Date.now() };
+    paq = { F: f.F, M: f.M, N: f.N, X: f.X || null, escInc: comp.escInc || null, niveles: comp.niveles, estado: "edicion", ciclo: ed.ciclo, t: Date.now() };
     reg.base = paq; reg.check = paq.t;
     edGuardar(ed.clave, reg); edPurgar(ed.clave);
     return { paq, comp };
   }
   let comp = null;
-  const falta = { M: paq.M == null, N: paq.N == null };
+  const falta = { M: paq.M == null, N: paq.N == null, X: paq.X == null };
   if (falta.M || falta.N){
     const parc = (await parcial(falta)) || {};
     let sucio = false;
     if (falta.M && parc.M != null){ paq.M = parc.M; sucio = true; }
     if (falta.N && parc.N != null){ paq.N = parc.N; sucio = true; }
+    if (falta.X && parc.X != null){ paq.X = parc.X; sucio = true; }
     if (sucio){
       comp = computar(paq);
       paq.niveles = comp.niveles;
+      paq.escInc = comp.escInc || null;
       if (reg.vigente) reg.vigente = paq; else reg.base = paq;
       edGuardar(ed.clave, reg);
     }
@@ -1203,7 +1245,7 @@ async function edResolver(ed, traer, computar, parcial){
     if (f){
       const compF = computar(f);
       if (edCambioImportante(paq.niveles, compF.niveles)){
-        const nuevo = { F: f.F, M: f.M, N: f.N, niveles: compF.niveles, estado: "actualizacion", ciclo: ed.ciclo, t: Date.now() };
+        const nuevo = { F: f.F, M: f.M, N: f.N, X: f.X || null, escInc: compF.escInc || null, niveles: compF.niveles, estado: "actualizacion", ciclo: ed.ciclo, t: Date.now() };
         reg.vigente = nuevo; edGuardar(ed.clave, reg);
         return { paq: nuevo, comp: compF };
       }
@@ -1217,6 +1259,7 @@ async function cargar(){
   const lats = MUNICIPIOS.map(m => m[2]).join(","), lons = MUNICIPIOS.map(m => m[3]).join(",");
   const urlF = "https://api.open-meteo.com/v1/forecast?latitude=" + lats + "&longitude=" + lons +
     "&hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,visibility,freezing_level_height,temperature_500hPa&timezone=America%2FHavana&forecast_days=3";
+  const urlE = urlF + "&models=ecmwf_ifs025";
   const mlats = MARPTS.map(q => q[0]).join(","), mlons = MARPTS.map(q => q[1]).join(",");
   const urlM = "https://marine-api.open-meteo.com/v1/marine?latitude=" + mlats + "&longitude=" + mlons +
     "&hourly=wave_height,wave_period&timezone=America%2FHavana&forecast_days=3";
@@ -1225,9 +1268,9 @@ async function cargar(){
 
   const ed = edicionPara(Date.now());
   const resEd = await edResolver(ed,
-    () => edTraerFresco(urlF, urlM, urlN),
+    () => edTraerFresco(urlF, urlM, urlN, urlE),
     (f) => edComputar(f),
-    (falta) => edTraerParcial(urlM, urlN, falta));
+    (falta) => edTraerParcial(urlM, urlN, falta, urlE));
   if (!resEd){
     document.getElementById("cargando").classList.add("oculto");
     const er = document.getElementById("error");
